@@ -1,0 +1,246 @@
+import React from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Alert,
+  ScrollView,
+  StyleSheet,
+} from 'react-native';
+import { useAuth } from '../AuthContext';
+import { LinearGradient } from 'expo-linear-gradient';
+
+export default function HomeScreen() {
+  const { currentUser, logout } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      const errorMessage = typeof error === 'object' && error !== null && 'message' in error
+        ? String((error as { message?: unknown }).message)
+        : String(error);
+      Alert.alert('Error', errorMessage);
+    }
+  };
+
+  const quickActions = [
+    { title: 'Order Now', emoji: '🍕', color: '#f97316' },
+    { title: 'Favorites', emoji: '❤️', color: '#ec4899' },
+    { title: 'Track Order', emoji: '📍', color: '#3b82f6' },
+    { title: 'Offers', emoji: '🎁', color: '#10b981' },
+  ];
+
+  return (
+    <LinearGradient
+      colors={['#fb923c', '#ef4444', '#ec4899']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.gradient}
+    >
+      <ScrollView contentContainerStyle={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.logoCircle}>
+            <Text style={{ fontSize: 32 }}>🍽️</Text>
+          </View>
+          <Text style={styles.appTitle}>Welcome to FoodieGo</Text>
+          <Text style={styles.subtitle}>Deliciousness at your fingertips</Text>
+        </View>
+
+        {/* User Info */}
+        <View style={styles.infoCard}>
+          <Text style={styles.label}>Logged in as:</Text>
+          <Text style={styles.email}>{currentUser?.email}</Text>
+        </View>
+
+        {/* Quick Actions */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>What would you like to do?</Text>
+          <View style={styles.actions}>
+            {quickActions.map((item, idx) => (
+              <TouchableOpacity
+                key={idx}
+                style={[styles.actionCard, { backgroundColor: item.color }]}
+              >
+                <Text style={styles.actionEmoji}>{item.emoji}</Text>
+                <Text style={styles.actionText}>{item.title}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* Featured Dishes */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>🔥 Trending Now</Text>
+
+          {[
+            { icon: '🍔', title: 'Premium Burgers', price: '$12.99', color: '#f97316' },
+            { icon: '🍕', title: 'Wood-Fired Pizza', price: '$15.99', color: '#ef4444' },
+            { icon: '🍜', title: 'Fresh Ramen', price: '$9.99', color: '#facc15' },
+          ].map((item, i) => (
+            <View key={i} style={styles.card}>
+              <View style={styles.cardRow}>
+                <Text style={styles.cardEmoji}>{item.icon}</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.cardTitle}>{item.title}</Text>
+                  <Text style={styles.cardSubtitle}>Starting from {item.price}</Text>
+                </View>
+                <TouchableOpacity style={[styles.orderBtn, { backgroundColor: item.color }]}>
+                  <Text style={styles.orderText}>Order</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))}
+        </View>
+
+        {/* Logout */}
+        <View style={styles.footer}>
+          <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+            <Text style={styles.logoutText}>👋 Sign Out</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </LinearGradient>
+  );
+}
+
+const styles = StyleSheet.create({
+  gradient: {
+    flex: 1,
+  },
+  container: {
+    padding: 24,
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  logoCircle: {
+    width: 96,
+    height: 96,
+    backgroundColor: 'white',
+    borderRadius: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  appTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: 4,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#ffe4c4',
+  },
+  infoCard: {
+    backgroundColor: 'white',
+    borderRadius: 24,
+    padding: 20,
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  label: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginBottom: 4,
+  },
+  email: {
+    fontSize: 18,
+    color: '#1f2937',
+    fontWeight: 'bold',
+  },
+  section: {
+    marginBottom: 32,
+  },
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: 16,
+  },
+  actions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  actionCard: {
+    width: '48%',
+    borderRadius: 20,
+    padding: 24,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+  },
+  actionEmoji: {
+    fontSize: 32,
+    marginBottom: 8,
+  },
+  actionText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 18,
+  },
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 4 },
+  },
+  cardRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  cardEmoji: {
+    fontSize: 32,
+    marginRight: 16,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1f2937',
+  },
+  cardSubtitle: {
+    color: '#6b7280',
+  },
+  orderBtn: {
+    borderRadius: 999,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  orderText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  footer: {
+    marginBottom: 48,
+  },
+  logoutBtn: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderRadius: 20,
+    paddingVertical: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+  },
+  logoutText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 18,
+    textAlign: 'center',
+  },
+});
