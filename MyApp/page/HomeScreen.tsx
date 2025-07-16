@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -6,16 +6,33 @@ import {
   Alert,
   ScrollView,
   StyleSheet,
+  Image,
 } from 'react-native';
 import { useAuth } from '../AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useNavigation } from '@react-navigation/native';
+import type { StackNavigationProp } from '@react-navigation/stack';
+
+type RootStackParamList = {
+  Home: undefined;
+  Login: undefined;
+  ProfileData: undefined;
+  // Add other screens here as needed
+};
 
 export default function HomeScreen() {
   const { currentUser, logout } = useAuth();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const [menuVisible, setMenuVisible] = useState(false);
+
+  // Get displayName and photoURL (emoji) from Firebase Auth user
+  const displayName = currentUser?.displayName || 'Guest';
+  const profileEmoji = currentUser?.photoURL || '😎';
 
   const handleLogout = async () => {
     try {
       await logout();
+      navigation.navigate('Login'); // Redirect to login page after logout
     } catch (error) {
       const errorMessage = typeof error === 'object' && error !== null && 'message' in error
         ? String((error as { message?: unknown }).message)
@@ -42,10 +59,41 @@ export default function HomeScreen() {
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.logoCircle}>
-            <Text style={{ fontSize: 32 }}>🍽️</Text>
+            {/* Show emoji instead of logo image */}
+            <Text style={styles.profileEmoji}>{profileEmoji}</Text>
           </View>
-          <Text style={styles.appTitle}>Welcome to FoodieGo</Text>
-          <Text style={styles.subtitle}>Deliciousness at your fingertips</Text>
+          <Text style={styles.appTitle}>Hi, {displayName}!</Text>
+          <Text style={styles.subtitle}>Never hungry around the campus</Text>
+          {/* 3 dots menu */}
+          <TouchableOpacity
+            style={styles.menuIcon}
+            onPress={() => setMenuVisible(!menuVisible)}
+            activeOpacity={0.7}
+          >
+            <Text style={{ fontSize: 28, color: '#fff' }}>⋮</Text>
+          </TouchableOpacity>
+          {menuVisible && (
+            <View style={styles.dropdownMenu}>
+              <TouchableOpacity
+                style={styles.dropdownItem}
+                onPress={() => {
+                  setMenuVisible(false);
+                  navigation.navigate('ProfileData');
+                }}
+              >
+                <Text style={styles.dropdownText}>Edit Profile</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.dropdownItem}
+                onPress={async () => {
+                  setMenuVisible(false);
+                  await handleLogout();
+                }}
+              >
+                <Text style={styles.dropdownText}>Logout</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
 
         {/* User Info */}
@@ -242,5 +290,37 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 18,
     textAlign: 'center',
+  },
+  profileEmoji: {
+    fontSize: 56,
+    textAlign: 'center',
+  },
+  menuIcon: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    padding: 12,
+    zIndex: 10,
+  },
+  dropdownMenu: {
+    position: 'absolute',
+    top: 44,
+    right: 0,
+    backgroundColor: 'white',
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    zIndex: 20,
+  },
+  dropdownItem: {
+    paddingVertical: 10,
+  },
+  dropdownText: {
+    fontSize: 16,
+    color: '#1f2937',
   },
 });

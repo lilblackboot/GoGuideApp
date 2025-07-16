@@ -10,6 +10,15 @@ import {
   Image,
 } from 'react-native';
 import { useAuth } from '../AuthContext';
+import { useNavigation } from '@react-navigation/native';
+import type { StackNavigationProp } from '@react-navigation/stack';
+
+type RootStackParamList = {
+  LoginScreen: undefined;
+  ProfileData: undefined;
+  Home: undefined;
+  // add other screens here if needed
+};
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -17,6 +26,10 @@ export default function LoginScreen() {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const { login, signup } = useAuth();
+
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList, 'LoginScreen'>>();
+ // const navigation = useNavigation();
+
 
   const handleSubmit = async () => {
     if (!email || !password) {
@@ -34,8 +47,10 @@ export default function LoginScreen() {
     try {
       if (isLogin) {
         await login(email, password);
+        navigation.navigate('Home')
       } else {
         await signup(email, password);
+        navigation.navigate('ProfileData');
       }
     } catch (error) {
       const errorMessage = typeof error === 'object' && error !== null && 'message' in error
