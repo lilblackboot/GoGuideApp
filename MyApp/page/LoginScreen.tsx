@@ -7,6 +7,7 @@ import {
   Alert,
   ScrollView,
   StyleSheet,
+  Image,
 } from 'react-native';
 import { useAuth } from '../AuthContext';
 
@@ -20,6 +21,12 @@ export default function LoginScreen() {
   const handleSubmit = async () => {
     if (!email || !password) {
       Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    // Only allow @paruluniversity.ac.in emails for signup
+    if (!isLogin && !/^[A-Za-z0-9._%+-]+@paruluniversity\.ac\.in$/.test(email)) {
+      Alert.alert('Can not register', 'Only use offical Parul University email addresses for signup');
       return;
     }
 
@@ -45,24 +52,30 @@ export default function LoginScreen() {
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
+          {/* Logo image for GoGuide */}
           <View style={styles.logo}>
-            <Text style={{ fontSize: 32 }}>🍕</Text>
+            <Image
+              source={require('../assets/goguide-logo.png')}
+              style={{ width: 70, height: 70, resizeMode: 'contain' }}
+              accessible
+              accessibilityLabel="GoGuide logo"
+            />
           </View>
-          <Text style={styles.title}>FoodieGo</Text>
+          <Text style={styles.title}>GoGuide</Text>
           <Text style={styles.subtitle}>
-            Delicious food delivered to your door
+            Never hungry around the campus
           </Text>
         </View>
 
         {/* Form Container */}
         <View style={styles.form}>
           <Text style={styles.formTitle}>
-            {isLogin ? 'Welcome Back!' : 'Join FoodieGo'}
+            {isLogin ? 'Welcome Back!' : 'Join GoGuide'}
           </Text>
           <Text style={styles.formSubtitle}>
             {isLogin
-              ? 'Sign in to continue ordering'
-              : 'Create account to start ordering'}
+              ? 'Sign in to continue exploxing the best food around'
+              : 'Create account and find your food'}
           </Text>
 
           {/* Email Input */}
@@ -110,7 +123,7 @@ export default function LoginScreen() {
           <TouchableOpacity onPress={() => setIsLogin(!isLogin)} style={{ paddingVertical: 12 }}>
             <Text style={styles.toggleText}>
               {isLogin
-                ? 'New to FoodieGo? Sign Up'
+                ? 'New to GoGuide? Sign Up'
                 : 'Already have an account? Sign In'}
             </Text>
           </TouchableOpacity>
