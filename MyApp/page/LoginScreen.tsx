@@ -17,6 +17,7 @@ type RootStackParamList = {
   LoginScreen: undefined;
   ProfileData: undefined;
   Home: undefined;
+  Sections: undefined;
   // add other screens here if needed
 };
 
@@ -47,7 +48,7 @@ export default function LoginScreen() {
     try {
       if (isLogin) {
         await login(email, password);
-        navigation.navigate('Home')
+        navigation.navigate('Sections')
       } else {
         await signup(email, password);
         navigation.navigate('ProfileData');

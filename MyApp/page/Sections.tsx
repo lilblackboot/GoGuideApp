@@ -1,4 +1,4 @@
-// hereimport React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,11 +13,13 @@ import {
 } from 'react-native';
 import { useAuth } from '../AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
-import EditProfile from './EditProfile'; // Import your EditProfile component
+import ProfileData from './ProfileData'; 
 const { width, height } = Dimensions.get('window');
+import { useNavigation } from '@react-navigation/native';
+import type { StackNavigationProp } from '@react-navigation/stack';
 
 // Floating particle component (reused from login)
-const FloatingParticle = ({ index }) => {
+const FloatingParticle = ({ index}) => {
   const animValue = useState(new Animated.Value(0))[0];
   const [randomProps] = useState({
     size: Math.random() * 30 + 15,
@@ -144,8 +146,11 @@ const OptionCard = ({ title, emoji, onPress, delay = 0 }) => {
 export default function HomeScreen() {
   const [profileModalVisible, setProfileModalVisible] = useState(false);
   const [editProfileVisible, setEditProfileVisible] = useState(false);
-  const { logout, user } = useAuth(); // Get user from auth context
-  const [userName, setUserName] = useState(user?.displayName || user?.email?.split('@')[0] || 'user');
+  const { currentUser, logout } = useAuth();
+   const displayName = currentUser?.displayName || 'Guest';
+  const profileEmoji = currentUser?.photoURL || '😎';
+  //const { logout, user } = useAuth(); // Get user from auth context
+  const [userName, setUserName] = useState(currentUser?.displayName || currentUser?.email?.split('@')[0] || 'user');
 
   const fadeAnim = useState(new Animated.Value(0))[0];
   const slideAnim = useState(new Animated.Value(-50))[0];
@@ -169,15 +174,21 @@ export default function HomeScreen() {
     setProfileModalVisible(false);
     logout();
   };
-
+type RootStackParamList = {
+  Home: undefined;
+  Login: undefined;
+  ProfileData: undefined;
+  // Add other screens here as needed
+};
   const handleEditProfile = () => {
     setProfileModalVisible(false);
     setEditProfileVisible(true);
   };
+   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
-  const handleOptionPress = (option) => {
+  const handleOptionPress = (option: string) => {
     console.log(`Navigate to ${option}`);
-    // Add navigation logic here
+     navigation.navigate('Home');
   };
 
   return (
@@ -204,7 +215,7 @@ export default function HomeScreen() {
           <View style={styles.headerContent}>
             <View style={styles.welcomeSection}>
               <Text style={styles.welcomeText}>hey there,</Text>
-              <Text style={styles.userNameText}>{userName} ✨</Text>
+              <Text style={styles.userNameText}>{displayName} ✨</Text>
             </View>
             
             <TouchableOpacity
@@ -212,7 +223,7 @@ export default function HomeScreen() {
               onPress={() => setProfileModalVisible(true)}
             >
               <View style={styles.profilePicContainer}>
-                <Text style={styles.profilePicEmoji}>🦄</Text>
+                <Text style={styles.profilePicEmoji}>{profileEmoji}</Text>
               </View>
             </TouchableOpacity>
           </View>
@@ -245,7 +256,7 @@ export default function HomeScreen() {
             <OptionCard
               title="find your food"
               emoji="🍕"
-              onPress={() => handleOptionPress('food')}
+              onPress={() => handleOptionPress('Home')}
               delay={600}
             />
             <OptionCard
@@ -276,7 +287,7 @@ export default function HomeScreen() {
               <View style={styles.modalProfilePic}>
                 <Text style={styles.modalProfileEmoji}>🦄</Text>
               </View>
-              <Text style={styles.modalUserName}>{userName}</Text>
+              <Text style={styles.modalUserName}>{displayName}</Text>
               <Text style={styles.modalSubtext}>living the campus life 🌟</Text>
             </View>
 
@@ -310,11 +321,11 @@ export default function HomeScreen() {
 
       {/* Edit Profile Modal - Add this import: import EditProfile from './EditProfile'; */}
       {editProfileVisible && (
-        <EditProfile
+        <ProfileData
           visible={editProfileVisible}
           onClose={() => setEditProfileVisible(false)}
-          currentUserName={userName}
-          onUpdateProfile={(newName) => setUserName(newName)}
+          currentUserName={displayName}
+          onUpdateProfile={(newName: React.SetStateAction<string>) => setUserName(newName)}
         />
       )}
     </LinearGradient>
