@@ -39,7 +39,19 @@ export default function CompleteProfileScreen() {
         photoURL: selectedEmoji,
       });
 
-      navigation.navigate('Home' as never);
+      // Determine previous route
+      const navState = navigation.getState && navigation.getState();
+      let prevRouteName = undefined;
+      if (navState && navState.routes && navState.index > 0) {
+        const prevRoute = navState.routes[navState.index - 1];
+        prevRouteName = prevRoute?.name;
+      }
+
+      if (prevRouteName === 'Login' || prevRouteName === 'Home') {
+        navigation.navigate('Sections' as never);
+      } else {
+        navigation.goBack();
+      }
     } catch (err) {
       console.error(err);
       alert('Failed to save profile');

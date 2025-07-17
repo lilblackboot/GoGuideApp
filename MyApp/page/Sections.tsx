@@ -17,9 +17,11 @@ import ProfileData from './ProfileData';
 const { width, height } = Dimensions.get('window');
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
+import { BlurView } from 'expo-blur';
 
 // Floating particle component (reused from login)
-const FloatingParticle = ({ index}) => {
+type FloatingParticleProps = { index: number };
+const FloatingParticle: React.FC<FloatingParticleProps> = ({ index }) => {
   const animValue = useState(new Animated.Value(0))[0];
   const [randomProps] = useState({
     size: Math.random() * 30 + 15,
@@ -86,7 +88,13 @@ const FloatingParticle = ({ index}) => {
 };
 
 // Main option card component
-const OptionCard = ({ title, emoji, onPress, delay = 0 }) => {
+type OptionCardProps = {
+  title: string;
+  emoji: string;
+  onPress: () => void;
+  delay?: number;
+};
+const OptionCard: React.FC<OptionCardProps> = ({ title, emoji, onPress, delay = 0 }) => {
   const scaleAnim = useState(new Animated.Value(0))[0];
   const [pressed, setPressed] = useState(false);
 
@@ -146,8 +154,9 @@ const OptionCard = ({ title, emoji, onPress, delay = 0 }) => {
 export default function HomeScreen() {
   const [profileModalVisible, setProfileModalVisible] = useState(false);
   const [editProfileVisible, setEditProfileVisible] = useState(false);
+  const [menuVisible, setMenuVisible] = useState(false);
   const { currentUser, logout } = useAuth();
-   const displayName = currentUser?.displayName || 'Guest';
+  const displayName = currentUser?.displayName || 'Guest';
   const profileEmoji = currentUser?.photoURL || '😎';
   //const { logout, user } = useAuth(); // Get user from auth context
   const [userName, setUserName] = useState(currentUser?.displayName || currentUser?.email?.split('@')[0] || 'user');
@@ -169,22 +178,24 @@ export default function HomeScreen() {
       }),
     ]).start();
   }, []);
+  type RootStackParamList = {
+    Home: undefined;
+    Login: undefined;
+    ProfileData: undefined;
+    // Add other screens here as needed
+  };
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   const handleLogout = () => {
-    setProfileModalVisible(false);
+    setMenuVisible(false);
     logout();
+    navigation.navigate('Login');
   };
-type RootStackParamList = {
-  Home: undefined;
-  Login: undefined;
-  ProfileData: undefined;
-  // Add other screens here as needed
-};
+
   const handleEditProfile = () => {
-    setProfileModalVisible(false);
-    setEditProfileVisible(true);
+    setMenuVisible(false);
+    navigation.navigate('ProfileData');
   };
-   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   const handleOptionPress = (option: string) => {
     console.log(`Navigate to ${option}`);
@@ -209,23 +220,43 @@ type RootStackParamList = {
             {
               opacity: fadeAnim,
               transform: [{ translateY: slideAnim }],
+              alignItems: 'center',
             },
           ]}
         >
-          <View style={styles.headerContent}>
-            <View style={styles.welcomeSection}>
-              <Text style={styles.welcomeText}>hey there,</Text>
-              <Text style={styles.userNameText}>{displayName} ✨</Text>
+          {/* 3-dots menu icon at top right */}
+          <TouchableOpacity
+            style={styles.menuIcon}
+            onPress={() => setMenuVisible((v) => !v)}
+            activeOpacity={0.7}
+          >
+            <Text style={{ fontSize: 28, color: '#fff' }}>⋮</Text>
+          </TouchableOpacity>
+          {/* Dropdown menu */}
+          {menuVisible && (
+            <View style={styles.dropdownMenu}>
+              <TouchableOpacity style={styles.dropdownItem} onPress={handleEditProfile}>
+                <Text style={styles.dropdownText}>Edit Profile</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.dropdownItem} onPress={handleLogout}>
+                <Text style={styles.dropdownText}>Logout</Text>
+              </TouchableOpacity>
             </View>
-            
+          )}
+          <View style={{ alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
             <TouchableOpacity
-              style={styles.profileButton}
+              style={styles.profilePicContainer}
               onPress={() => setProfileModalVisible(true)}
             >
-              <View style={styles.profilePicContainer}>
-                <Text style={styles.profilePicEmoji}>{profileEmoji}</Text>
-              </View>
+              <Text style={styles.profilePicEmoji}>{profileEmoji}</Text>
             </TouchableOpacity>
+            <Text style={styles.welcomeText}>hey there,</Text>
+            <Text style={styles.userNameText}>{displayName} </Text>
+            {currentUser?.email && (
+              <BlurView intensity={30} tint="dark" style={styles.userEmailBlurContainer}>
+                <Text style={styles.userEmailText}>{currentUser.email}</Text>
+              </BlurView>
+            )}
           </View>
         </Animated.View>
 
@@ -321,12 +352,7 @@ type RootStackParamList = {
 
       {/* Edit Profile Modal - Add this import: import EditProfile from './EditProfile'; */}
       {editProfileVisible && (
-        <ProfileData
-          visible={editProfileVisible}
-          onClose={() => setEditProfileVisible(false)}
-          currentUserName={displayName}
-          onUpdateProfile={(newName: React.SetStateAction<string>) => setUserName(newName)}
-        />
+        <ProfileData />
       )}
     </LinearGradient>
   );
@@ -363,6 +389,26 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(255,255,255,0.3)',
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 10,
+  },
+  userEmailText: {
+    fontSize: 14,
+    color: '#e0e0e0',
+    marginTop: 2,
+    marginBottom: 4,
+    textTransform: 'lowercase',
+    letterSpacing: 0.2,
+  },
+  userEmailBlurContainer: {
+    paddingHorizontal: 14,
+    paddingVertical: 4,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.7)',
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    alignSelf: 'center',
+    marginTop: 4,
+    marginBottom: 8,
+    overflow: 'hidden',
   },
   profileButton: {
     padding: 4,
@@ -530,5 +576,36 @@ const styles = StyleSheet.create({
     color: '#667eea',
     fontWeight: '600',
     textTransform: 'lowercase',
+  },
+  menuIcon: {
+    position: 'absolute',
+    top: 18,
+    right: 18,
+    zIndex: 20,
+    padding: 8,
+  },
+  dropdownMenu: {
+    position: 'absolute',
+    top: 54,
+    right: 18,
+    backgroundColor: 'rgba(255,255,255,0.97)',
+    borderRadius: 14,
+    paddingVertical: 6,
+    paddingHorizontal: 0,
+    shadowColor: '#000',
+    shadowOpacity: 0.18,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 8,
+    zIndex: 30,
+    minWidth: 140,
+  },
+  dropdownItem: {
+    paddingVertical: 12,
+    paddingHorizontal: 18,
+  },
+  dropdownText: {
+    fontSize: 16,
+    color: '#333',
+    fontWeight: '500',
   },
 });
