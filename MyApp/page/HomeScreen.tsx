@@ -7,11 +7,13 @@ import {
   ScrollView,
   StyleSheet,
   Image,
+  TextInput,
 } from 'react-native';
 import { useAuth } from '../AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
+import * as Location from 'expo-location';
 
 type RootStackParamList = {
   Home: undefined;
@@ -42,11 +44,31 @@ export default function HomeScreen() {
   };
 
   const quickActions = [
-    { title: 'Order Now', emoji: '🍕', color: '#f97316' },
-    { title: 'Favorites', emoji: '❤️', color: '#ec4899' },
-    { title: 'Track Order', emoji: '📍', color: '#3b82f6' },
+    { title: 'New additions', emoji: '🍕', color: '#f97316' },
+    { title: 'Taste list', emoji: '❤️', color: '#ec4899' },
+    { title: 'Around you', emoji: '📍', color: '#3b82f6' },
     { title: 'Offers', emoji: '🎁', color: '#10b981' },
   ];
+
+  const handleAroundYou = async () => {
+    try {
+      // Ask for location permission
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission denied', 'Location access is required to show places around you.');
+        return;
+      }
+      // Get current location
+      let location = await Location.getCurrentPositionAsync({});
+      Alert.alert(
+        'Your Location',
+        `Latitude: ${location.coords.latitude}\nLongitude: ${location.coords.longitude}`
+      );
+      // You can use location.coords.latitude & location.coords.longitude as needed
+    } catch (error) {
+      Alert.alert('Error', 'Could not get location.');
+    }
+  };
 
   return (
     <LinearGradient
@@ -63,7 +85,7 @@ export default function HomeScreen() {
             <Text style={styles.profileEmoji}>{profileEmoji}</Text>
           </View>
           <Text style={styles.appTitle}>Hi, {displayName}!</Text>
-          <Text style={styles.subtitle}>Never hungry around the campus</Text>
+          <Text style={styles.subtitle}>Let's go food hunting!!!</Text>
           {/* 3 dots menu */}
           <TouchableOpacity
             style={styles.menuIcon}
@@ -97,9 +119,12 @@ export default function HomeScreen() {
         </View>
 
         {/* User Info */}
-        <View style={styles.infoCard}>
-          <Text style={styles.label}>Logged in as:</Text>
-          <Text style={styles.email}>{currentUser?.email}</Text>
+        <View style={styles.searchBar}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search for food, places, or offers..."
+            placeholderTextColor="#aaa"
+          />
         </View>
 
         {/* Quick Actions */}
@@ -110,6 +135,11 @@ export default function HomeScreen() {
               <TouchableOpacity
                 key={idx}
                 style={[styles.actionCard, { backgroundColor: item.color }]}
+                onPress={
+                  item.title === 'Around you'
+                    ? handleAroundYou
+                    : undefined
+                }
               >
                 <Text style={styles.actionEmoji}>{item.emoji}</Text>
                 <Text style={styles.actionText}>{item.title}</Text>
@@ -135,18 +165,11 @@ export default function HomeScreen() {
                   <Text style={styles.cardSubtitle}>Starting from {item.price}</Text>
                 </View>
                 <TouchableOpacity style={[styles.orderBtn, { backgroundColor: item.color }]}>
-                  <Text style={styles.orderText}>Order</Text>
+                  <Text style={styles.orderText}>➔</Text>
                 </TouchableOpacity>
               </View>
             </View>
           ))}
-        </View>
-
-        {/* Logout */}
-        <View style={styles.footer}>
-          <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-            <Text style={styles.logoutText}>👋 Sign Out</Text>
-          </TouchableOpacity>
         </View>
       </ScrollView>
     </LinearGradient>
@@ -187,25 +210,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#ffe4c4',
   },
-  infoCard: {
+  searchBar: {
     backgroundColor: 'white',
     borderRadius: 24,
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
     marginBottom: 24,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.08,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
   },
-  label: {
-    fontSize: 14,
-    color: '#6b7280',
-    marginBottom: 4,
-  },
-  email: {
+  searchInput: {
     fontSize: 18,
     color: '#1f2937',
-    fontWeight: 'bold',
   },
   section: {
     marginBottom: 32,

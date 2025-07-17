@@ -4,7 +4,17 @@ import { getAuth, updateProfile } from 'firebase/auth';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 
-const emojiOptions = ['😎', '🦄', '🍔', '🍕', '🌈', '🥗', '🎉', '🚀', '🍜', '🧋'];
+const emojiOptions = [
+  '🍔', // Burger
+  '🍕', // Pizza
+  '🥪', // Sandwich (in place of dosa)
+  '🍜', // Ramen (in place of taco)
+  '🥗', // Salad
+  '🍦', // Ice Cream
+  '🍗', // Chicken leg
+  '🧋', // Bubble Tea
+  '🍉', // Watermelon
+];
 
 export default function CompleteProfileScreen() {
   const [displayName, setDisplayName] = useState('');
@@ -46,6 +56,14 @@ export default function CompleteProfileScreen() {
       style={styles.gradient}
     >
       <View style={styles.container}>
+        {/* Top right arrow icon */}
+        <TouchableOpacity
+          style={styles.backArrow}
+          onPress={() => navigation.navigate('Home' as never)}
+          activeOpacity={0.7}
+        >
+          <Text style={{ fontSize: 28, color: '#fff' }}>➔</Text>
+        </TouchableOpacity>
         <Text style={styles.title}>Set Up Your Profile</Text>
         <Text style={styles.subtitle}>Pick a fun emoji for your profile picture!</Text>
         <View style={styles.emojiRow}>
@@ -134,7 +152,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   emojiText: {
-    fontSize: 32,
+    fontSize: 20,
   },
   input: {
     width: '90%',
@@ -162,5 +180,12 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  backArrow: {
+    position: 'absolute',
+    top: 24,
+    right: 24,
+    zIndex: 10,
+    padding: 8,
   },
 });
