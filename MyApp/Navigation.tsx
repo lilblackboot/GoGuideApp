@@ -7,6 +7,7 @@ import LoginScreen from './page/LoginScreen';
 import ProfileData from './page/ProfileData';
 import HomeScreen from './page/HomeScreen';
 import Sections from './page/Sections'
+import Chatbot from './page/Chatbot';
 
 const Stack = createNativeStackNavigator();
 
@@ -18,6 +19,7 @@ export default function Navigation() {
         <Stack.Screen name="ProfileData" component={ProfileData} />
         <Stack.Screen name="Sections" component={Sections} />
         <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Chatbot" component={Chatbot} />
       </Stack.Navigator>
     </NavigationContainer>
   );

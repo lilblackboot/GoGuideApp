@@ -17,7 +17,6 @@ import ProfileData from './ProfileData';
 const { width, height } = Dimensions.get('window');
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
-import { BlurView } from 'expo-blur';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 // import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'; // Removed due to missing module
@@ -240,9 +239,16 @@ export default function HomeScreen() {
     Home: undefined;
     Login: undefined;
     ProfileData: undefined;
+    Sections: undefined;
+    Chatbot: undefined;
     // Add other screens here as needed
   };
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+
+  const handleChatbot = () => {
+    setMenuVisible(false);
+    navigation.navigate('Chatbot');
+  };
 
   const handleLogout = () => {
     setMenuVisible(false);
@@ -363,7 +369,7 @@ export default function HomeScreen() {
         <TouchableOpacity style={{ width: 60, height: 60, borderRadius: 30, backgroundColor: '#f3f4f6', justifyContent: 'center', alignItems: 'center', marginBottom: 8, shadowColor: '#000', shadowOpacity: 0.2, shadowOffset: { width: 0, height: 4 }, shadowRadius: 8 }} activeOpacity={0.85}>
           <GradientIcon icon={'calculator-variant'} gradientColors={["#f43f5e", "#f97316"]} iconType="vector" size={32} />
         </TouchableOpacity>
-        <TouchableOpacity style={{ width: 60, height: 60, borderRadius: 30, backgroundColor: '#f3f4f6', justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.2, shadowOffset: { width: 0, height: 4 }, shadowRadius: 8 }} activeOpacity={0.85}>
+        <TouchableOpacity onPress={()=>handleChatbot()} style={{ width: 60, height: 60, borderRadius: 30, backgroundColor: '#f3f4f6', justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.2, shadowOffset: { width: 0, height: 4 }, shadowRadius: 8 }} activeOpacity={0.85}>
           <GradientIcon icon={'💬'} gradientColors={["#f43f5e", "#f97316"]} size={32} />
         </TouchableOpacity>
       </View>
