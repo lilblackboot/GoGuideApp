@@ -12,6 +12,7 @@ import {
 import { useAuth } from '../AuthContext';
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
+import { LinearGradient } from 'expo-linear-gradient';
 
 type RootStackParamList = {
   LoginScreen: undefined;
@@ -64,7 +65,7 @@ export default function LoginScreen() {
 
   return (
     // To support gradients, wrap this in LinearGradient instead
-    <ScrollView style={{ flex: 1, backgroundColor: '#f87171' /* fallback color */ }}>
+    <ScrollView style={{ flex: 1, backgroundColor: '#18181b' /* dark background */ }}>
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
@@ -100,6 +101,7 @@ export default function LoginScreen() {
             <TextInput
               style={styles.input}
               placeholder="Enter your email"
+              placeholderTextColor="#71717a"
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -113,27 +115,31 @@ export default function LoginScreen() {
             <TextInput
               style={styles.input}
               placeholder="Enter your password"
+              placeholderTextColor="#71717a"
               value={password}
               onChangeText={setPassword}
               secureTextEntry
             />
           </View>
 
-          {/* Submit Button */}
-          <TouchableOpacity
-            style={[
-              styles.submitBtn,
-              loading
-                ? { backgroundColor: '#d1d5db' }
-                : { backgroundColor: '#f97316' }, // fallback for gradient
-            ]}
-            onPress={handleSubmit}
-            disabled={loading}
+          {/* Submit Button with Gradient */}
+          <LinearGradient
+            colors={loading ? ['#52525b', '#71717a'] : ['#ec4899', '#f97316']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.gradientBtn}
           >
-            <Text style={styles.submitText}>
-              {loading ? 'Loading...' : isLogin ? '🍽️ Sign In' : '🚀 Create Account'}
-            </Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.submitBtn, { backgroundColor: 'transparent' }]}
+              onPress={handleSubmit}
+              disabled={loading}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.submitText}>
+                {loading ? 'Loading...' : isLogin ? '🍽️ Sign In' : '🚀 Create Account'}
+              </Text>
+            </TouchableOpacity>
+          </LinearGradient>
 
           {/* Toggle Button */}
           <TouchableOpacity onPress={() => setIsLogin(!isLogin)} style={{ paddingVertical: 12 }}>
@@ -163,6 +169,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 24,
     paddingVertical: 48,
+    backgroundColor: '#18181b', // dark background
   },
   header: {
     alignItems: 'center',
@@ -171,7 +178,7 @@ const styles = StyleSheet.create({
   logo: {
     width: 96,
     height: 96,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#27272a', // darker circle
     borderRadius: 48,
     alignItems: 'center',
     justifyContent: 'center',
@@ -184,16 +191,16 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#fafafa', // light text
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#ffedd5',
+    color: '#f9a8d4', // soft pink
     textAlign: 'center',
   },
   form: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#23232b', // dark form
     borderRadius: 24,
     padding: 32,
     shadowColor: '#000',
@@ -207,47 +214,55 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 8,
-    color: '#1f2937',
+    color: '#fafafa',
   },
   formSubtitle: {
     fontSize: 14,
-    color: '#6b7280',
+    color: '#a1a1aa', // muted grey
     textAlign: 'center',
     marginBottom: 32,
   },
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#374151',
+    color: '#f9fafb', // lighter label
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#18181b', // input dark
     borderWidth: 2,
-    borderColor: '#e5e7eb',
+    borderColor: '#27272a',
     borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 16,
-    color: '#374151',
+    color: '#fafafa',
+  },
+  gradientBtn: {
+    borderRadius: 16,
+    marginBottom: 24,
+    // paddingVertical: 16, // handled by submitBtn
+    alignItems: 'center',
+    shadowColor: '#ec4899',
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
   },
   submitBtn: {
     borderRadius: 16,
     paddingVertical: 16,
-    marginBottom: 24,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
+    width: '100%',
+    // backgroundColor: 'transparent', // handled in render
   },
   submitText: {
-    color: '#ffffff',
+    color: '#fff',
     fontWeight: 'bold',
     fontSize: 18,
     textAlign: 'center',
+    letterSpacing: 1,
   },
   toggleText: {
-    color: '#ea580c',
+    color: '#f472b6', // pink
     textAlign: 'center',
     fontWeight: '600',
   },

@@ -18,6 +18,9 @@ const { width, height } = Dimensions.get('window');
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import { BlurView } from 'expo-blur';
+import MaskedView from '@react-native-masked-view/masked-view';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+// import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'; // Removed due to missing module
 
 // Floating particle component (reused from login)
 type FloatingParticleProps = { index: number };
@@ -87,14 +90,18 @@ const FloatingParticle: React.FC<FloatingParticleProps> = ({ index }) => {
   );
 };
 
+// Helper for right arrow
+const RightArrow = () => <Text style={{ fontSize: 22, color: '#fff', marginLeft: 8 }}>→</Text>;
+
 // Main option card component
 type OptionCardProps = {
-  title: string;
-  emoji: string;
+  title: React.ReactNode | string;
+  emoji?: string | null;
   onPress: () => void;
   delay?: number;
+  gradientColors: [string, string];
 };
-const OptionCard: React.FC<OptionCardProps> = ({ title, emoji, onPress, delay = 0 }) => {
+const OptionCard: React.FC<OptionCardProps> = ({ title, emoji, onPress, delay = 0, gradientColors }) => {
   const scaleAnim = useState(new Animated.Value(0))[0];
   const [pressed, setPressed] = useState(false);
 
@@ -124,6 +131,7 @@ const OptionCard: React.FC<OptionCardProps> = ({ title, emoji, onPress, delay = 
     }).start();
   };
 
+  const isDarkButton = Array.isArray(gradientColors) && gradientColors[0] === '#23232b';
   return (
     <TouchableOpacity
       onPressIn={handlePressIn}
@@ -139,17 +147,67 @@ const OptionCard: React.FC<OptionCardProps> = ({ title, emoji, onPress, delay = 
           },
         ]}
       >
-        <LinearGradient
-          colors={pressed ? ['#ff6b6b', '#ff8e8e'] : ['#667eea', '#764ba2']}
-          style={styles.optionGradient}
-        >
-          <Text style={styles.optionEmoji}>{emoji}</Text>
-          <Text style={styles.optionTitle}>{title}</Text>
-        </LinearGradient>
+        {isDarkButton ? (
+          <View style={[styles.optionGradient, { backgroundColor: '#23232b' }]}> 
+            {emoji ? <Text style={styles.optionEmoji}>{emoji}</Text> : null}
+            {typeof title === 'string' ? (
+              <Text style={styles.optionTitle}>{title}</Text>
+            ) : (
+              title
+            )}
+          </View>
+        ) : (
+          <LinearGradient
+            colors={pressed ? ([...gradientColors].reverse() as [string, string]) : (gradientColors as [string, string])}
+            style={styles.optionGradient}
+          >
+            {emoji ? <Text style={styles.optionEmoji}>{emoji}</Text> : null}
+            {typeof title === 'string' ? (
+              <Text style={styles.optionTitle}>{title}</Text>
+            ) : (
+              title
+            )}
+          </LinearGradient>
+        )}
       </Animated.View>
     </TouchableOpacity>
   );
 };
+
+// Gradient text helper
+const GradientText = ({ text, gradientColors }: { text: string, gradientColors: [string, string] }) => (
+  <MaskedView maskElement={<Text style={{ fontWeight: 'bold', fontSize: 18, textTransform: 'lowercase' }}>{text}</Text>}>
+    <LinearGradient colors={gradientColors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+      <Text style={{ opacity: 0, fontWeight: 'bold', fontSize: 18, textTransform: 'lowercase' }}>{text}</Text>
+    </LinearGradient>
+  </MaskedView>
+);
+const GradientArrow = ({ gradientColors }: { gradientColors: [string, string] }) => (
+  <MaskedView maskElement={<Text style={{ fontSize: 22, marginLeft: 8 }}>→</Text>}>
+    <LinearGradient colors={gradientColors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+      <Text style={{ opacity: 0, fontSize: 22, marginLeft: 8 }}>→</Text>
+    </LinearGradient>
+  </MaskedView>
+);
+
+// Gradient icon helpers
+const GradientIcon = ({ icon, gradientColors, iconType, size = 32 }: { icon: string, gradientColors: [string, string], iconType?: 'vector', size?: number }) => (
+  <MaskedView maskElement={
+    iconType === 'vector'
+      ? <MaterialCommunityIcons name={icon as any} size={size} color="#000" />
+      : <Text style={{ fontSize: size }}>{icon}</Text>
+  }>
+    <LinearGradient colors={gradientColors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+      {iconType === 'vector'
+        ? (
+            
+            <MaterialCommunityIcons name={icon as any} size={size} color="transparent" />
+          )
+        : <Text style={{ opacity: 0, fontSize: size }}>{icon}</Text>
+      }
+    </LinearGradient>
+  </MaskedView>
+);
 
 export default function HomeScreen() {
   const [profileModalVisible, setProfileModalVisible] = useState(false);
@@ -204,13 +262,13 @@ export default function HomeScreen() {
 
   return (
     <LinearGradient
-      colors={['#667eea', '#764ba2', '#f093fb']}
+      colors={['#18181b', '#23232b']}
       style={{ flex: 1 }}
     >
       {/* Floating particles */}
-      {Array.from({ length: 5 }).map((_, i) => (
+      {/* {Array.from({ length: 5 }).map((_, i) => (
         <FloatingParticle key={i} index={i} />
-      ))}
+      ))} */}
 
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         {/* Header with profile */}
@@ -251,12 +309,17 @@ export default function HomeScreen() {
               <Text style={styles.profilePicEmoji}>{profileEmoji}</Text>
             </TouchableOpacity>
             <Text style={styles.welcomeText}>hey there,</Text>
-            <Text style={styles.userNameText}>{displayName} </Text>
+            <MaskedView maskElement={<Text style={styles.userNameText}>{displayName} </Text>}>
+              <LinearGradient colors={["#f43f5e", "#f97316"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                <Text style={[styles.userNameText, { opacity: 0 }]}>{displayName} </Text>
+              </LinearGradient>
+            </MaskedView>
             {currentUser?.email && (
-              <BlurView intensity={30} tint="dark" style={styles.userEmailBlurContainer}>
-                <Text style={styles.userEmailText}>{currentUser.email}</Text>
-              </BlurView>
+              <Text style={styles.userEmailText}>{currentUser.email}</Text>
             )}
+          </View>
+          {/* Attendance and Teacher options row below email */}
+          <View style={{ gap: 16, width: '100%', marginBottom: 24 }}>
           </View>
         </Animated.View>
 
@@ -270,40 +333,40 @@ export default function HomeScreen() {
           ]}
         >
           <Text style={styles.sectionTitle}>what's the vibe today? 🌈</Text>
-          
           <View style={styles.optionsGrid}>
-            <OptionCard
-              title="attendance calculator"
-              emoji="📊"
-              onPress={() => handleOptionPress('attendance')}
-              delay={200}
-            />
-            <OptionCard
-              title="find your teacher"
-              emoji="👩‍🏫"
-              onPress={() => handleOptionPress('teacher')}
-              delay={400}
-            />
-            <OptionCard
-              title="find your food"
-              emoji="🍕"
-              onPress={() => handleOptionPress('Home')}
-              delay={600}
-            />
-            <OptionCard
-              title="events"
-              emoji="🎉"
-              onPress={() => handleOptionPress('events')}
-              delay={800}
-            />
+            <View style={{ flexDirection: 'row', gap: 16 }}>
+              <View style={{ flex: 1 }}>
+                <OptionCard
+                  title="food"
+                  emoji="🍕"
+                  onPress={() => handleOptionPress('Home')}
+                  delay={600}
+                  gradientColors={["#f59e42", "#f43f5e"]} // orange to pink
+                />
+              </View>
+              <View style={{ flex: 1 }}>
+                <OptionCard
+                  title="events"
+                  emoji="🎉"
+                  onPress={() => handleOptionPress('events')}
+                  delay={800}
+                  gradientColors={["#6366f1", "#f472b6"]} // blue to pink
+                />
+              </View>
+            </View>
           </View>
         </Animated.View>
-
-        {/* Footer */}
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>made with 💜 for campus life</Text>
-        </View>
       </ScrollView>
+
+      {/* Floating action buttons bottom right */}
+      <View style={{ position: 'absolute', bottom: 36, right: 24, flexDirection: 'column', alignItems: 'flex-end', gap: 18 }}>
+        <TouchableOpacity style={{ width: 60, height: 60, borderRadius: 30, backgroundColor: '#f3f4f6', justifyContent: 'center', alignItems: 'center', marginBottom: 8, shadowColor: '#000', shadowOpacity: 0.2, shadowOffset: { width: 0, height: 4 }, shadowRadius: 8 }} activeOpacity={0.85}>
+          <GradientIcon icon={'calculator-variant'} gradientColors={["#f43f5e", "#f97316"]} iconType="vector" size={32} />
+        </TouchableOpacity>
+        <TouchableOpacity style={{ width: 60, height: 60, borderRadius: 30, backgroundColor: '#f3f4f6', justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.2, shadowOffset: { width: 0, height: 4 }, shadowRadius: 8 }} activeOpacity={0.85}>
+          <GradientIcon icon={'💬'} gradientColors={["#f43f5e", "#f97316"]} size={32} />
+        </TouchableOpacity>
+      </View>
 
       {/* Profile Modal */}
       <Modal
@@ -392,7 +455,7 @@ const styles = StyleSheet.create({
   },
   userEmailText: {
     fontSize: 14,
-    color: '#e0e0e0',
+    color: '#fafafa',
     marginTop: 2,
     marginBottom: 4,
     textTransform: 'lowercase',
@@ -414,9 +477,9 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   profilePicContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     backgroundColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
@@ -425,10 +488,10 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 8,
+    shadowRadius: 12,
   },
   profilePicEmoji: {
-    fontSize: 32,
+    fontSize: 60,
   },
   mainContent: {
     paddingHorizontal: 20,

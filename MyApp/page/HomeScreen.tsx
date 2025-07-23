@@ -14,6 +14,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import * as Location from 'expo-location';
+import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
+import MaskedView from '@react-native-masked-view/masked-view';
 
 type RootStackParamList = {
   Home: undefined;
@@ -44,10 +47,10 @@ export default function HomeScreen() {
   };
 
   const quickActions = [
-    { title: 'New additions', emoji: '🍕', color: '#f97316' },
-    { title: 'Taste list', emoji: '❤️', color: '#ec4899' },
-    { title: 'Around you', emoji: '📍', color: '#3b82f6' },
-    { title: 'Offers', emoji: '🎁', color: '#10b981' },
+    { title: 'additions', emoji: '🍕' },
+    { title: 'Taste list', emoji: '❤️' },
+    { title: 'Around you', emoji: '📍' },
+    { title: 'Offers', emoji: '🎁' },
   ];
 
   const handleAroundYou = async () => {
@@ -72,7 +75,7 @@ export default function HomeScreen() {
 
   return (
     <LinearGradient
-      colors={['#fb923c', '#ef4444', '#ec4899']}
+      colors={['#18181b', '#23232b']}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.gradient}
@@ -80,13 +83,15 @@ export default function HomeScreen() {
       <ScrollView contentContainerStyle={styles.container}>
         {/* Header */}
         <View style={styles.header}>
+          {/*
           <View style={styles.logoCircle}>
             {/* Show emoji instead of logo image */}
-            <Text style={styles.profileEmoji}>{profileEmoji}</Text>
-          </View>
-          <Text style={styles.appTitle}>Hi, {displayName}!</Text>
-          <Text style={styles.subtitle}>Let's go food hunting!!!</Text>
+            {/* <Text style={styles.profileEmoji}>{profileEmoji}</Text> */}
+          {/* </View> */}
+          {/* <Text style={styles.appTitle}>Hi, {displayName}!</Text> */}
+          {/* <Text style={styles.subtitle}>Let's go food hunting!!!</Text> */}
           {/* 3 dots menu */}
+          {/*
           <TouchableOpacity
             style={styles.menuIcon}
             onPress={() => setMenuVisible(!menuVisible)}
@@ -116,46 +121,65 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
           )}
+          */}
         </View>
 
         {/* User Info */}
         <View style={styles.searchBar}>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search for food, places, or offers..."
-            placeholderTextColor="#aaa"
-          />
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Ionicons name="search" size={22} color="#f97316" style={{ marginRight: 8 }} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search for foods and stores"
+              placeholderTextColor="#71717a"
+            />
+          </View>
         </View>
 
         {/* Quick Actions */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>What would you like to do?</Text>
           <View style={styles.actions}>
-            {quickActions.map((item, idx) => (
-              <TouchableOpacity
-                key={idx}
-                style={[styles.actionCard, { backgroundColor: item.color }]}
-                onPress={
-                  item.title === 'Around you'
-                    ? handleAroundYou
-                    : undefined
-                }
-              >
-                <Text style={styles.actionEmoji}>{item.emoji}</Text>
-                <Text style={styles.actionText}>{item.title}</Text>
-              </TouchableOpacity>
-            ))}
+            {quickActions.map((item, idx) => {
+              // Assign a unique gradient to each card
+              const gradients: [string, string][] = [
+                ['#ec4899', '#f97316'], // pink to orange
+                ['#f97316', '#ec4899'], // orange to pink
+                ['#ec4899', '#f97316'], // pink to orange
+                ['#f97316', '#ec4899'], // orange to pink
+              ];
+              return (
+                <LinearGradient
+                  key={idx}
+                  colors={gradients[idx % gradients.length]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.actionCard}
+                >
+                  <TouchableOpacity
+                    style={{ alignItems: 'center' }}
+                    onPress={
+                      item.title === 'Around you'
+                        ? handleAroundYou
+                        : undefined
+                    }
+                  >
+                    <Text style={[styles.actionEmoji, { color: '#fff' }]}>{item.emoji}</Text>
+                    <Text style={[styles.actionText, { color: '#fff', textShadowColor: 'rgba(0,0,0,0.12)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2 }]}>{item.title}</Text>
+                  </TouchableOpacity>
+                </LinearGradient>
+              );
+            })}
           </View>
         </View>
 
         {/* Featured Dishes */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>🔥 Trending Now</Text>
-
           {[
-            { icon: '🍔', title: 'Premium Burgers', price: '$12.99', color: '#f97316' },
-            { icon: '🍕', title: 'Wood-Fired Pizza', price: '$15.99', color: '#ef4444' },
-            { icon: '🍜', title: 'Fresh Ramen', price: '$9.99', color: '#facc15' },
+            { icon: '🍔', title: 'Premium Burgers', price: '$12.99', gradient: ['#ec4899', '#f97316'] as [string, string] },
+            { icon: '🍕', title: 'Wood-Fired Pizza', price: '$15.99', gradient: ['#f97316', '#ec4899'] as [string, string] },
+            { icon: '🍜', title: 'Fresh Ramen', price: '$9.99', gradient: ['#ec4899', '#f97316'] as [string, string] },
           ].map((item, i) => (
             <View key={i} style={styles.card}>
               <View style={styles.cardRow}>
@@ -164,9 +188,11 @@ export default function HomeScreen() {
                   <Text style={styles.cardTitle}>{item.title}</Text>
                   <Text style={styles.cardSubtitle}>Starting from {item.price}</Text>
                 </View>
-                <TouchableOpacity style={[styles.orderBtn, { backgroundColor: item.color }]}>
-                  <Text style={styles.orderText}>➔</Text>
-                </TouchableOpacity>
+                <LinearGradient colors={item.gradient as [string, string]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.orderBtn}>
+                  <TouchableOpacity>
+                    <Text style={styles.orderText}>➔</Text>
+                  </TouchableOpacity>
+                </LinearGradient>
               </View>
             </View>
           ))}
@@ -179,9 +205,11 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   gradient: {
     flex: 1,
+    backgroundColor: '#18181b',
   },
   container: {
     padding: 24,
+    backgroundColor: 'transparent',
   },
   header: {
     alignItems: 'center',
@@ -211,7 +239,7 @@ const styles = StyleSheet.create({
     color: '#ffe4c4',
   },
   searchBar: {
-    backgroundColor: 'white',
+    backgroundColor: '#23232b',
     borderRadius: 24,
     paddingHorizontal: 20,
     paddingVertical: 12,
@@ -223,15 +251,16 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     fontSize: 18,
-    color: '#1f2937',
+    color: '#fafafa',
   },
   section: {
     marginBottom: 32,
+    backgroundColor: 'transparent',
   },
   sectionTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: 'white',
+    color: '#fafafa',
     marginBottom: 16,
   },
   actions: {
@@ -248,18 +277,19 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 3 },
+    overflow: 'hidden',
   },
   actionEmoji: {
     fontSize: 32,
     marginBottom: 8,
   },
   actionText: {
-    color: 'white',
+    color: '#fafafa',
     fontWeight: 'bold',
     fontSize: 18,
   },
   card: {
-    backgroundColor: 'white',
+    backgroundColor: '#23232b',
     borderRadius: 20,
     padding: 16,
     marginBottom: 16,
@@ -279,10 +309,10 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#1f2937',
+    color: '#fafafa',
   },
   cardSubtitle: {
-    color: '#6b7280',
+    color: '#a1a1aa',
   },
   orderBtn: {
     borderRadius: 999,
