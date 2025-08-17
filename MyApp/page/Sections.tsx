@@ -241,6 +241,7 @@ export default function HomeScreen() {
     ProfileData: undefined;
     Sections: undefined;
     Chatbot: undefined;
+    Events: undefined;  // Add Events screen to the stack
     // Add other screens here as needed
   };
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
@@ -262,8 +263,11 @@ export default function HomeScreen() {
   };
 
   const handleOptionPress = (option: string) => {
-    console.log(`Navigate to ${option}`);
-     navigation.navigate('Home');
+    if (option === 'events') {
+      navigation.navigate('Events'); // Navigate to Events page
+    } else {
+      navigation.navigate('Home');
+    }
   };
 
   return (
