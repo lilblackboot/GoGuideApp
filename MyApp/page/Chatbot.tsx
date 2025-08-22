@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,205 +6,135 @@ import {
   TouchableOpacity,
   FlatList,
   StyleSheet,
-  Animated,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useNavigation } from '@react-navigation/native';
-
-type Message = {
-  id: string;
-  text: string;
-  sender: 'user' | 'bot';
-  animatedValue: Animated.Value;
-};
+  ActivityIndicator,
+} from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { generateResponse } from "../gemini"; // your gemini.js
+import timetableData from "../timetable.json"; // your JSON timetable
 
 export default function ChatScreen() {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
-  const flatListRef = useRef<FlatList>(null);
-  const navigation = useNavigation();
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSend = () => {
-    if (input.trim() === '') return;
+  const handleSend = async () => {
+    if (!input.trim()) return;
 
-    const userMsg: Message = {
-      id: Date.now().toString(),
-      text: input,
-      sender: 'user',
-      animatedValue: new Animated.Value(0),
-    };
+    const userMessage: Message = { role: "user", text: input };
+    setMessages((prev) => [...prev, userMessage]);
+    setInput("");
+    setLoading(true);
 
-    const botMsg: Message = {
-      id: (Date.now() + 1).toString(),
-      text: `You said: ${input}`,
-      sender: 'bot',
-      animatedValue: new Animated.Value(0),
-    };
-
-    setMessages(prev => [...prev, userMsg]);
-    setInput('');
-    animateMessage(userMsg);
-
-    setTimeout(() => {
-      setMessages(prev => [...prev, botMsg]);
-      animateMessage(botMsg);
-    }, 600);
+    try {
+      const reply = await generateResponse(input, timetableData);
+      const botMessage: Message = { role: "bot", text: reply };
+      setMessages((prev) => [...prev, botMessage]);
+    } catch (error) {
+      setMessages((prev) => [
+        ...prev,
+        { role: "bot", text: "⚠️ Error: Could not get response." },
+      ]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const animateMessage = (msg: Message) => {
-    Animated.timing(msg.animatedValue, {
-      toValue: 1,
-      duration: 400,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const renderItem = ({ item }: { item: Message }) => (
-    <Animated.View
-      style={{
-        opacity: item.animatedValue,
-        transform: [{ scale: item.animatedValue }],
-        alignSelf: item.sender === 'user' ? 'flex-end' : 'flex-start',
-        backgroundColor: item.sender === 'user' ? '#ff5678' : '#333',
-        marginVertical: 5,
-        padding: 12,
-        borderRadius: 16,
-        maxWidth: '80%',
-      }}
+  const renderItem = ({ item }) => (
+    <View
+      style={[
+        styles.messageBubble,
+        item.role === "user" ? styles.userBubble : styles.botBubble,
+      ]}
     >
-      <Text style={{ color: 'white', fontSize: 16 }}>{item.text}</Text>
-    </Animated.View>
+      <Text style={styles.messageText}>{item.text}</Text>
+    </View>
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#18181b' }}>
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
-      >
-        <View style={styles.container}>
-          {/* Top right arrow icon */}
-          <TouchableOpacity
-            style={styles.backArrow}
-            onPress={() => navigation.goBack()}
-            activeOpacity={0.7}
-          >
-            <Text style={{ fontSize: 28, color: '#fff' }}>➔</Text>
-          </TouchableOpacity>
+    <KeyboardAwareScrollView
+      style={styles.container}
+      contentContainerStyle={{ flexGrow: 1 }}
+      enableOnAndroid={true}
+      extraScrollHeight={20} // keeps input just above keyboard
+    >
+      <FlatList
+        data={messages}
+        renderItem={renderItem}
+        keyExtractor={(_, index) => index.toString()}
+        style={styles.chatList}
+      />
 
-          <Text style={styles.title}>Assitant</Text>
-
-          <FlatList
-            ref={flatListRef}
-            data={messages}
-            keyExtractor={item => item.id}
-            renderItem={renderItem}
-            contentContainerStyle={styles.chatContainer}
-            onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
-          />
-
-          <View style={styles.inputContainer}>
-            <TextInput
-              value={input}
-              onChangeText={setInput}
-              placeholder="Type a message..."
-              placeholderTextColor="#fff"
-              style={styles.input}
-            />
-            <TouchableOpacity onPress={handleSend} style={styles.sendButton}>
-              <LinearGradient
-                colors={['#ec4899', '#f97316']}
-                start={[0, 0]}
-                end={[1, 1]}
-                style={styles.gradient}
-              >
-                <Text style={styles.sendText}>Send</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </KeyboardAvoidingView>
-    </View>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          value={input}
+          onChangeText={setInput}
+          placeholder="Type your message..."
+          placeholderTextColor="#aaa"
+        />
+        <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.sendText}>Send</Text>
+          )}
+        </TouchableOpacity>
+      </View>
+    </KeyboardAwareScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 60,
-    paddingHorizontal: 0,
-    backgroundColor: 'transparent',
+    backgroundColor: "#18181b",
   },
-  title: {
-    color: '#fff',
-    fontSize: 28,
-    fontWeight: 'bold',
-    alignSelf: 'center',
-    marginBottom: 10,
-    letterSpacing: 1,
-    textShadowColor: '#fb923c',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 8,
+  chatList: {
+    flex: 1,
+    padding: 10,
   },
-  chatContainer: {
-    padding: 16,
-    paddingBottom: 80,
+  messageBubble: {
+    padding: 12,
+    borderRadius: 16,
+    marginVertical: 5,
+    maxWidth: "80%",
+  },
+  userBubble: {
+    alignSelf: "flex-end",
+    backgroundColor: "#3b82f6",
+  },
+  botBubble: {
+    alignSelf: "flex-start",
+    backgroundColor: "#4b5563",
+  },
+  messageText: {
+    color: "#fff",
+    fontSize: 16,
   },
   inputContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    alignItems: 'center',
-    paddingVertical: 14,
-    backgroundColor: 'rgba(255,255,255,0.04)',
-    borderTopWidth: 0,
-    borderColor: 'transparent',
-    borderRadius: 24,
-    margin: 16,
-    shadowColor: '#ec4899',
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
+    flexDirection: "row",
+    padding: 10,
+    borderTopWidth: 1,
+    borderTopColor: "#333",
+    backgroundColor: "#27272a",
+    alignItems: "center",
   },
   input: {
     flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.12)',
-    color: '#fff',
-    borderRadius: 24,
-    paddingHorizontal: 16,
-    fontSize: 16,
+    color: "#fff",
+    padding: 10,
+    borderRadius: 20,
+    backgroundColor: "#1f2937",
     marginRight: 10,
-    height: 48,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.18)',
   },
   sendButton: {
-    borderRadius: 24,
-    overflow: 'hidden',
-    marginLeft: 4,
-  },
-  gradient: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 24,
-    shadowColor: '#fb923c',
-    shadowOpacity: 0.18,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    backgroundColor: "#3b82f6",
   },
   sendText: {
-    color: '#fff',
-    fontWeight: '600',
-    fontSize: 16,
-    letterSpacing: 1,
-  },
-  backArrow: {
-    position: 'absolute',
-    top: 24,
-    right: 24,
-    zIndex: 10,
-    padding: 8,
+    color: "#fff",
+    fontWeight: "bold",
   },
 });

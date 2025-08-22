@@ -1,0 +1,8 @@
+{
+  "devDependencies": {
+    "eas-cli": "^16.17.4"
+  },
+  "dependencies": {
+    "react-native-dotenv": "^3.4.11"
+  }
+}
