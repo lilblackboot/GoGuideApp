@@ -80,7 +80,7 @@ export default function LoginScreen() {
           </View>
           <Text style={styles.title}>GoGuide</Text>
           <Text style={styles.subtitle}>
-            Never hungry around the campus
+            Never lost around the campus
           </Text>
         </View>
 
@@ -91,8 +91,8 @@ export default function LoginScreen() {
           </Text>
           <Text style={styles.formSubtitle}>
             {isLogin
-              ? 'Sign in to continue exploxing the best food around'
-              : 'Create account and find your food'}
+              ? 'Sign in to continue '
+              : 'Create account and find your way around campus'}
           </Text>
 
           {/* Email Input */}
@@ -153,10 +153,10 @@ export default function LoginScreen() {
 
         {/* Bottom Decoration */}
         <View style={styles.bottomIcons}>
-          <Text style={styles.icon}>🍔</Text>
+          <Text style={styles.icon}>👨‍🏫</Text>
           <Text style={styles.icon}>🍜</Text>
-          <Text style={styles.icon}>🍰</Text>
-          <Text style={styles.icon}>🥗</Text>
+          <Text style={styles.icon}>📚</Text>
+          <Text style={styles.icon}>🔖</Text>
         </View>
       </View>
     </ScrollView>
