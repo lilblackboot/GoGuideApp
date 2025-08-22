@@ -241,6 +241,7 @@ export default function HomeScreen() {
     ProfileData: undefined;
     Sections: undefined;
     Chatbot: undefined;
+    Calculator: undefined;
     Events: undefined;  // Add Events screen to the stack
     // Add other screens here as needed
   };
@@ -250,7 +251,10 @@ export default function HomeScreen() {
     setMenuVisible(false);
     navigation.navigate('Chatbot');
   };
-
+const handleCalculator = () => {
+    setMenuVisible(false);
+    navigation.navigate('Calculator');
+  };
   const handleLogout = () => {
     setMenuVisible(false);
     logout();
@@ -370,7 +374,7 @@ export default function HomeScreen() {
 
       {/* Floating action buttons bottom right */}
       <View style={{ position: 'absolute', bottom: 36, right: 24, flexDirection: 'column', alignItems: 'flex-end', gap: 18 }}>
-        <TouchableOpacity style={{ width: 60, height: 60, borderRadius: 30, backgroundColor: '#f3f4f6', justifyContent: 'center', alignItems: 'center', marginBottom: 8, shadowColor: '#000', shadowOpacity: 0.2, shadowOffset: { width: 0, height: 4 }, shadowRadius: 8 }} activeOpacity={0.85}>
+        <TouchableOpacity onPress={()=>handleCalculator()} style={{ width: 60, height: 60, borderRadius: 30, backgroundColor: '#f3f4f6', justifyContent: 'center', alignItems: 'center', marginBottom: 8, shadowColor: '#000', shadowOpacity: 0.2, shadowOffset: { width: 0, height: 4 }, shadowRadius: 8 }} activeOpacity={0.85}>
           <GradientIcon icon={'calculator-variant'} gradientColors={["#f43f5e", "#f97316"]} iconType="vector" size={32} />
         </TouchableOpacity>
         <TouchableOpacity onPress={()=>handleChatbot()} style={{ width: 60, height: 60, borderRadius: 30, backgroundColor: '#f3f4f6', justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.2, shadowOffset: { width: 0, height: 4 }, shadowRadius: 8 }} activeOpacity={0.85}>
