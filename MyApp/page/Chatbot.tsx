@@ -5,16 +5,19 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  ActivityIndicator,
   FlatList,
   Animated,
   Dimensions,
   KeyboardAvoidingView,
   Platform,
-  Keyboard,
+  SafeAreaView,
+  Easing,
 } from "react-native";
 import { generateResponse } from "../gemini";
 import timetableData from "../timetable.json";
+import { useNavigation } from "@react-navigation/native";
+
+const { width } = Dimensions.get("window");
 
 type Message = {
   role: "user" | "bot";
@@ -23,81 +26,81 @@ type Message = {
   timestamp: Date;
 };
 
-const { width } = Dimensions.get("window");
+const MessageBubble = memo(({ item }: { item: Message }) => {
+  const slideAnimation = useRef(new Animated.Value(50)).current;
+  const opacityAnimation = useRef(new Animated.Value(0)).current;
+  const hasAnimated = useRef(false);
+
+  useEffect(() => {
+    if (!hasAnimated.current) {
+      Animated.parallel([
+        Animated.timing(slideAnimation, {
+          toValue: 0,
+          duration: 300,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacityAnimation, {
+          toValue: 1,
+          duration: 300,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+      ]).start();
+      
+      hasAnimated.current = true;
+    }
+  }, []);
+
+  return (
+    <Animated.View
+      style={[
+        {
+          transform: [{ translateY: slideAnimation }],
+          opacity: opacityAnimation,
+        },
+        styles.messageBubble,
+        item.role === "user" ? styles.userBubble : styles.botBubble,
+      ]}
+    >
+      <Text style={styles.messageText}>{item.text}</Text>
+      <Text style={styles.timestamp}>
+        {item.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+      </Text>
+    </Animated.View>
+  );
+});
 
 export default function ChatScreen() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
   
   const flatListRef = useRef<FlatList>(null);
-  const inputContainerAnimation = useRef(new Animated.Value(0)).current;
+  const navigation = useNavigation();
   const typingAnimation = useRef(new Animated.Value(0)).current;
-  const shouldAutoScroll = useRef(true);
-  const isNearBottom = useRef(true);
+  const sendButtonScale = useRef(new Animated.Value(1)).current;
 
-  // Keyboard event listeners
-  useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener(
-      'keyboardDidShow',
-      (e) => {
-        setKeyboardHeight(e.endCoordinates.height);
-        Animated.spring(inputContainerAnimation, {
-          toValue: -e.endCoordinates.height + (Platform.OS === 'ios' ? 34 : 0),
-          duration: 250,
-          useNativeDriver: false,
-        }).start();
-      }
-    );
-    
-    const keyboardDidHideListener = Keyboard.addListener(
-      'keyboardDidHide',
-      () => {
-        setKeyboardHeight(0);
-        Animated.spring(inputContainerAnimation, {
-          toValue: 0,
-          duration: 250,
-          useNativeDriver: false,
-        }).start();
-      }
-    );
-
-    return () => {
-      keyboardDidHideListener?.remove();
-      keyboardDidShowListener?.remove();
-    };
+  const scrollToBottom = useCallback(() => {
+    setTimeout(() => {
+      flatListRef.current?.scrollToEnd({ animated: true });
+    }, 100);
   }, []);
 
-  // Scroll to bottom helper function
-  const scrollToBottom = useCallback((animated: boolean = true) => {
-    if (flatListRef.current && shouldAutoScroll.current) {
-      setTimeout(() => {
-        flatListRef.current?.scrollToEnd({ animated });
-      }, animated ? 100 : 0);
-    }
-  }, []);
-
-  // Check if user is near bottom of chat
-  const handleScroll = useCallback((event: any) => {
-    const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
-    const paddingToBottom = 100;
-    isNearBottom.current = layoutMeasurement.height + contentOffset.y >= 
-      contentSize.height - paddingToBottom;
-    shouldAutoScroll.current = isNearBottom.current;
-  }, []);
   useEffect(() => {
     if (loading) {
       Animated.loop(
         Animated.sequence([
           Animated.timing(typingAnimation, {
             toValue: 1,
-            duration: 600,
+            duration: 800,
+            easing: Easing.inOut(Easing.ease),
             useNativeDriver: true,
           }),
           Animated.timing(typingAnimation, {
             toValue: 0,
-            duration: 600,
+            duration: 800,
+            easing: Easing.inOut(Easing.ease),
             useNativeDriver: true,
           }),
         ])
@@ -108,27 +111,37 @@ export default function ChatScreen() {
   }, [loading]);
 
   const handleSend = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || loading) return;
 
-    const userMessage: Message = { 
-      role: "user", 
+    Animated.sequence([
+      Animated.timing(sendButtonScale, {
+        toValue: 0.9,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(sendButtonScale, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    const userMessage: Message = {
+      role: "user",
       text: input.trim(),
       id: Date.now().toString(),
       timestamp: new Date()
     };
-    
+
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setLoading(true);
-    
-    // Force scroll to bottom for user message
-    shouldAutoScroll.current = true;
     scrollToBottom();
 
     try {
       const reply = await generateResponse(input, timetableData);
-      const botMessage: Message = { 
-        role: "bot", 
+      const botMessage: Message = {
+        role: "bot",
         text: reply,
         id: (Date.now() + 1).toString(),
         timestamp: new Date()
@@ -137,9 +150,9 @@ export default function ChatScreen() {
     } catch (error) {
       setMessages((prev) => [
         ...prev,
-        { 
-          role: "bot", 
-          text: "⚠️ Sorry, I'm having trouble connecting right now. Please try again.",
+        {
+          role: "bot",
+          text: "Sorry, I'm having trouble connecting right now. Please try again.",
           id: (Date.now() + 1).toString(),
           timestamp: new Date()
         },
@@ -149,120 +162,57 @@ export default function ChatScreen() {
     }
   };
 
-  // Auto scroll to bottom when new message comes
   useEffect(() => {
     if (messages.length > 0) {
-      // Small delay to ensure message is rendered
-      setTimeout(() => {
-        scrollToBottom();
-      }, 150);
+      scrollToBottom();
     }
   }, [messages, scrollToBottom]);
 
-  const MessageBubble = memo(({ item }: { item: Message }) => {
-    const slideAnimation = useRef(new Animated.Value(0)).current;
-    const opacityAnimation = useRef(new Animated.Value(1)).current;
-    const hasAnimated = useRef(false);
+  useEffect(() => {
+    if (loading) {
+      scrollToBottom();
+    }
+  }, [loading, scrollToBottom]);
 
-    useEffect(() => {
-      if (!hasAnimated.current) {
-        slideAnimation.setValue(50);
-        opacityAnimation.setValue(0);
-        
-        Animated.parallel([
-          Animated.timing(slideAnimation, {
-            toValue: 0,
-            duration: 300,
-            useNativeDriver: true,
-          }),
-          Animated.timing(opacityAnimation, {
-            toValue: 1,
-            duration: 300,
-            useNativeDriver: true,
-          }),
-        ]).start();
-        
-        hasAnimated.current = true;
-      }
-    }, []);
-
-    return (
-      <Animated.View
-        style={[
-          {
-            transform: [{ translateY: slideAnimation }],
-            opacity: opacityAnimation,
-          },
-          styles.messageBubble,
-          item.role === "user" ? styles.userBubble : styles.botBubble,
-        ]}
-      >
-        <Text style={styles.messageText}>{item.text}</Text>
-        <Text style={styles.timestamp}>
-          {item.timestamp.toLocaleTimeString([], { 
-            hour: '2-digit', 
-            minute: '2-digit' 
-          })}
-        </Text>
-      </Animated.View>
-    );
-  });
-
-  const TypingIndicator = () => (
+  const TypingIndicator = memo(() => (
     <Animated.View
       style={[
         styles.messageBubble,
         styles.botBubble,
-        styles.typingIndicator,
+        styles.typingBubble,
         {
-          opacity: typingAnimation,
+          opacity: typingAnimation.interpolate({
+            inputRange: [0, 1],
+            outputRange: [0.6, 1],
+          }),
         },
       ]}
     >
       <View style={styles.typingDots}>
-        <Animated.View 
-          style={[
-            styles.typingDot,
-            {
-              transform: [{
-                scale: typingAnimation.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [1, 1.2],
-                })
-              }]
-            }
-          ]} 
-        />
-        <Animated.View 
-          style={[
-            styles.typingDot,
-            {
-              transform: [{
-                scale: typingAnimation.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [1, 1.2],
-                })
-              }]
-            }
-          ]} 
-        />
-        <Animated.View 
-          style={[
-            styles.typingDot,
-            {
-              transform: [{
-                scale: typingAnimation.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [1, 1.2],
-                })
-              }]
-            }
-          ]} 
-        />
+        {[0, 1, 2].map((i) => (
+          <Animated.View
+            key={i}
+            style={[
+              styles.typingDot,
+              {
+                transform: [{
+                  scale: typingAnimation.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [1, 1.3],
+                  }),
+                }],
+                opacity: typingAnimation.interpolate({
+                  inputRange: [0, 0.5, 1],
+                  outputRange: [0.3, 1, 0.3],
+                }),
+              },
+            ]}
+          />
+        ))}
       </View>
-      <Text style={styles.typingText}>AI is typing...</Text>
+      <Text style={styles.typingText}>Assistant is typing...</Text>
     </Animated.View>
-  );
+  ));
 
   const renderItem = useCallback(({ item }: { item: Message }) => (
     <MessageBubble item={item} />
@@ -271,274 +221,231 @@ export default function ChatScreen() {
   const keyExtractor = useCallback((item: Message) => item.id, []);
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-    >
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <View style={styles.onlineIndicator} />
-          <Text style={styles.headerTitle}>Smart Assistant</Text>
-          <Text style={styles.headerSubtitle}>Online</Text>
-        </View>
+        <TouchableOpacity 
+          style={styles.backButton} 
+          onPress={() => navigation.goBack()}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.backButtonText}>{'<'}</Text>
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Assistant</Text>
+        <View style={styles.onlineIndicator} />
       </View>
 
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-        style={styles.chatList}
-        contentContainerStyle={{ 
-          padding: 16,
-          paddingBottom: 100,
-          flexGrow: 1,
-        }}
-        showsVerticalScrollIndicator={false}
-        ListFooterComponent={loading ? <TypingIndicator /> : null}
-        removeClippedSubviews={true}
-        maxToRenderPerBatch={10}
-        windowSize={10}
-        onScroll={handleScroll}
-        scrollEventThrottle={16}
-        maintainVisibleContentPosition={{
-          minIndexForVisible: 0,
-          autoscrollToTopThreshold: 100,
-        }}
-        onContentSizeChange={() => {
-          // Auto scroll when content size changes (new messages)
-          if (shouldAutoScroll.current) {
-            scrollToBottom(false);
-          }
-        }}
-        onLayout={() => {
-          // Auto scroll when layout changes (keyboard)
-          if (messages.length > 0) {
-            scrollToBottom(false);
-          }
-        }}
-      />
-
-      <Animated.View 
-        style={[
-          styles.inputContainer,
-          {
-            transform: [{ translateY: inputContainerAnimation }],
-          },
-        ]}
+      <KeyboardAvoidingView 
+        style={styles.chatContainer}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
       >
-        <View style={styles.inputWrapper}>
-          <TextInput
-            style={styles.input}
-            value={input}
-            onChangeText={setInput}
-            placeholder="Type your message..."
-            placeholderTextColor="#64748b"
-            multiline
-            maxLength={500}
-            textAlignVertical="center"
-            returnKeyType="send"
-            onSubmitEditing={handleSend}
-            blurOnSubmit={false}
-          />
-          <TouchableOpacity
-            style={[
-              styles.sendButton, 
-              loading && styles.sendButtonDisabled,
-              input.trim() ? styles.sendButtonActive : styles.sendButtonInactive
-            ]}
-            onPress={handleSend}
-            disabled={loading || !input.trim()}
-            activeOpacity={0.7}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" size="small" />
-            ) : (
-              <Animated.Text 
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          renderItem={renderItem}
+          keyExtractor={keyExtractor}
+          style={styles.messageList}
+          contentContainerStyle={styles.messageListContent}
+          showsVerticalScrollIndicator={false}
+          ListFooterComponent={loading ? <TypingIndicator /> : null}
+          onContentSizeChange={scrollToBottom}
+          onLayout={scrollToBottom}
+        />
+
+        <View style={styles.inputArea}>
+          <View style={styles.inputWrapper}>
+            <TextInput
+              style={[
+                styles.input,
+                input.length > 0 && styles.inputFocused
+              ]}
+              value={input}
+              onChangeText={setInput}
+              placeholder="Type a message..."
+              placeholderTextColor="#8E8E93"
+              multiline={false}
+              returnKeyType="send"
+              onSubmitEditing={(e) => {
+                e.preventDefault();
+                handleSend();
+              }}
+              editable={!loading}
+            />
+            <Animated.View style={{ transform: [{ scale: sendButtonScale }] }}>
+              <TouchableOpacity
                 style={[
-                  styles.sendText,
-                  {
-                    transform: [{
-                      scale: input.trim() ? 1 : 0.8
-                    }]
-                  }
+                  styles.sendButton,
+                  (!input.trim() || loading) && styles.sendButtonDisabled,
                 ]}
+                onPress={handleSend}
+                disabled={!input.trim() || loading}
+                activeOpacity={0.8}
               >
-                ➤
-              </Animated.Text>
-            )}
-          </TouchableOpacity>
+                <Text style={styles.sendButtonText}>Send</Text>
+              </TouchableOpacity>
+            </Animated.View>
+          </View>
         </View>
-      </Animated.View>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0f172a",
+    backgroundColor: "#000000",
   },
   header: {
-    backgroundColor: "#1e293b",
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
-    paddingBottom: 16,
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "#334155",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  headerContent: {
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 16,
+    paddingHorizontal: 10,
+    borderBottomWidth: 0.5,
+    borderBottomColor: "#262626",
   },
   headerTitle: {
-    color: "#fff",
-    fontSize: 20,
-    fontWeight: "700",
-    marginBottom: 2,
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontWeight: "600",
+    letterSpacing: 0.5,
   },
-  headerSubtitle: {
-    color: "#10b981",
-    fontSize: 14,
-    fontWeight: "500",
+  backButton: {
+    position: "absolute",
+    left: 16,
+    zIndex: 10,
+    padding: 8,
+    borderRadius: 20,
+  },
+  backButtonText: {
+    color: "#FFFFFF",
+    fontSize: 22,
+    fontWeight: "300",
   },
   onlineIndicator: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: "#10b981",
-    marginBottom: 8,
-    shadowColor: "#10b981",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 4,
+    position: "absolute",
+    right: 20,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#34C759",
   },
-  chatList: {
+  chatContainer: {
     flex: 1,
   },
+  messageList: {
+    flex: 1,
+  },
+  messageListContent: {
+    padding: 16,
+    paddingBottom: 20,
+    flexGrow: 1,
+  },
   messageBubble: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 24,
-    marginVertical: 4,
-    maxWidth: width * 0.8,
+    padding: 12,
+    borderRadius: 20,
+    marginVertical: 6,
+    maxWidth: "80%",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
     elevation: 4,
   },
   userBubble: {
     alignSelf: "flex-end",
-    backgroundColor: "#3b82f6",
-    borderBottomRightRadius: 8,
-    marginLeft: width * 0.2,
+    backgroundColor: "#E9344C",
+    borderRadius: 20,
+    borderBottomRightRadius: 6,
   },
   botBubble: {
     alignSelf: "flex-start",
-    backgroundColor: "#334155",
-    borderBottomLeftRadius: 8,
-    marginRight: width * 0.2,
+    backgroundColor: "#262626",
+    borderRadius: 20,
+    borderBottomLeftRadius: 6,
+  },
+  typingBubble: {
+    paddingVertical: 16,
+    alignItems: "center",
   },
   messageText: {
-    color: "#fff",
+    color: "#FFFFFF",
     fontSize: 16,
     lineHeight: 22,
-    fontWeight: "400",
+    letterSpacing: 0.2,
   },
   timestamp: {
-    color: "#94a3b8",
+    color: "rgba(255,255,255,0.6)",
     fontSize: 11,
-    marginTop: 6,
-    textAlign: "right",
-    fontWeight: "300",
-  },
-  typingIndicator: {
-    alignItems: "center",
-    paddingVertical: 16,
+    marginTop: 4,
+    alignSelf: "flex-end",
   },
   typingDots: {
     flexDirection: "row",
     marginBottom: 8,
   },
   typingDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "#94a3b8",
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: "#FFFFFF",
     marginHorizontal: 2,
   },
   typingText: {
-    color: "#94a3b8",
+    color: "rgba(255,255,255,0.8)",
     fontSize: 12,
     fontStyle: "italic",
   },
-  inputContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "#1e293b",
-    borderTopWidth: 1,
-    borderTopColor: "#334155",
-    paddingBottom: Platform.OS === 'ios' ? 34 : 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 10,
+  inputArea: {
+    backgroundColor: "#000000",
+    paddingHorizontal: 10,
+    paddingBottom: Platform.OS === 'ios' ? 34 : 20,
+    paddingTop: 10,
+    borderTopWidth: 0.5,
+    borderTopColor: "#262626",
   },
   inputWrapper: {
     flexDirection: "row",
-    padding: 16,
-    alignItems: "flex-end",
+    alignItems: "center",
   },
   input: {
     flex: 1,
-    color: "#fff",
-    paddingHorizontal: 20,
+    backgroundColor: "#262626",
+    color: "#FFFFFF",
+    borderRadius: 20,
+    paddingHorizontal: 16,
     paddingVertical: 12,
-    borderRadius: 25,
-    backgroundColor: "#334155",
-    marginRight: 12,
+    marginRight: 8,
     fontSize: 16,
-    maxHeight: 120,
-    minHeight: 48,
     borderWidth: 1,
-    borderColor: "#475569",
-    textAlignVertical: "center",
+    borderColor: "transparent",
+    letterSpacing: 0.2,
+  },
+  inputFocused: {
+    borderColor: "#E9344C",
   },
   sendButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    backgroundColor: "#E9344C",
+    borderRadius: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#3b82f6",
+    shadowColor: "#E9344C",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 4,
   },
-  sendButtonActive: {
-    backgroundColor: "#3b82f6",
-    transform: [{ scale: 1 }],
-  },
-  sendButtonInactive: {
-    backgroundColor: "#64748b",
-    transform: [{ scale: 0.9 }],
-  },
   sendButtonDisabled: {
-    opacity: 0.6,
+    backgroundColor: "#4A4A4A",
+    shadowOpacity: 0,
   },
-  sendText: {
-    color: "#fff",
-    fontSize: 20,
-    fontWeight: "bold",
+  sendButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
+    letterSpacing: 0.5,
   },
 });
