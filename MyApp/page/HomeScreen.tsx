@@ -18,6 +18,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
+import { Video } from 'expo-av';
 import { LinearGradient } from 'expo-linear-gradient';
 import { styles, colors } from './FoodPostingStyles';
 import { firebaseService, FoodPost } from '../Services/FirebaseService';
@@ -319,17 +320,13 @@ const HomeScreen: React.FC = () => {
         {item.imageUrl ? (
           <Image source={{ uri: item.imageUrl }} style={styles.postMedia} />
         ) : item.videoUrl ? (
-          <View style={[styles.postMedia, { alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surfaceVariant }]}>
-            <TouchableOpacity style={{ alignItems: 'center' }}>
-              <Ionicons name="play-circle" size={60} color={colors.primary} />
-              <Text style={{ color: colors.textSecondary, marginTop: 10, fontSize: 14 }}>
-                Video Available
-              </Text>
-              <Text style={{ color: colors.textSecondary, fontSize: 12, textAlign: 'center', marginHorizontal: 20 }}>
-                Tap to view in external player
-              </Text>
-            </TouchableOpacity>
-          </View>
+          <Video
+            source={item.videoUrl}
+            style={styles.postMedia}
+            shouldPlay={false}
+            isLooping={false}
+            useNativeControls={true}
+          />
         ) : (
           <View style={[styles.postMedia, { alignItems: 'center', justifyContent: 'center' }]}>
             <Ionicons name="image-outline" size={60} color={colors.textSecondary} />
@@ -569,15 +566,13 @@ const HomeScreen: React.FC = () => {
               {mediaType === 'image' ? (
                 <Image source={{ uri: mediaUri }} style={styles.mediaPreviewImage} />
               ) : (
-                <View style={[styles.mediaPreviewImage, { alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surfaceVariant }]}>
-                  <Ionicons name="videocam" size={40} color={colors.primary} />
-                  <Text style={{ color: colors.textSecondary, marginTop: 10, fontSize: 14 }}>
-                    Video Selected
-                  </Text>
-                  <Text style={{ color: colors.textSecondary, fontSize: 12, textAlign: 'center', marginHorizontal: 20 }}>
-                    Ready to upload
-                  </Text>
-                </View>
+                <Video
+                  source={mediaUri}
+                  style={styles.mediaPreviewImage}
+                  shouldPlay={false}
+                  isLooping={false}
+                  useNativeControls={true}
+                />
               )}
             </View>
           )}
