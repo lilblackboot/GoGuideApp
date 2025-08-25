@@ -5,17 +5,13 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
-  Alert,
   Animated,
-  Dimensions,
-  StyleSheet,
   ActivityIndicator,
   StatusBar,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-
-const { width, height } = Dimensions.get('window');
+import { styles } from './CalculatorStyles';
 
 interface CalculationResult {
   type: 'positive' | 'negative';
@@ -47,6 +43,10 @@ const Calculator: React.FC = () => {
   const slideAnim = useRef(new Animated.Value(50)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
   const resultAnim = useRef(new Animated.Value(0)).current;
+  const rotateAnim = useRef(new Animated.Value(0)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const shakeAnim = useRef(new Animated.Value(0)).current;
+  const backgroundAnim = useRef(new Animated.Value(0)).current;
 
   // State variables
   const [totalSlots, setTotalSlots] = useState<string>('');
@@ -70,24 +70,58 @@ const Calculator: React.FC = () => {
   });
 
   useEffect(() => {
-    // Initial animation
+    // Initial entrance animation
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 1000,
+        duration: 1200,
         useNativeDriver: true,
       }),
-      Animated.timing(slideAnim, {
+      Animated.spring(slideAnim, {
         toValue: 0,
-        duration: 800,
+        tension: 80,
+        friction: 8,
         useNativeDriver: true,
       }),
-      Animated.timing(scaleAnim, {
+      Animated.spring(scaleAnim, {
         toValue: 1,
-        duration: 600,
+        tension: 100,
+        friction: 8,
         useNativeDriver: true,
+      }),
+      Animated.timing(backgroundAnim, {
+        toValue: 1,
+        duration: 2000,
+        useNativeDriver: false,
       }),
     ]).start();
+
+    // Continuous rotation animation
+    const rotateAnimation = Animated.loop(
+      Animated.timing(rotateAnim, {
+        toValue: 1,
+        duration: 20000,
+        useNativeDriver: true,
+      })
+    );
+    rotateAnimation.start();
+
+    // Pulse animation for interactive elements
+    const pulseAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.05,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    pulseAnimation.start();
   }, []);
 
   const getCurrentDay = (): string => {
@@ -98,12 +132,66 @@ const Calculator: React.FC = () => {
 
   const animateResult = () => {
     resultAnim.setValue(0);
-    Animated.spring(resultAnim, {
-      toValue: 1,
-      tension: 100,
-      friction: 8,
-      useNativeDriver: true,
-    }).start();
+    Animated.sequence([
+      Animated.spring(resultAnim, {
+        toValue: 1,
+        tension: 120,
+        friction: 8,
+        useNativeDriver: true,
+      }),
+      Animated.timing(resultAnim, {
+        toValue: 0.98,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.spring(resultAnim, {
+        toValue: 1,
+        tension: 200,
+        friction: 10,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const animateError = () => {
+    Animated.sequence([
+      Animated.timing(shakeAnim, {
+        toValue: 10,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: -10,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: 10,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: 0,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const animateButton = () => {
+    Animated.sequence([
+      Animated.timing(scaleAnim, {
+        toValue: 0.95,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        tension: 200,
+        friction: 10,
+        useNativeDriver: true,
+      }),
+    ]).start();
   };
 
   const calculateAttendance = async () => {
@@ -114,27 +202,32 @@ const Calculator: React.FC = () => {
     // Validation
     if (!total || total === 0) {
       setError('Total slots cannot be 0 or empty');
+      animateError();
       return;
     }
 
     if (!attended && attended !== 0) {
       setError('Please enter attended slots');
+      animateError();
       return;
     }
 
     if (attended > total) {
       setError('Attended slots cannot be more than total slots');
+      animateError();
       return;
     }
 
     if (!target || target <= 0 || target > 100) {
       setError('Target attendance must be between 1 and 100');
+      animateError();
       return;
     }
 
     setIsCalculating(true);
     setError('');
     setCalculationResult(null);
+    animateButton();
 
     // Simulate calculation delay for better UX
     setTimeout(() => {
@@ -257,7 +350,7 @@ const Calculator: React.FC = () => {
 
       setIsCalculating(false);
       animateResult();
-    }, 1200);
+    }, 1500);
   };
 
   const handleSlotChange = (day: keyof WeeklySlots, value: string) => {
@@ -275,25 +368,62 @@ const Calculator: React.FC = () => {
       style={[
         styles.card,
         {
-          transform: [{ scale: scaleAnim }],
+          transform: [
+            { scale: scaleAnim },
+            {
+              rotateY: rotateAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: ['0deg', '2deg'],
+              }),
+            },
+          ],
         },
       ]}
     >
       <View style={styles.cardHeader}>
-        <Icon name="schedule" size={24} color="#6366F1" />
+        <Animated.View
+          style={{
+            transform: [
+              {
+                rotate: rotateAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: ['0deg', '360deg'],
+                }),
+              },
+            ],
+          }}
+        >
+          <Icon name="schedule" size={24} color="#A855F7" />
+        </Animated.View>
         <Text style={styles.cardTitle}>Weekly Schedule</Text>
         <TouchableOpacity
           style={styles.editButton}
           onPress={() => setEditMode(!editMode)}
         >
-          <Icon name={editMode ? "close" : "edit"} size={20} color="#6366F1" />
+          <Icon name={editMode ? "close" : "edit"} size={20} color="#A855F7" />
         </TouchableOpacity>
       </View>
 
       {editMode ? (
-        <View style={styles.scheduleForm}>
+        <Animated.View 
+          style={[
+            styles.scheduleForm,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            },
+          ]}
+        >
           {Object.entries(slots).map(([day, count]) => (
-            <View key={day} style={styles.dayInput}>
+            <Animated.View 
+              key={day} 
+              style={[
+                styles.dayInput,
+                {
+                  transform: [{ scale: pulseAnim }],
+                },
+              ]}
+            >
               <Text style={styles.dayLabel}>{day.charAt(0).toUpperCase() + day.slice(1)}</Text>
               <TextInput
                 style={styles.input}
@@ -301,20 +431,44 @@ const Calculator: React.FC = () => {
                 onChangeText={(value) => handleSlotChange(day as keyof WeeklySlots, value)}
                 keyboardType="numeric"
                 placeholder="0"
+                placeholderTextColor="#6B7280"
               />
-            </View>
+            </Animated.View>
           ))}
           <View style={styles.totalSlots}>
             <Text style={styles.totalText}>Total: {totalWeeklySlots} classes/week</Text>
           </View>
-        </View>
+        </Animated.View>
       ) : (
         <View style={styles.scheduleDisplay}>
-          {Object.entries(slots).map(([day, count]) => (
-            <View key={day} style={styles.dayDisplay}>
+          {Object.entries(slots).map(([day, count], index) => (
+            <Animated.View 
+              key={day} 
+              style={[
+                styles.dayDisplay,
+                {
+                  opacity: fadeAnim,
+                  transform: [
+                    { 
+                      translateX: slideAnim.interpolate({
+                        inputRange: [0, 50],
+                        outputRange: [0, (index % 2 === 0 ? -1 : 1) * 20],
+                      }),
+                    },
+                  ],
+                },
+              ]}
+            >
               <Text style={styles.dayName}>{day.charAt(0).toUpperCase() + day.slice(1)}</Text>
-              <Text style={styles.dayCount}>{count}</Text>
-            </View>
+              <Animated.Text 
+                style={[
+                  styles.dayCount,
+                  { transform: [{ scale: pulseAnim }] },
+                ]}
+              >
+                {count}
+              </Animated.Text>
+            </Animated.View>
           ))}
           <View style={styles.totalDisplay}>
             <Text style={styles.totalDisplayText}>Total Weekly: {totalWeeklySlots}</Text>
@@ -337,7 +491,14 @@ const Calculator: React.FC = () => {
               {
                 translateY: resultAnim.interpolate({
                   inputRange: [0, 1],
-                  outputRange: [20, 0],
+                  outputRange: [30, 0],
+                }),
+              },
+              { scale: resultAnim },
+              {
+                rotateX: resultAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: ['15deg', '0deg'],
                 }),
               },
             ],
@@ -347,28 +508,49 @@ const Calculator: React.FC = () => {
         <LinearGradient
           colors={
             calculationResult.type === 'positive'
-              ? ['#10B981', '#059669']
-              : ['#F59E0B', '#D97706']
+              ? ['#059669', '#047857', '#065F46']
+              : ['#DC2626', '#B91C1C', '#991B1B']
           }
           style={styles.resultGradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
         >
           <View style={styles.resultHeader}>
-            <Icon
-              name={calculationResult.type === 'positive' ? 'check-circle' : 'warning'}
-              size={28}
-              color="white"
-            />
+            <Animated.View
+              style={{
+                transform: [
+                  {
+                    rotate: rotateAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: ['0deg', '360deg'],
+                    }),
+                  },
+                  { scale: pulseAnim },
+                ],
+              }}
+            >
+              <Icon
+                name={calculationResult.type === 'positive' ? 'check-circle' : 'warning'}
+                size={28}
+                color="white"
+              />
+            </Animated.View>
             <Text style={styles.resultTitle}>
               Current: {calculationResult.percentage}%
             </Text>
           </View>
 
           {calculationResult.type === 'positive' ? (
-            <Text style={styles.resultText}>
+            <Animated.Text 
+              style={[
+                styles.resultText,
+                { transform: [{ scale: pulseAnim }] },
+              ]}
+            >
               🎉 You can safely miss {calculationResult.classes} more{' '}
               {calculationResult.classes === 1 ? 'class' : 'classes'} while maintaining{' '}
               {targetAttendance}% attendance!
-            </Text>
+            </Animated.Text>
           ) : (
             <View>
               <Text style={styles.resultText}>
@@ -378,7 +560,15 @@ const Calculator: React.FC = () => {
               </Text>
 
               {showSchedule && calculationResult.fullWeeks !== undefined && (
-                <View style={styles.breakdownContainer}>
+                <Animated.View 
+                  style={[
+                    styles.breakdownContainer,
+                    {
+                      opacity: fadeAnim,
+                      transform: [{ translateY: slideAnim }],
+                    },
+                  ]}
+                >
                   <Text style={styles.breakdownTitle}>Schedule Breakdown:</Text>
                   {calculationResult.fullWeeks > 0 && (
                     <Text style={styles.breakdownText}>
@@ -393,16 +583,38 @@ const Calculator: React.FC = () => {
                     <View style={styles.dayBreakdown}>
                       {Object.entries(calculationResult.slotBreakdown)
                         .filter(([, count]) => count > 0)
-                        .map(([day, count]) => (
-                          <View key={day} style={styles.dayBreakdownItem}>
+                        .map(([day, count], index) => (
+                          <Animated.View 
+                            key={day} 
+                            style={[
+                              styles.dayBreakdownItem,
+                              {
+                                transform: [
+                                  { 
+                                    scale: fadeAnim.interpolate({
+                                      inputRange: [0, 1],
+                                      outputRange: [0.8, 1],
+                                    })
+                                  },
+                                  {
+                                    translateY: fadeAnim.interpolate({
+                                      inputRange: [0, 1],
+                                      outputRange: [20, 0],
+                                    }),
+                                  },
+                                ],
+                                opacity: fadeAnim,
+                              },
+                            ]}
+                          >
                             <Text style={styles.dayBreakdownText}>
                               {day.charAt(0).toUpperCase() + day.slice(1)}: {count}
                             </Text>
-                          </View>
+                          </Animated.View>
                         ))}
                     </View>
                   )}
-                </View>
+                </Animated.View>
               )}
 
               <Text style={styles.resultSubText}>
@@ -415,21 +627,40 @@ const Calculator: React.FC = () => {
     );
   };
 
+  const spin = rotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#6366F1" />
+      <StatusBar barStyle="light-content" backgroundColor="#1F2937" />
       
-      <LinearGradient colors={['#6366F1', '#8B5CF6']} style={styles.header}>
+      <LinearGradient 
+        colors={['#1F2937', '#374151', '#4B5563']} 
+        style={styles.header}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
         <Animated.View
           style={[
             styles.headerContent,
             {
               opacity: fadeAnim,
-              transform: [{ translateY: slideAnim }],
+              transform: [
+                { translateY: slideAnim },
+                { scale: scaleAnim },
+              ],
             },
           ]}
         >
-          <Icon name="calculate" size={32} color="white" />
+          <Animated.View
+            style={{
+              transform: [{ rotate: spin }],
+            }}
+          >
+            <Icon name="calculate" size={32} color="#A855F7" />
+          </Animated.View>
           <Text style={styles.headerTitle}>Attendance Calculator</Text>
           <Text style={styles.headerSubtitle}>Track your academic progress</Text>
         </Animated.View>
@@ -441,7 +672,11 @@ const Calculator: React.FC = () => {
             styles.mainCard,
             {
               opacity: fadeAnim,
-              transform: [{ translateY: slideAnim }, { scale: scaleAnim }],
+              transform: [
+                { translateY: slideAnim }, 
+                { scale: scaleAnim },
+                { translateX: shakeAnim },
+              ],
             },
           ]}
         >
@@ -453,6 +688,7 @@ const Calculator: React.FC = () => {
                 value={totalSlots}
                 onChangeText={setTotalSlots}
                 placeholder="Enter total classes"
+                placeholderTextColor="#6B7280"
                 keyboardType="numeric"
               />
             </View>
@@ -464,6 +700,7 @@ const Calculator: React.FC = () => {
                 value={attendedSlots}
                 onChangeText={setAttendedSlots}
                 placeholder="Classes attended"
+                placeholderTextColor="#6B7280"
                 keyboardType="numeric"
               />
             </View>
@@ -475,16 +712,24 @@ const Calculator: React.FC = () => {
                 value={targetAttendance}
                 onChangeText={setTargetAttendance}
                 placeholder="75"
+                placeholderTextColor="#6B7280"
                 keyboardType="numeric"
               />
             </View>
           </View>
 
           {error ? (
-            <View style={styles.errorContainer}>
+            <Animated.View 
+              style={[
+                styles.errorContainer,
+                {
+                  transform: [{ translateX: shakeAnim }],
+                },
+              ]}
+            >
               <Icon name="error" size={20} color="#EF4444" />
               <Text style={styles.errorText}>{error}</Text>
-            </View>
+            </Animated.View>
           ) : null}
 
           <TouchableOpacity
@@ -492,14 +737,27 @@ const Calculator: React.FC = () => {
             onPress={calculateAttendance}
             disabled={isCalculating}
           >
-            {isCalculating ? (
-              <ActivityIndicator color="white" size="small" />
-            ) : (
-              <Icon name="calculate" size={24} color="white" />
-            )}
-            <Text style={styles.calculateButtonText}>
-              {isCalculating ? 'Calculating...' : 'Calculate'}
-            </Text>
+            <LinearGradient
+              colors={['#A855F7', '#9333EA', '#7C3AED']}
+              style={styles.buttonGradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            >
+              {isCalculating ? (
+                <ActivityIndicator color="white" size="small" />
+              ) : (
+                <Animated.View
+                  style={{
+                    transform: [{ scale: pulseAnim }],
+                  }}
+                >
+                  <Icon name="calculate" size={24} color="white" />
+                </Animated.View>
+              )}
+              <Text style={styles.calculateButtonText}>
+                {isCalculating ? 'Calculating...' : 'Calculate'}
+              </Text>
+            </LinearGradient>
           </TouchableOpacity>
         </Animated.View>
 
@@ -509,11 +767,17 @@ const Calculator: React.FC = () => {
           style={styles.scheduleToggle}
           onPress={() => setShowSchedule(!showSchedule)}
         >
-          <Icon 
-            name={showSchedule ? "expand-less" : "expand-more"} 
-            size={24} 
-            color="#6366F1" 
-          />
+          <Animated.View
+            style={{
+              transform: [{ rotate: showSchedule ? '180deg' : '0deg' }],
+            }}
+          >
+            <Icon 
+              name={showSchedule ? "expand-less" : "expand-more"} 
+              size={24} 
+              color="#A855F7" 
+            />
+          </Animated.View>
           <Text style={styles.scheduleToggleText}>
             {showSchedule ? 'Hide' : 'Show'} Weekly Schedule
           </Text>
@@ -526,283 +790,5 @@ const Calculator: React.FC = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-  },
-  header: {
-    paddingTop: 60,
-    paddingBottom: 30,
-    paddingHorizontal: 20,
-  },
-  headerContent: {
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: 'white',
-    marginTop: 10,
-  },
-  headerSubtitle: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.8)',
-    marginTop: 5,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-    marginTop: -15,
-  },
-  mainCard: {
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 25,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 8,
-    marginBottom: 20,
-  },
-  inputSection: {
-    marginBottom: 20,
-  },
-  inputGroup: {
-    marginBottom: 20,
-  },
-  inputLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#374151',
-    marginBottom: 8,
-  },
-  mainInput: {
-    borderWidth: 2,
-    borderColor: '#E5E7EB',
-    borderRadius: 12,
-    padding: 15,
-    fontSize: 16,
-    backgroundColor: '#F9FAFB',
-    color: '#111827',
-  },
-  errorContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FEF2F2',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 15,
-  },
-  errorText: {
-    color: '#EF4444',
-    marginLeft: 8,
-    fontSize: 14,
-  },
-  calculateButton: {
-    backgroundColor: '#6366F1',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 18,
-    borderRadius: 12,
-    shadowColor: '#6366F1',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  calculatingButton: {
-    opacity: 0.7,
-  },
-  calculateButtonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: '600',
-    marginLeft: 8,
-  },
-  resultCard: {
-    borderRadius: 16,
-    marginBottom: 20,
-    overflow: 'hidden',
-  },
-  resultGradient: {
-    padding: 20,
-  },
-  resultHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  resultTitle: {
-    color: 'white',
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginLeft: 10,
-  },
-  resultText: {
-    color: 'white',
-    fontSize: 16,
-    lineHeight: 24,
-    marginBottom: 10,
-  },
-  resultSubText: {
-    color: 'rgba(255, 255, 255, 0.9)',
-    fontSize: 14,
-    marginTop: 10,
-  },
-  breakdownContainer: {
-    marginTop: 15,
-    paddingTop: 15,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.3)',
-  },
-  breakdownTitle: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  breakdownText: {
-    color: 'rgba(255, 255, 255, 0.9)',
-    fontSize: 14,
-    marginBottom: 10,
-  },
-  dayBreakdown: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  dayBreakdownItem: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-  },
-  dayBreakdownText: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  scheduleToggle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'white',
-    padding: 15,
-    borderRadius: 12,
-    marginBottom: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  scheduleToggleText: {
-    color: '#6366F1',
-    fontSize: 16,
-    fontWeight: '600',
-    marginLeft: 8,
-  },
-  card: {
-    backgroundColor: 'white',
-    borderRadius: 16,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-    marginBottom: 20,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#374151',
-    flex: 1,
-    marginLeft: 10,
-  },
-  editButton: {
-    padding: 8,
-    borderRadius: 8,
-    backgroundColor: '#F3F4F6',
-  },
-  scheduleForm: {
-    gap: 15,
-  },
-  dayInput: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  dayLabel: {
-    fontSize: 16,
-    color: '#374151',
-    flex: 1,
-    textTransform: 'capitalize',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
-    borderRadius: 8,
-    padding: 10,
-    width: 80,
-    textAlign: 'center',
-    fontSize: 16,
-  },
-  totalSlots: {
-    marginTop: 10,
-    paddingTop: 15,
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-  },
-  totalText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#6366F1',
-    textAlign: 'center',
-  },
-  scheduleDisplay: {
-    gap: 12,
-  },
-  dayDisplay: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  dayName: {
-    fontSize: 16,
-    color: '#374151',
-    textTransform: 'capitalize',
-  },
-  dayCount: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#6366F1',
-  },
-  totalDisplay: {
-    marginTop: 10,
-    paddingTop: 15,
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-  },
-  totalDisplayText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#6366F1',
-    textAlign: 'center',
-  },
-  footer: {
-    height: 40,
-  },
-});
 
 export default Calculator;
