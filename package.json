@@ -1,8 +1,13 @@
 {
   "devDependencies": {
+    "@types/react-native-video": "^5.0.20",
     "eas-cli": "^16.17.4"
   },
   "dependencies": {
-    "react-native-dotenv": "^3.4.11"
+    "@react-native-community/geolocation": "^3.4.0",
+    "expo-video": "^2.2.2",
+    "react-native-dotenv": "^3.4.11",
+    "react-native-image-picker": "^8.2.1",
+    "react-native-video": "^6.16.1"
   }
 }
