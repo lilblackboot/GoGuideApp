@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 16,
+    paddingVertical: 20,
     paddingHorizontal: 10,
     borderBottomWidth: 0.5,
     borderBottomColor: "#262626",
@@ -310,6 +310,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
     letterSpacing: 0.5,
+    paddingTop: 20,
   },
   backButton: {
     position: "absolute",
@@ -322,6 +323,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 22,
     fontWeight: "300",
+    paddingTop: 22,
   },
   onlineIndicator: {
     position: "absolute",
