@@ -29,11 +29,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const signup = (email, password) => {
+  const signup = (email: string, password: string) => {
     return createUserWithEmailAndPassword(auth, email, password);
   };
 
-  const login = (email, password) => {
+  const login = (email: string, password: string) => {
     return signInWithEmailAndPassword(auth, email, password);
   };
 
