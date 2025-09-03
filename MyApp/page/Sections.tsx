@@ -99,8 +99,9 @@ type OptionCardProps = {
   onPress: () => void;
   delay?: number;
   gradientColors: [string, string];
+  size?: 'small' | 'large'; // Added size prop
 };
-const OptionCard: React.FC<OptionCardProps> = ({ title, emoji, onPress, delay = 0, gradientColors }) => {
+const OptionCard: React.FC<OptionCardProps> = ({ title, emoji, onPress, delay = 0, gradientColors, size }) => {
   const scaleAnim = useState(new Animated.Value(0))[0];
   const [pressed, setPressed] = useState(false);
 
@@ -131,6 +132,14 @@ const OptionCard: React.FC<OptionCardProps> = ({ title, emoji, onPress, delay = 
   };
 
   const isDarkButton = Array.isArray(gradientColors) && gradientColors[0] === '#23232b';
+  const cardStyle = [
+    styles.optionCard,
+    {
+      transform: [{ scale: scaleAnim }],
+      minHeight: size === 'large' ? 150 : 120, // Adjust minHeight based on size
+    },
+  ];
+
   return (
     <TouchableOpacity
       onPressIn={handlePressIn}
@@ -139,12 +148,7 @@ const OptionCard: React.FC<OptionCardProps> = ({ title, emoji, onPress, delay = 
       activeOpacity={0.8}
     >
       <Animated.View
-        style={[
-          styles.optionCard,
-          {
-            transform: [{ scale: scaleAnim }],
-          },
-        ]}
+        style={cardStyle}
       >
         {isDarkButton ? (
           <View style={[styles.optionGradient, { backgroundColor: '#23232b' }]}> 
@@ -315,23 +319,25 @@ const handleCalculator = () => {
               </TouchableOpacity>
             </View>
           )}
-          <View style={{ alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
-            <TouchableOpacity
-              style={styles.profilePicContainer}
-              onPress={() => setProfileModalVisible(true)}
-            >
-              <Text style={styles.profilePicEmoji}>{profileEmoji}</Text>
-            </TouchableOpacity>
-            <Text style={styles.welcomeText}>hey there,</Text>
-            <MaskedView maskElement={<Text style={styles.userNameText}>{displayName} </Text>}>
-              <LinearGradient colors={["#f43f5e", "#f97316"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
-                <Text style={[styles.userNameText, { opacity: 0 }]}>{displayName} </Text>
-              </LinearGradient>
-            </MaskedView>
-            {currentUser?.email && (
-              <Text style={styles.userEmailText}>{currentUser.email}</Text>
-            )}
-          </View>
+                     <View style={styles.headerContentContainer}>
+             <View style={styles.headerContent}>
+               <TouchableOpacity
+                 style={styles.profilePicContainer}
+                 onPress={() => setProfileModalVisible(true)}
+               >
+                 <Text style={styles.profilePicEmoji}>{profileEmoji}</Text>
+               </TouchableOpacity>
+               <Text style={styles.welcomeText}>hey there,</Text>
+               <MaskedView maskElement={<Text style={styles.userNameText}>{displayName} </Text>}>
+                 <LinearGradient colors={["#f43f5e", "#f97316"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                   <Text style={[styles.userNameText, { opacity: 0 }]}>{displayName} </Text>
+                 </LinearGradient>
+               </MaskedView>
+               {currentUser?.email && (
+                 <Text style={styles.userEmailText}>{currentUser.email}</Text>
+               )}
+             </View>
+           </View>
           {/* Attendance and Teacher options row below email */}
           <View style={{ gap: 16, width: '100%', marginBottom: 24 }}>
           </View>
@@ -348,41 +354,54 @@ const handleCalculator = () => {
         >
           <Text style={styles.sectionTitle}>what's the vibe today? 🌈</Text>
           <View style={styles.optionsGrid}>
-            <View style={{ flexDirection: 'row', gap: 16 }}>
+            <View style={styles.bottomButtonsContainer}>
+            <View style={styles.bottomRightButtonContainer}>
+                  <OptionCard
+                    title="Food"
+                    emoji="🍕"
+                    onPress={() => handleOptionPress('Home')}
+                    delay={800}
+                    size="small"
+                    gradientColors={["#f97316", "#fbbf24"]} // orange to yellow gradient
+                  />
+                </View>
+                <View style={styles.topRightButtonContainer}>
+                  <OptionCard
+                    title="Events"
+                    emoji="🎉"
+                    onPress={() => handleOptionPress('events')}
+                    delay={700}
+                    size="small"
+                    gradientColors={["#8b5cf6", "#a855f7"]} // purple gradient
+                  />
+                </View>
+            </View>
+            {/* Calculator and Chat buttons below - same style as food/events */}
+            <View style={styles.bottomButtonsContainer}>
+                             <View style={{ flex: 1 }}>
+                 <OptionCard
+                   title="Calculator"
+                   emoji="🧮"
+                   onPress={handleCalculator}
+                   delay={900}
+                   gradientColors={["#ec4899", "#f472b6"]} // pink gradient - same as food
+                 />
+               </View>
               <View style={{ flex: 1 }}>
                 <OptionCard
-                  title="food"
-                  emoji="🍕"
-                  onPress={() => handleOptionPress('Home')}
-                  delay={600}
-                  gradientColors={["#f59e42", "#f43f5e"]} // orange to pink
-                />
-              </View>
-              <View style={{ flex: 1 }}>
-                <OptionCard
-                  title="events"
-                  emoji="🎉"
-                  onPress={() => handleOptionPress('events')}
-                  delay={800}
-                  gradientColors={["#6366f1", "#f472b6"]} // blue to pink
+                  title="Chat"
+                  emoji="💬"
+                  onPress={handleChatbot}
+                  delay={1000}
+                  gradientColors={["#10b981", "#059669"]} // green gradient
                 />
               </View>
             </View>
           </View>
         </Animated.View>
-      </ScrollView>
+              </ScrollView>
 
-      {/* Floating action buttons bottom right */}
-      <View style={{ position: 'absolute', bottom: 36, right: 24, flexDirection: 'column', alignItems: 'flex-end', gap: 18 }}>
-        <TouchableOpacity onPress={()=>handleCalculator()} style={{ width: 60, height: 60, borderRadius: 30, backgroundColor: '#f3f4f6', justifyContent: 'center', alignItems: 'center', marginBottom: 8, shadowColor: '#000', shadowOpacity: 0.2, shadowOffset: { width: 0, height: 4 }, shadowRadius: 8 }} activeOpacity={0.85}>
-          <GradientIcon icon={'calculator-variant'} gradientColors={["#f43f5e", "#f97316"]} iconType="vector" size={32} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={()=>handleChatbot()} style={{ width: 60, height: 60, borderRadius: 30, backgroundColor: '#f3f4f6', justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.2, shadowOffset: { width: 0, height: 4 }, shadowRadius: 8 }} activeOpacity={0.85}>
-          <GradientIcon icon={'💬'} gradientColors={["#f43f5e", "#f97316"]} size={32} />
-        </TouchableOpacity>
-      </View>
-
-      {/* Profile Modal */}
+        {/* Profile Modal */}
       <Modal
         visible={profileModalVisible}
         transparent={true}
@@ -442,12 +461,29 @@ const styles = StyleSheet.create({
   header: {
     paddingTop: 60,
     paddingHorizontal: 20,
-    paddingBottom: 30,
+    paddingBottom: 0,
   },
   headerContent: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'center',
+    padding: 30,
+  },
+  headerContentContainer: {
+    paddingTop: 100,
+    width: 500,
+    height: 500,
+    borderRadius: 250,
+    backgroundColor: 'rgba(35, 35, 43, 0.8)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 0,
+    marginTop: -200,
+    borderWidth: 2,
+    borderColor: 'rgba(139, 92, 246, 0.3)',
+    shadowColor: '#8b5cf6',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 8 },
+    shadowRadius: 20,
   },
   welcomeSection: {
     flex: 1,
@@ -684,5 +720,30 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
     fontWeight: '500',
+  },
+  // New styles for the main buttons container
+  mainButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 16,
+    marginBottom: 20,
+  },
+  leftButtonContainer: {
+    flex: 1,
+  },
+  rightButtonsContainer: {
+    flexDirection: 'column',
+    gap: 16,
+  },
+  topRightButtonContainer: {
+    flex: 1,
+  },
+  bottomRightButtonContainer: {
+    flex: 1,
+  },
+  bottomButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 16,
   },
 });

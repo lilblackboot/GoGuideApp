@@ -145,7 +145,7 @@ const HomeScreen: React.FC = () => {
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: type === 'image' ? [ImagePicker.MediaType.Images] : [ImagePicker.MediaType.Videos],
+        mediaTypes: type === 'image' ? 'images' : 'videos',
         allowsEditing: true,
         aspect: [4, 3],
         quality: 0.8,
@@ -321,7 +321,7 @@ const HomeScreen: React.FC = () => {
           <Image source={{ uri: item.imageUrl }} style={styles.postMedia} />
         ) : item.videoUrl ? (
           <Video
-            source={item.videoUrl}
+            source={{ uri: item.videoUrl }}
             style={styles.postMedia}
             shouldPlay={false}
             isLooping={false}
@@ -567,7 +567,7 @@ const HomeScreen: React.FC = () => {
                 <Image source={{ uri: mediaUri }} style={styles.mediaPreviewImage} />
               ) : (
                 <Video
-                  source={mediaUri}
+                  source={{ uri: mediaUri }}
                   style={styles.mediaPreviewImage}
                   shouldPlay={false}
                   isLooping={false}
@@ -650,7 +650,16 @@ const HomeScreen: React.FC = () => {
     <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
       {/* Header */}
       <LinearGradient
-        colors={colors.gradient.orange}
+        colors={
+          Array.isArray(colors.gradient.orange) &&
+          colors.gradient.orange.length >= 2
+            ? [
+                colors.gradient.orange[0] as import('react-native').ColorValue,
+                colors.gradient.orange[1] as import('react-native').ColorValue,
+                ...(colors.gradient.orange.slice(2) as import('react-native').ColorValue[])
+              ]
+            : ['#FFA726', '#FB8C00']
+        }
         style={styles.header}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
