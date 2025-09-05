@@ -1,5 +1,5 @@
 // firebaseService.ts
-import { collection, addDoc, getDocs, query, orderBy, limit, doc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, orderBy, limit, doc, updateDoc, arrayUnion, arrayRemove, where } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { db, auth } from '../firebaseConfig'; // Import your existing Firebase config
@@ -33,6 +33,18 @@ export interface Comment {
   text: string;
   userId: string;
   username: string;
+  timestamp: any;
+}
+
+export interface FirebaseNotification {
+  id: string;
+  type: 'like' | 'comment' | 'follow';
+  message: string;
+  read: boolean;
+  postId?: string;
+  userId: string; // The user who should RECEIVE this notification
+  fromUserId: string; // The user who triggered this notification
+  fromUsername: string;
   timestamp: any;
 }
 
@@ -251,6 +263,85 @@ class FirebaseService {
       });
     } catch (error) {
       console.error('Add comment error:', error);
+      throw error;
+    }
+  }
+
+  // Save notification to Firebase
+  async addNotification(notification: Omit<FirebaseNotification, 'id' | 'timestamp'>): Promise<void> {
+    try {
+      await addDoc(collection(db, 'notifications'), {
+        ...notification,
+        id: Date.now().toString(),
+        timestamp: new Date()
+      });
+      console.log('Notification saved to Firebase for user:', notification.userId);
+    } catch (error) {
+      console.error('Add notification error:', error);
+      throw error;
+    }
+  }
+
+  // Get notifications for a specific user
+  async getNotifications(userId: string): Promise<FirebaseNotification[]> {
+    try {
+      const q = query(
+        collection(db, 'notifications'),
+        where('userId', '==', userId),
+        orderBy('timestamp', 'desc'),
+        limit(50)
+      );
+      
+      const querySnapshot = await getDocs(q);
+      const notifications: FirebaseNotification[] = [];
+      
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        notifications.push({
+          id: doc.id,
+          type: data.type,
+          message: data.message,
+          read: data.read,
+          postId: data.postId,
+          userId: data.userId,
+          fromUserId: data.fromUserId,
+          fromUsername: data.fromUsername,
+          timestamp: data.timestamp
+        });
+      });
+      
+      console.log(`Loaded ${notifications.length} notifications for user:`, userId);
+      return notifications;
+    } catch (error) {
+      console.error('Get notifications error:', error);
+      return [];
+    }
+  }
+
+  // Mark notification as read
+  async markNotificationAsRead(notificationId: string): Promise<void> {
+    try {
+      const notificationRef = doc(db, 'notifications', notificationId);
+      await updateDoc(notificationRef, {
+        read: true
+      });
+    } catch (error) {
+      console.error('Mark notification as read error:', error);
+      throw error;
+    }
+  }
+
+  // Mark all notifications as read for a user
+  async markAllNotificationsAsRead(userId: string): Promise<void> {
+    try {
+      const notifications = await this.getNotifications(userId);
+      const updatePromises = notifications
+        .filter(n => !n.read)
+        .map(n => this.markNotificationAsRead(n.id));
+      
+      await Promise.all(updatePromises);
+    } catch (error) {
+      console.error('Mark all notifications as read error:', error);
       throw error;
     }
   }

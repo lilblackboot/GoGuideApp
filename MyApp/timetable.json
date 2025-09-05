@@ -1,955 +1,1382 @@
 [
-    {
-        "Day":null,
-        "Time":"9.45-10.45",
-        "Subject":"ES",
-        "Faculty":"Sanket gandhi",
-        "Room_No":202.0,
-        "Division":"6A2"
-    },
-    {
-        "Day":"Monday",
-        "Time":"10.45-11.45",
-        "Subject":"ML",
-        "Faculty":"Vinod Patidar",
-        "Room_No":202.0,
-        "Division":"6A2"
-    },
-    {
-        "Day":"Monday",
-        "Time":"2.45-3.45",
-        "Subject":"QR",
-        "Faculty":"Riddhi limbachiya",
-        "Room_No":202.0,
-        "Division":"6A2"
-    },
-    {
-        "Day":"Monday",
-        "Time":"3.45-4.45",
-        "Subject":"CD",
-        "Faculty":"Ayushi Desai",
-        "Room_No":202.0,
-        "Division":"6A2"
-    },
-    {
-        "Day":"Tuesday",
-        "Time":"9.45-11.45",
-        "Subject":"MSWD",
-        "Faculty":"Neetesh parashar",
-        "Room_No":202.0,
-        "Division":"6A2"
-    },
-    {
-        "Day":"Tuesday",
-        "Time":"12.45-1.35",
-        "Subject":"MAD",
-        "Faculty":"Soumen Mukherjii",
-        "Room_No":202.0,
-        "Division":"6A2"
-    },
-    {
-        "Day":"Tuesday",
-        "Time":"1.35-2.25",
-        "Subject":"QR",
-        "Faculty":"Riddhi limbachiya",
-        "Room_No":202.0,
-        "Division":"6A2"
-    },
-    {
-        "Day":"Tuesday",
-        "Time":"2.45-4.45",
-        "Subject":"CD",
-        "Faculty":"Ayushi Desai",
-        "Room_No":202.0,
-        "Division":"6A2"
-    },
-    {
-        "Day":"wedneday",
-        "Time":"9.45 -10.45",
-        "Subject":"QR",
-        "Faculty":"Riddhi limbachiya",
-        "Room_No":202.0,
-        "Division":"6A2"
-    },
-    {
-        "Day":"wedneday",
-        "Time":"10.45-11.45",
-        "Subject":"MSWD",
-        "Faculty":"Neetesh parashar",
-        "Room_No":202.0,
-        "Division":"6A2"
-    },
-    {
-        "Day":"wedneday",
-        "Time":"12.45-2.25",
-        "Subject":"ML",
-        "Faculty":["Vinod Patidar"," Keya S Patel"],
-        "Room_No":202.0,
-        "Division":"6A2"
-    },
-    {
-        "Day":"wedneday",
-        "Time":"2.45-4.45",
-        "Subject":"MAD",
-        "Faculty":"Soumen Mukherjii",
-        "Room_No":202.0,
-        "Division":"6A2"
-    },
-    {
-        "Day":"Monday",
-        "Time":"9.45-11.45",
-        "Subject":"CD",
-        "Faculty":["Bhumi Shah "," Arpita Meet Vaidya"],
-        "Room_No":205.0,
-        "Division":"6A3"
-    },
-    {
-        "Day":"Monday",
-        "Time":"12.45-1.35",
-        "Subject":"QR",
-        "Faculty":"Riddhi limbachiya",
-        "Room_No":205.0,
-        "Division":"6A3"
-    },
-    {
-        "Day":"Monday",
-        "Time":"1.35-2.25",
-        "Subject":"ML",
-        "Faculty":"Gaurav Kumar Ameta",
-        "Room_No":205.0,
-        "Division":"6A3"
-    },
-    {
-        "Day":"Thursday",
-        "Time":"9.45-11.45",
-        "Subject":"ML",
-        "Faculty":["Gaurav Kumar Ameta "," Sweety patel"],
-        "Room_No":205.0,
-        "Division":"6A3"
-    },
-    {
-        "Day":"Thursday",
-        "Time":"12.45-1.35",
-        "Subject":"MAD",
-        "Faculty":"Soumen Mukherjii",
-        "Room_No":205.0,
-        "Division":"6A3"
-    },
-    {
-        "Day":"Thursday",
-        "Time":"1.35-2.25",
-        "Subject":"MSWD",
-        "Faculty":"Bisal Kumar Show",
-        "Room_No":205.0,
-        "Division":"6A3"
-    },
-    {
-        "Day":"Thursday",
-        "Time":"2.45-3.45",
-        "Subject":"QR",
-        "Faculty":"Riddhi limbachiya",
-        "Room_No":205.0,
-        "Division":"6A3"
-    },
-    {
-        "Day":"Thursday",
-        "Time":"3.45-4.45",
-        "Subject":"ES",
-        "Faculty":"Irfatnaz Shaikh",
-        "Room_No":205.0,
-        "Division":"6A3"
-    },
-    {
-        "Day":"Friday",
-        "Time":"9.45-10.45",
-        "Subject":"QR",
-        "Faculty":"Riddhi limbachiya",
-        "Room_No":205.0,
-        "Division":"6A3"
-    },
-    {
-        "Day":"Friday",
-        "Time":"10.45-11.45",
-        "Subject":"CD",
-        "Faculty":"Bhumi Shah ",
-        "Room_No":205.0,
-        "Division":"6A3"
-    },
-    {
-        "Day":"Friday",
-        "Time":"12.45-2.25",
-        "Subject":"MAD",
-        "Faculty":"Soumen Mukherjii",
-        "Room_No":205.0,
-        "Division":"6A3"
-    },
-    {
-        "Day":"Friday",
-        "Time":"2.45-4.45",
-        "Subject":"MSWD",
-        "Faculty":"Bisal Kumar Show",
-        "Room_No":205.0,
-        "Division":"6A3"
-    },
+  {
+    "Day": "Monday",
+    "Time": "09:30-10:25",
+    "Subject": "Big Data Analytics",
+    "Faculty": "Dr. Praveen Kumar Patidar",
+    "Email": "pravin.patidar33727@paruluniversity.ac.in",
+    "Room_No": 327,
+    "Division": "7A1"
+  },
+  {
+    "Day": "Tuesday",
+    "Time": "11:20-12:20",
+    "Subject": "Information and Network Security",
+    "Faculty": "Bela Shah",
+    "Email": "bela.shah35326@paruluniversity.ac.in",
+    "Room_No": 358,
+    "Division": "7A1"
+  },
+  {
+    "Day": "Tuesday",
+    "Time": "12:20-01:15",
+    "Subject": "Cyber Physical Systems",
+    "Faculty": "Tushar Jakhaniya",
+    "Email": "tushar.jakhaniya37924@paruluniversity.ac.in",
+    "Room_No": 358,
+    "Division": "7A1"
+  },
+  {
+    "Day": "Wednesday",
+    "Time": "02:30-03:25",
+    "Subject": "Software Testing and Quality Assurance",
+    "Faculty": "Mrs. Kusum Lata Dhiman",
+    "Email": "kusumlata.dhiman21133@paruluniversity.ac.in",
+    "Room_No": 358,
+    "Division": "7A1"
+  },
+  {
+    "Day": "Thursday",
+    "Time": "11:20-12:20",
+    "Subject": "Cyber Security",
+    "Faculty": "Rakshith Bairi",
+    "Email": "rakshith.bairi@techdefence.com",
+    "Room_No": 358,
+    "Division": "7A1"
+  },
+  {
+    "Day": "Friday",
+    "Time": "09:30-11:20",
+    "Subject": "Software Testing and Quality Assurance Lab",
+    "Faculty": "Mrs. Kusum Lata Dhiman",
+    "Email": "kusumlata.dhiman21133@paruluniversity.ac.in",
+    "Room_No": 327,
+    "Division": "7A1"
+  },
+  {
+    "Day": "Friday",
+    "Time": "11:20-01:15",
+    "Subject": "Big Data Analytics Lab",
+    "Faculty": "Dr. Praveen Kumar Patidar",
+    "Email": "pravin.patidar33727@paruluniversity.ac.in",
+    "Room_No": 327,
+    "Division": "7A1"
+  },
+  {
+    "Day": "Friday",
+    "Time": "02:30-04:20",
+    "Subject": "Cyber Security Lab",
+    "Faculty": "Rakshith Bairi",
+    "Email": "rakshith.bairi@techdefence.com",
+    "Room_No": 358,
+    "Division": "7A1"
+  },
+  
+  {
+    "Day": "Monday",
+    "Time": "09:30-10:25",
+    "Subject": "Big Data Analytics",
+    "Faculty": "Dr. Praveen Kumar Patidar",
+    "Email": "pravin.patidar33727@paruluniversity.ac.in",
+    "Room_No": 328,
+    "Division": "7A2"
+  },
+  {
+    "Day": "Tuesday",
+    "Time": "11:20-12:20",
+    "Subject": "Information and Network Security",
+    "Faculty": "Bela Shah",
+    "Email": "bela.shah35326@paruluniversity.ac.in",
+    "Room_No": 360,
+    "Division": "7A2"
+  },
+  {
+    "Day": "Tuesday",
+    "Time": "12:20-01:15",
+    "Subject": "Cyber Physical Systems",
+    "Faculty": "Dr. Vivek Tiwari",
+    "Email": "vivek.tiwari33087@paruluniversity.ac.in",
+    "Room_No": 327,
+    "Division": "7A2"
+  },
+  {
+    "Day": "Wednesday",
+    "Time": "02:30-03:25",
+    "Subject": "Software Testing and Quality Assurance",
+    "Faculty": "Mr. Utpalkumar Bhupendrabhai Patel",
+    "Email": "utpalkumar.patel8853@paruluniversity.ac.in",
+    "Room_No": 360,
+    "Division": "7A2"
+  },
+  {
+    "Day": "Thursday",
+    "Time": "11:20-12:20",
+    "Subject": "Cyber Security",
+    "Faculty": "TDPIT3",
+    "Email": "—",
+    "Room_No": 360,
+    "Division": "7A2"
+  },
+  {
+    "Day": "Friday",
+    "Time": "09:30-11:20",
+    "Subject": "Software Testing and Quality Assurance Lab",
+    "Faculty": "Mr. Utpalkumar Bhupendrabhai Patel",
+    "Email": "utpalkumar.patel8853@paruluniversity.ac.in",
+    "Room_No": 360,
+    "Division": "7A2"
+  },
+  {
+    "Day": "Friday",
+    "Time": "11:20-01:15",
+    "Subject": "Big Data Analytics Lab",
+    "Faculty": "Dr. Praveen Kumar Patidar",
+    "Email": "pravin.patidar33727@paruluniversity.ac.in",
+    "Room_No": 327,
+    "Division": "7A2"
+  },
+  {
+    "Day": "Friday",
+    "Time": "02:30-04:20",
+    "Subject": "Cyber Security Lab",
+    "Faculty": "TDPIT3",
+    "Email": "—",
+    "Room_No": 360,
+    "Division": "7A2"
+  }
+  ,
+  {
+    "Day": "Monday",
+    "Time": "11:20-12:20",
+    "Subject": "Information and Network Security",
+    "Faculty": "Mr. Ashish Suresh Patel",
+    "Email": "ashish.patel28275@paruluniversity.ac.in",
+    "Room_No": 328,
+    "Division": "7A3"
+  },
+  {
+    "Day": "Tuesday",
+    "Time": "11:20-12:20",
+    "Subject": "Information and Network Security",
+    "Faculty": "Mr. Ashish Suresh Patel",
+    "Email": "ashish.patel28275@paruluniversity.ac.in",
+    "Room_No": 327,
+    "Division": "7A3"
+  },
+  {
+    "Day": "Tuesday",
+    "Time": "12:20-01:15",
+    "Subject": "Cyber Physical Systems",
+    "Faculty": "Dr. Vivek Tiwari",
+    "Email": "vivek.tiwari33087@paruluniversity.ac.in",
+    "Room_No": 328,
+    "Division": "7A3"
+  },
+  {
+    "Day": "Wednesday",
+    "Time": "02:30-03:25",
+    "Subject": "Big Data Analytics",
+    "Faculty": "Ms. Shivangi Bhikhubhai Patel",
+    "Email": "shivangi.patel31249@paruluniversity.ac.in",
+    "Room_No": 361,
+    "Division": "7A3"
+  },
+  {
+    "Day": "Thursday",
+    "Time": "11:20-12:20",
+    "Subject": "Software Testing and Quality Assurance",
+    "Faculty": "Mrs. Kusum Lata Dhiman",
+    "Email": "kusumlata.dhiman21133@paruluniversity.ac.in",
+    "Room_No": 361,
+    "Division": "7A3"
+  },
+  {
+    "Day": "Friday",
+    "Time": "09:30-11:20",
+    "Subject": "Software Testing and Quality Assurance Lab",
+    "Faculty": "Mrs. Kusum Lata Dhiman",
+    "Email": "kusumlata.dhiman21133@paruluniversity.ac.in",
+    "Room_No": 361,
+    "Division": "7A3"
+  },
+  {
+    "Day": "Friday",
+    "Time": "11:20-01:15",
+    "Subject": "Big Data Analytics Lab",
+    "Faculty": "Ms. Shivangi Bhikhubhai Patel",
+    "Email": "shivangi.patel31249@paruluniversity.ac.in",
+    "Room_No": 360,
+    "Division": "7A3"
+  },
+  {
+    "Day": "Friday",
+    "Time": "02:30-04:20",
+    "Subject": "Cyber Security Lab",
+    "Faculty": "TDPIT1",
+    "Email": "—",
+    "Room_No": 328,
+    "Division": "7A3"
+  }
+,
+  {
+    "Day": "Monday",
+    "Time": "09:30-10:25",
+    "Subject": "Cyber Physical Systems",
+    "Faculty": "Nitin Pal",
+    "Email": "nitin.pal34737@paruluniversity.ac.in",
+    "Room_No": 328,
+    "Division": "7A4"
+  },
+  {
+    "Day": "Monday",
+    "Time": "11:20-12:20",
+    "Subject": "Big Data Analytics",
+    "Faculty": "C S Sunil Kumar",
+    "Email": "sunil.kumar40141@paruluniversity.ac.in",
+    "Room_No": 328,
+    "Division": "7A4"
+  },
+  {
+    "Day": "Tuesday",
+    "Time": "11:20-12:20",
+    "Subject": "Information and Network Security",
+    "Faculty": "Mr. Ashish Suresh Patel",
+    "Email": "ashish.patel28275@paruluniversity.ac.in",
+    "Room_No": 328,
+    "Division": "7A4"
+  },
+  {
+    "Day": "Wednesday",
+    "Time": "02:30-03:25",
+    "Subject": "Software Testing and Quality Assurance",
+    "Faculty": "Ms. Ayushi Desai",
+    "Email": "ayushi.desai26097@paruluniversity.ac.in",
+    "Room_No": 361,
+    "Division": "7A4"
+  },
+  {
+    "Day": "Thursday",
+    "Time": "11:20-12:20",
+    "Subject": "Information and Network Security",
+    "Faculty": "Mr. Ashish Suresh Patel",
+    "Email": "ashish.patel28275@paruluniversity.ac.in",
+    "Room_No": 327,
+    "Division": "7A4"
+  },
+  {
+    "Day": "Thursday",
+    "Time": "12:20-01:15",
+    "Subject": "Big Data Analytics",
+    "Faculty": "C S Sunil Kumar",
+    "Email": "sunil.kumar40141@paruluniversity.ac.in",
+    "Room_No": 362,
+    "Division": "7A4"
+  },
+  {
+    "Day": "Friday",
+    "Time": "09:30-11:20",
+    "Subject": "Software Testing and Quality Assurance Lab",
+    "Faculty": "Ms. Ayushi Desai",
+    "Email": "ayushi.desai26097@paruluniversity.ac.in",
+    "Room_No": 361,
+    "Division": "7A4"
+  },
+  {
+    "Day": "Friday",
+    "Time": "11:20-01:15",
+    "Subject": "Big Data Analytics Lab",
+    "Faculty": "C S Sunil Kumar",
+    "Email": "sunil.kumar40141@paruluniversity.ac.in",
+    "Room_No": 362,
+    "Division": "7A4"
+  },
+  {
+    "Day": "Friday",
+    "Time": "02:30-04:20",
+    "Subject": "Cyber Security Lab",
+    "Faculty": "TDPIT1",
+    "Email": "—",
+    "Room_No": 361,
+    "Division": "7A4"
+  }
+
+,
+  {
+    "Day": "Monday",
+    "Time": "11:20-12:20",
+    "Subject": "Information and Network Security",
+    "Faculty": "Mr. Ashish Suresh Patel",
+    "Email": "ashish.patel28275@paruluniversity.ac.in",
+    "Room_No": 329,
+    "Division": "7A5"
+  },
+  {
+    "Day": "Tuesday",
+    "Time": "09:30-10:25",
+    "Subject": "Big Data Analytics",
+    "Faculty": "Ms. Shivangi Bhikhubhai Patel",
+    "Email": "shivangi.patel31249@paruluniversity.ac.in",
+    "Room_No": 329,
+    "Division": "7A5"
+  },
+  {
+    "Day": "Tuesday",
+    "Time": "12:20-01:15",
+    "Subject": "Cyber Physical Systems",
+    "Faculty": "Nitin Pal",
+    "Email": "nitin.pal34737@paruluniversity.ac.in",
+    "Room_No": 329,
+    "Division": "7A5"
+  },
+  {
+    "Day": "Wednesday",
+    "Time": "11:20-12:20",
+    "Subject": "Information and Network Security",
+    "Faculty": "Mr. Ashish Suresh Patel",
+    "Email": "ashish.patel28275@paruluniversity.ac.in",
+    "Room_No": 329,
+    "Division": "7A5"
+  },
+  {
+    "Day": "Thursday",
+    "Time": "11:20-12:20",
+    "Subject": "Big Data Analytics",
+    "Faculty": "Ms. Shivangi Bhikhubhai Patel",
+    "Email": "shivangi.patel31249@paruluniversity.ac.in",
+    "Room_No": 370,
+    "Division": "7A5"
+  },
+  {
+    "Day": "Thursday",
+    "Time": "12:20-01:15",
+    "Subject": "Software Testing and Quality Assurance",
+    "Faculty": "Ms. Rashmi Pandey",
+    "Email": "rashmi.pandey33115@paruluniversity.ac.in",
+    "Room_No": 362,
+    "Division": "7A5"
+  },
+  {
+    "Day": "Friday",
+    "Time": "09:30-11:20",
+    "Subject": "Software Testing and Quality Assurance Lab",
+    "Faculty": "Ms. Rashmi Pandey",
+    "Email": "rashmi.pandey33115@paruluniversity.ac.in",
+    "Room_No": 362,
+    "Division": "7A5"
+  },
+  {
+    "Day": "Friday",
+    "Time": "11:20-01:15",
+    "Subject": "Big Data Analytics Lab",
+    "Faculty": "Ms. Shivangi Bhikhubhai Patel",
+    "Email": "shivangi.patel31249@paruluniversity.ac.in",
+    "Room_No": 362,
+    "Division": "7A5"
+  },
+  {
+    "Day": "Friday",
+    "Time": "02:30-04:20",
+    "Subject": "Cyber Security Lab",
+    "Faculty": "TDPIT1",
+    "Email": "—",
+    "Room_No": 362,
+    "Division": "7A5"
+  }
+,
+  {
+    "Day": "Monday",
+    "Time": "09:30-10:25",
+    "Subject": "Software Testing and Quality Assurance",
+    "Faculty": "Mrs. Kusum Lata Dhiman",
+    "Email": "kusumlata.dhiman21133@paruluniversity.ac.in",
+    "Room_No": 329,
+    "Division": "7A6"
+  },
+  {
+    "Day": "Monday",
+    "Time": "11:20-12:20",
+    "Subject": "Cyber Physical Systems",
+    "Faculty": "Nitin Pal",
+    "Email": "nitin.pal34737@paruluniversity.ac.in",
+    "Room_No": 329,
+    "Division": "7A6"
+  },
+  {
+    "Day": "Tuesday",
+    "Time": "09:30-10:25",
+    "Subject": "Big Data Analytics",
+    "Faculty": "Ms. Shivangi Bhikhubhai Patel",
+    "Email": "shivangi.patel31249@paruluniversity.ac.in",
+    "Room_No": 329,
+    "Division": "7A6"
+  },
+  {
+    "Day": "Wednesday",
+    "Time": "11:20-12:20",
+    "Subject": "Big Data Analytics",
+    "Faculty": "Ms. Shivangi Bhikhubhai Patel",
+    "Email": "shivangi.patel31249@paruluniversity.ac.in",
+    "Room_No": 370,
+    "Division": "7A6"
+  },
+  {
+    "Day": "Thursday",
+    "Time": "11:20-12:20",
+    "Subject": "Information and Network Security",
+    "Faculty": "Ms. Bhasha Vandit Anjaria",
+    "Email": "bhasha.anjaria21316@paruluniversity.ac.in",
+    "Room_No": 370,
+    "Division": "7A6"
+  },
+  {
+    "Day": "Thursday",
+    "Time": "12:20-01:15",
+    "Subject": "Information and Network Security",
+    "Faculty": "Ms. Bhasha Vandit Anjaria",
+    "Email": "bhasha.anjaria21316@paruluniversity.ac.in",
+    "Room_No": 370,
+    "Division": "7A6"
+  },
+  {
+    "Day": "Friday",
+    "Time": "09:30-11:20",
+    "Subject": "Software Testing and Quality Assurance Lab",
+    "Faculty": "Mrs. Kusum Lata Dhiman",
+    "Email": "kusumlata.dhiman21133@paruluniversity.ac.in",
+    "Room_No": 370,
+    "Division": "7A6"
+  },
+  {
+    "Day": "Friday",
+    "Time": "11:20-01:15",
+    "Subject": "Big Data Analytics Lab",
+    "Faculty": "Ms. Shivangi Bhikhubhai Patel",
+    "Email": "shivangi.patel31249@paruluniversity.ac.in",
+    "Room_No": 370,
+    "Division": "7A6"
+  },
+  {
+    "Day": "Friday",
+    "Time": "02:30-04:20",
+    "Subject": "Cyber Security Lab",
+    "Faculty": "TDPIT3",
+    "Email": "—",
+    "Room_No": 370,
+    "Division": "7A6"
+  }
+,
+  {
+    "Day": "Monday",
+    "Time": "11:20-12:20",
+    "Subject": "Information and Network Security",
+    "Faculty": "Ms. Bhasha Vandit Anjaria",
+    "Email": "bhasha.anjaria21316@paruluniversity.ac.in",
+    "Room_No": 131,
+    "Division": "7A7"
+  },
+  {
+    "Day": "Tuesday",
+    "Time": "09:30-10:25",
+    "Subject": "Big Data Analytics",
+    "Faculty": "Dr. Praveen Kumar Patidar",
+    "Email": "pravin.patidar33727@paruluniversity.ac.in",
+    "Room_No": 328,
+    "Division": "7A7"
+  },
+  {
+    "Day": "Tuesday",
+    "Time": "11:20-12:20",
+    "Subject": "Big Data Analytics",
+    "Faculty": "Dr. Praveen Kumar Patidar",
+    "Email": "pravin.patidar33727@paruluniversity.ac.in",
+    "Room_No": 201,
+    "Division": "7A7"
+  },
+  {
+    "Day": "Wednesday",
+    "Time": "12:20-01:15",
+    "Subject": "Cyber Physical Systems",
+    "Faculty": "Raviranjan Kumar Pandey",
+    "Email": "raviranjan.pandey34556@paruluniversity.ac.in",
+    "Room_No": 201,
+    "Division": "7A7"
+  },
+  {
+    "Day": "Thursday",
+    "Time": "09:30-10:25",
+    "Subject": "Information and Network Security",
+    "Faculty": "Ms. Bhasha Vandit Anjaria",
+    "Email": "bhasha.anjaria21316@paruluniversity.ac.in",
+    "Room_No": 372,
+    "Division": "7A7"
+  },
+  {
+    "Day": "Thursday",
+    "Time": "11:20-12:20",
+    "Subject": "Software Testing and Quality Assurance",
+    "Faculty": "Dr. Anand Singh Gadwal",
+    "Email": "anand.gadwal36469@paruluniversity.ac.in",
+    "Room_No": 372,
+    "Division": "7A7"
+  },
+  {
+    "Day": "Friday",
+    "Time": "09:30-11:20",
+    "Subject": "Software Testing and Quality Assurance Lab",
+    "Faculty": "Dr. Anand Singh Gadwal",
+    "Email": "anand.gadwal36469@paruluniversity.ac.in",
+    "Room_No": 372,
+    "Division": "7A7"
+  },
+  {
+    "Day": "Friday",
+    "Time": "11:20-01:15",
+    "Subject": "Big Data Analytics Lab",
+    "Faculty": "Dr. Praveen Kumar Patidar",
+    "Email": "pravin.patidar33727@paruluniversity.ac.in",
+    "Room_No": 329,
+    "Division": "7A7"
+  },
+  {
+    "Day": "Friday",
+    "Time": "02:30-04:20",
+    "Subject": "Cyber Security Lab",
+    "Faculty": "Meghraj Patil",
+    "Email": "meghraj.p@techdefence.com",
+    "Room_No": 372,
+    "Division": "7A7"
+  }
 
 
-    {
-        "Day": "Monday",
-        "Time": "9.45-10.45",
-        "Subject": "LIBRARY",
-        "Faculty": null,
-        "Email": null,
-        "Room_No": 360,
-        "Division": "6A4"
-    },
-    {
-        "Day": "Tuesday",
-        "Time": "9.45-10.45",
-        "Subject": "IMP",
-        "Faculty": "Sandip Suresh Hire",
-        "Email": "sandip.datascientist@gmail.com",
-        "Room_No": 360,
-        "Division": "6A4"
-    },
-    {
-        "Day": "Wednesday",
-        "Time": "9.45-10.45",
-        "Subject": "ES",
-        "Faculty": "Fedrick Mecwan",
-        "Email": "fedrick.mecwan20035@paruluniversity.ac.in",
-        "Room_No": 360,
-        "Division": "6A4"
-    },
-    {
-        "Day": "Wednesday",
-        "Time": "10.45-11.45",
-        "Subject": "QR",
-        "Faculty": "Rahul Prajapati",
-        "Email": "RAHULKUMAR.PRAJAPATI37280@paruluniversity.ac.in",
-        "Room_No": 360,
-        "Division": "6A4"
-    },
-    {
-        "Day": "Wednesday",
-        "Time": "12.45-1.35",
-        "Subject": "ML",
-        "Faculty": "Gaurav Kumar Ameta",
-        "Email": "gaurav.ameta24442@paruluniversity.ac.in",
-        "Room_No": 360,
-        "Division": "6A4"
-    },
-    {
-        "Day": "Wednesday",
-        "Time": "1.35-2.25",
-        "Subject": "MSWD",
-        "Faculty": "Maksud Vhora",
-        "Email": "maksud.vahora72@gmail.com",
-        "Room_No": 360,
-        "Division": "6A4"
-    },
-    {
-        "Day": "Wednesday",
-        "Time": "2.45-3.45",
-        "Subject": "MAD",
-        "Faculty": "Akash Sayaji Ugalmugale",
-        "Email": "akashugale8554@gmail.com",
-        "Room_No": 360,
-        "Division": "6A4"
-    },
-    {
-        "Day": "Thursday",
-        "Time": "9.45-10.45",
-        "Subject": "MSWD",
-        "Faculty": "Maksud Vhora",
-        "Email": "maksud.vahora72@gmail.com",
-        "Room_No": 360,
-        "Division": "6A4"
-    },
-    {
-        "Day": "Thursday",
-        "Time": "10.45-11.45",
-        "Subject": "QR",
-        "Faculty": "Rahul Prajapati",
-        "Email": "RAHULKUMAR.PRAJAPATI37280@paruluniversity.ac.in",
-        "Room_No": 360,
-        "Division": "6A4"
-    },
-    {
-        "Day": "Thursday",
-        "Time": "12.45-1.35",
-        "Subject": "CD",
-        "Faculty": "Bhumi Shah",
-        "Email": "bhumi.shah19174@paruluniversity.ac.in",
-        "Room_No": 360,
-        "Division": "6A4"
-    },
-    {
-        "Day": "Thursday",
-        "Time": "1.35-2.25",
-        "Subject": "MAD",
-        "Faculty": "Akash Sayaji Ugalmugale",
-        "Email": "akashugale8554@gmail.com",
-        "Room_No": 360,
-        "Division": "6A4"
-    },
-    {
-        "Day": "Thursday",
-        "Time": "2.45-3.45",
-        "Subject": "ML",
-        "Faculty": ["Gaurav Kumar Ameta" ," Vinod Patidar"],
-        "Email": "gaurav.ameta24442@paruluniversity.ac.in, Vinod.patidar28579@paruluniversity.ac.in",
-        "Room_No": 360,
-        "Division": "6A4"
-    },
-    {
-        "Day": "Friday",
-        "Time": "9.45-10.45",
-        "Subject": "MSWD",
-        "Faculty": "Maksud Vhora",
-        "Email": "maksud.vahora72@gmail.com",
-        "Room_No": 360,
-        "Division": "6A4"
-    },
-    {
-        "Day": "Friday",
-        "Time": "12.45-1.35",
-        "Subject": "ML",
-        "Faculty": "Gaurav Kumar Ameta",
-        "Email": "gaurav.ameta24442@paruluniversity.ac.in",
-        "Room_No": 360,
-        "Division": "6A4"
-    },
-    {
-        "Day": "Friday",
-        "Time": "1.35-2.25",
-        "Subject": "MAD",
-        "Faculty": "Akash Sayaji Ugalmugale",
-        "Email": "akashugale8554@gmail.com",
-        "Room_No": 360,
-        "Division": "6A4"
-    },
-    {
-        "Day": "Friday",
-        "Time": "2.45-3.45",
-        "Subject": "CD",
-        "Faculty": "Bhumi Shah",
-        "Email": "bhumi.shah19174@paruluniversity.ac.in",
-        "Room_No": 360,
-        "Division": "6A4"
-    },
-    {
-        "Day": "Friday",
-        "Time": "3.45-4.45",
-        "Subject": "ML",
-        "Faculty": "Gaurav Kumar Ameta",
-        "Email": "gaurav.ameta24442@paruluniversity.ac.in",
-        "Room_No": 360,
-        "Division": "6A4"
-    },
-    {
-        "Day": "Saturday",
-        "Time": "9.45-10.45",
-        "Subject": "MSWD",
-        "Faculty": "Maksud Vhora",
-        "Email": "maksud.vahora72@gmail.com",
-        "Room_No": 360,
-        "Division": "6A4"
-    },
-    {
-        "Day": "Saturday",
-        "Time": "10.45-11.45",
-        "Subject": "QR",
-        "Faculty": "Rahul Prajapati",
-        "Email": "RAHULKUMAR.PRAJAPATI37280@paruluniversity.ac.in",
-        "Room_No": 360,
-        "Division": "6A4"
-    },
-    {
-        "Day": "Saturday",
-        "Time": "12.45-1.35",
-        "Subject": "CD",
-        "Faculty": "Bhumi Shah",
-        "Email": "bhumi.shah19174@paruluniversity.ac.in",
-        "Room_No": 360,
-        "Division": "6A4"
-    },
-    {
-        "Day": "Saturday",
-        "Time": "1.35-2.25",
-        "Subject": "MAD",
-        "Faculty": "Akash Sayaji Ugalmugale",
-        "Email": "akashugale8554@gmail.com",
-        "Room_No": 360,
-        "Division": "6A4"
-    },
-    {
-        "Day": "Saturday",
-        "Time": "2.45-3.45",
-        "Subject": "CD",
-        "Faculty": ["Bhumi Shah", "Vaibhavi B Parikh"],
-        "Email": "bhumi.shah19174@paruluniversity.ac.in, vaibhavi.parikh25851@paruluniversity.ac.in",
-        "Room_No": 360,
-        "Division": "6A4"
-    },
-    {
-        "Day": "Monday",
-        "Time": "9.45-10.45",
-        "Subject": "MSWD",
-        "Faculty": "Bisal Kumar Show",
-        "Email": "bisalshaw@gmail.com",
-        "Room_No": 360,
-        "Division": "6A5"
-    },
-    {
-        "Day": "Monday",
-        "Time": "12.45-1.35",
-        "Subject": "ES",
-        "Faculty": "Sanket Gandhi",
-        "Email": "sanket.gandhi14473@paruluniversity.ac.in",
-        "Room_No": 360,
-        "Division": "6A5"
-    },
-    {
-        "Day": "Monday",
-        "Time": "1.35-2.25",
-        "Subject": "QR",
-        "Faculty": "Rahul Prajapati",
-        "Email": "RAHULKUMAR.PRAJAPATI37280@paruluniversity.ac.in",
-        "Room_No": 360,
-        "Division": "6A5"
-    },
-    {
-        "Day": "Monday",
-        "Time": "2.45-3.45",
-        "Subject": "MAD",
-        "Faculty": "Soumen Mukherjee",
-        "Email": "mukherjeesoumen4268@gmail.com",
-        "Room_No": 360,
-        "Division": "6A5"
-    },
-    {
-        "Day": "Wednesday",
-        "Time": "9.45-10.45",
-        "Subject": "IMP",
-        "Faculty": "Sandip Suresh Hire",
-        "Email": "sandip.datascientist@gmail.com",
-        "Room_No": 361,
-        "Division": "6A5"
-    },
-    {
-        "Day": "Thursday",
-        "Time": "9.45-10.45",
-        "Subject": "MAD",
-        "Faculty": "Akash Sayaji Ugalmugale",
-        "Email": "akashugale8554@gmail.com",
-        "Room_No": 361,
-        "Division": "6A5"
-    },
-    {
-        "Day": "Thursday",
-        "Time": "10.45-11.45",
-        "Subject": "ML",
-        "Faculty": "Mohitkumar Jagdishchandra Rathod",
-        "Email": "mohitkumar.rathod20807@paruluniversity.ac.in",
-        "Room_No": 361,
-        "Division": "6A5"
-    },
-    {
-        "Day": "Thursday",
-        "Time": "12.45-1.35",
-        "Subject": "MSWD",
-        "Faculty": "Bisal Kumar Show",
-        "Email": "bisalshaw@gmail.com",
-        "Room_No": 361,
-        "Division": "6A5"
-    },
-    {
-        "Day": "Thursday",
-        "Time": "1.35-2.25",
-        "Subject": "CD",
-        "Faculty": "Kapil Dev Raghuwanshi",
-        "Email": "Kapil.raghuwanshi24672@paruluniversity.ac.in",
-        "Room_No": 361,
-        "Division": "6A5"
-    },
-    {
-        "Day": "Thursday",
-        "Time": "2.45-3.45",
-        "Subject": "CD",
-        "Faculty": ["Kapil Dev Raghuwanshi"," Bhumi Shah"],
-        "Email": ["Kapil.raghuwanshi24672@paruluniversity.ac.in"," bhumi.shah19174@paruluniversity.ac.in"],
-        "Room_No": 361,
-        "Division": "6A5"
-    },
-    {
-        "Day": "Friday",
-        "Time": "9.45-10.45",
-        "Subject": "MAD",
-        "Faculty": "Akash Sayaji Ugalmugale",
-        "Email": "akashugale8554@gmail.com",
-        "Room_No": 361,
-        "Division": "6A5"
-    },
-    {
-        "Day": "Friday",
-        "Time": "10.45-11.45",
-        "Subject": "ML",
-        "Faculty": "Mohitkumar Jagdishchandra Rathod",
-        "Email": "mohitkumar.rathod20807@paruluniversity.ac.in",
-        "Room_No": 361,
-        "Division": "6A5"
-    },
-    {
-        "Day": "Friday",
-        "Time": "12.45-1.35",
-        "Subject": "QR",
-        "Faculty": "Rahul Prajapati",
-        "Email": "RAHULKUMAR.PRAJAPATI37280@paruluniversity.ac.in",
-        "Room_No": 361,
-        "Division": "6A5"
-    },
-    {
-        "Day": "Friday",
-        "Time": "1.35-2.25",
-        "Subject": "MSWD",
-        "Faculty": "Bisal Kumar Show",
-        "Email": "bisalshaw@gmail.com",
-        "Room_No": 361,
-        "Division": "6A5"
-    },
-    {
-        "Day": "Friday",
-        "Time": "2.45-3.45",
-        "Subject": "ML",
-        "Faculty": "Mohitkumar Jagdishchandra Rathod",
-        "Email": "mohitkumar.rathod20807@paruluniversity.ac.in",
-        "Room_No": 361,
-        "Division": "6A5"
-    },
-    {
-        "Day": "Friday",
-        "Time": "3.45-4.45",
-        "Subject": "CD",
-        "Faculty": "Kapil Dev Raghuwanshi",
-        "Email": "Kapil.raghuwanshi24672@paruluniversity.ac.in",
-        "Room_No": 361,
-        "Division": "6A5"
-    },
-    {
-        "Day": "Saturday",
-        "Time": "9.45-10.45",
-        "Subject": "MAD",
-        "Faculty": "Akash Sayaji Ugalmugale",
-        "Email": "akashugale8554@gmail.com",
-        "Room_No": 361,
-        "Division": "6A5"
-    },
-    {
-        "Day": "Saturday",
-        "Time": "10.45-11.45",
-        "Subject": "CD",
-        "Faculty": "Kapil Dev Raghuwanshi",
-        "Email": "Kapil.raghuwanshi24672@paruluniversity.ac.in",
-        "Room_No": 361,
-        "Division": "6A5"
-    },
-    {
-        "Day": "Saturday",
-        "Time": "12.45-1.35",
-        "Subject": "QR",
-        "Faculty": "Rahul Prajapati",
-        "Email": "RAHULKUMAR.PRAJAPATI37280@paruluniversity.ac.in",
-        "Room_No": 361,
-        "Division": "6A5"
-    },
-    {
-        "Day": "Saturday",
-        "Time": "1.35-2.25",
-        "Subject": "MSWD",
-        "Faculty": "Bisal Kumar Show",
-        "Email": "bisalshaw@gmail.com",
-        "Room_No": 361,
-        "Division": "6A5"
-    },
+,
+  {
+    "Day": "Monday",
+    "Time": "09:30-10:25",
+    "Subject": "Big Data Analytics",
+    "Faculty": "C S Sunil Kumar",
+    "Email": "sunil.kumar40141@paruluniversity.ac.in",
+    "Room_No": 330,
+    "Division": "7A8"
+  },
+  {
+    "Day": "Monday",
+    "Time": "11:20-12:20",
+    "Subject": "Cyber Physical Systems",
+    "Faculty": "Raviranjan Kumar Pandey",
+    "Email": "raviranjan.pandey34556@paruluniversity.ac.in",
+    "Room_No": 330,
+    "Division": "7A8"
+  },
+  {
+    "Day": "Tuesday",
+    "Time": "12:20-01:15",
+    "Subject": "Information and Network Security",
+    "Faculty": "Ms. Bhasha Vandit Anjaria",
+    "Email": "bhasha.anjaria21316@paruluniversity.ac.in",
+    "Room_No": 330,
+    "Division": "7A8"
+  },
+  {
+    "Day": "Wednesday",
+    "Time": "11:20-12:20",
+    "Subject": "Information and Network Security",
+    "Faculty": "Ms. Bhasha Vandit Anjaria",
+    "Email": "bhasha.anjaria21316@paruluniversity.ac.in",
+    "Room_No": 330,
+    "Division": "7A8"
+  },
+  {
+    "Day": "Thursday",
+    "Time": "11:20-12:20",
+    "Subject": "Software Testing and Quality Assurance",
+    "Faculty": "Dr. Anand Singh Gadwal",
+    "Email": "anand.gadwal36469@paruluniversity.ac.in",
+    "Room_No": 372,
+    "Division": "7A8"
+  },
+  {
+    "Day": "Thursday",
+    "Time": "12:20-01:15",
+    "Subject": "Big Data Analytics",
+    "Faculty": "C S Sunil Kumar",
+    "Email": "sunil.kumar40141@paruluniversity.ac.in",
+    "Room_No": 372,
+    "Division": "7A8"
+  },
+  {
+    "Day": "Friday",
+    "Time": "09:30-11:20",
+    "Subject": "Software Testing and Quality Assurance Lab",
+    "Faculty": "Dr. Anand Singh Gadwal",
+    "Email": "anand.gadwal36469@paruluniversity.ac.in",
+    "Room_No": 372,
+    "Division": "7A8"
+  },
+  {
+    "Day": "Friday",
+    "Time": "11:20-01:15",
+    "Subject": "Big Data Analytics Lab",
+    "Faculty": "C S Sunil Kumar",
+    "Email": "sunil.kumar40141@paruluniversity.ac.in",
+    "Room_No": 372,
+    "Division": "7A8"
+  },
+  {
+    "Day": "Friday",
+    "Time": "02:30-04:20",
+    "Subject": "Cyber Security Lab",
+    "Faculty": "Meghraj Patil",
+    "Email": "meghraj.p@techdefence.com",
+    "Room_No": 372,
+    "Division": "7A8"
+  }
+,
+  {
+    "Day": "Monday",
+    "Time": "09:30-10:25",
+    "Subject": "Big Data Analytics",
+    "Faculty": "Dr. Anand Singh Gadwal",
+    "Email": "anand.gadwal36469@paruluniversity.ac.in",
+    "Room_No": 330,
+    "Division": "7A9"
+  },
+  {
+    "Day": "Monday",
+    "Time": "11:20-12:20",
+    "Subject": "Cyber Physical Systems",
+    "Faculty": "Raviranjan Kumar Pandey",
+    "Email": "raviranjan.pandey34556@paruluniversity.ac.in",
+    "Room_No": 330,
+    "Division": "7A9"
+  },
+  {
+    "Day": "Tuesday",
+    "Time": "12:20-01:15",
+    "Subject": "Information and Network Security",
+    "Faculty": "Ms. Bhasha Vandit Anjaria",
+    "Email": "bhasha.anjaria21316@paruluniversity.ac.in",
+    "Room_No": 330,
+    "Division": "7A9"
+  },
+  {
+    "Day": "Wednesday",
+    "Time": "11:20-12:20",
+    "Subject": "Software Testing and Quality Assurance",
+    "Faculty": "Ms. Rashmi Pandey",
+    "Email": "rashmi.pandey33115@paruluniversity.ac.in",
+    "Room_No": 330,
+    "Division": "7A9"
+  },
+  {
+    "Day": "Wednesday",
+    "Time": "12:20-01:15",
+    "Subject": "Information and Network Security",
+    "Faculty": "Ms. Bhasha Vandit Anjaria",
+    "Email": "bhasha.anjaria21316@paruluniversity.ac.in",
+    "Room_No": 330,
+    "Division": "7A9"
+  },
+  {
+    "Day": "Thursday",
+    "Time": "12:20-01:15",
+    "Subject": "Big Data Analytics",
+    "Faculty": "Dr. Anand Singh Gadwal",
+    "Email": "anand.gadwal36469@paruluniversity.ac.in",
+    "Room_No": 372,
+    "Division": "7A9"
+  },
+  {
+    "Day": "Friday",
+    "Time": "09:30-11:20",
+    "Subject": "Software Testing and Quality Assurance Lab",
+    "Faculty": "Ms. Rashmi Pandey",
+    "Email": "rashmi.pandey33115@paruluniversity.ac.in",
+    "Room_No": 372,
+    "Division": "7A9"
+  },
+  {
+    "Day": "Friday",
+    "Time": "11:20-01:15",
+    "Subject": "Big Data Analytics Lab",
+    "Faculty": "Dr. Anand Singh Gadwal",
+    "Email": "anand.gadwal36469@paruluniversity.ac.in",
+    "Room_No": 372,
+    "Division": "7A9"
+  },
+  {
+    "Day": "Friday",
+    "Time": "02:30-04:20",
+    "Subject": "Cyber Security Lab",
+    "Faculty": "Meghraj Patil",
+    "Email": "meghraj.p@techdefence.com",
+    "Room_No": 372,
+    "Division": "7A9"
+  }
+,
+  {
+    "Day": "Monday",
+    "Time": "09:30-10:25",
+    "Subject": "Big Data Analytics",
+    "Faculty": "Dr. Anand Singh Gadwal",
+    "Email": "anand.gadwal36469@paruluniversity.ac.in",
+    "Room_No": 331,
+    "Division": "7A10"
+  },
+  {
+    "Day": "Monday",
+    "Time": "11:20-12:20",
+    "Subject": "Cyber Physical Systems",
+    "Faculty": "Raviranjan Kumar Pandey",
+    "Email": "raviranjan.pandey34556@paruluniversity.ac.in",
+    "Room_No": 331,
+    "Division": "7A10"
+  },
+  {
+    "Day": "Tuesday",
+    "Time": "12:20-01:15",
+    "Subject": "Information and Network Security",
+    "Faculty": "Ms. Bhasha Vandit Anjaria",
+    "Email": "bhasha.anjaria21316@paruluniversity.ac.in",
+    "Room_No": 331,
+    "Division": "7A10"
+  },
+  {
+    "Day": "Wednesday",
+    "Time": "11:20-12:20",
+    "Subject": "Software Testing and Quality Assurance",
+    "Faculty": "Ms. Rashmi Pandey",
+    "Email": "rashmi.pandey33115@paruluniversity.ac.in",
+    "Room_No": 331,
+    "Division": "7A10"
+  },
+  {
+    "Day": "Wednesday",
+    "Time": "12:20-01:15",
+    "Subject": "Information and Network Security",
+    "Faculty": "Ms. Bhasha Vandit Anjaria",
+    "Email": "bhasha.anjaria21316@paruluniversity.ac.in",
+    "Room_No": 331,
+    "Division": "7A10"
+  },
+  {
+    "Day": "Thursday",
+    "Time": "12:20-01:15",
+    "Subject": "Big Data Analytics",
+    "Faculty": "Dr. Anand Singh Gadwal",
+    "Email": "anand.gadwal36469@paruluniversity.ac.in",
+    "Room_No": 372,
+    "Division": "7A10"
+  },
+  {
+    "Day": "Friday",
+    "Time": "09:30-11:20",
+    "Subject": "Software Testing and Quality Assurance Lab",
+    "Faculty": "Ms. Rashmi Pandey",
+    "Email": "rashmi.pandey33115@paruluniversity.ac.in",
+    "Room_No": 372,
+    "Division": "7A10"
+  },
+  {
+    "Day": "Friday",
+    "Time": "11:20-01:15",
+    "Subject": "Big Data Analytics Lab",
+    "Faculty": "Dr. Anand Singh Gadwal",
+    "Email": "anand.gadwal36469@paruluniversity.ac.in",
+    "Room_No": 372,
+    "Division": "7A10"
+  },
+  {
+    "Day": "Friday",
+    "Time": "02:30-04:20",
+    "Subject": "Cyber Security Lab",
+    "Faculty": "Meghraj Patil",
+    "Email": "meghraj.p@techdefence.com",
+    "Room_No": 372,
+    "Division": "7A10"
+  }
 
-    {
-        "Day": "Monday",
-        "Time": "9.45-10.45",
-        "Subject": "ML",
-        "Faculty": "Meetkumar Manojkumar Patel",
-        "Room_No": 361,
-        "Division": "6A6",
-        "Faculty_Email": "meetkumar.patel19440@paruluniversity.ac.in"
-    },
-    {
-        "Day": "Monday",
-        "Time": "10.45-11.45",
-        "Subject": "QR",
-        "Faculty": "Jay Vadodariya",
-        "Room_No": 361,
-        "Division": "6A6",
-        "Faculty_Email": "JAYKUMAR.VADODARIYA31113@paruluniversity.ac.in"
-    },
-    {
-        "Day": "Monday",
-        "Time": "12.45-1.35",
-        "Subject": "ES",
-        "Faculty": "Dr. Dharna Bhatt",
-        "Room_No": 361,
-        "Division": "6A6",
-        "Faculty_Email": "dharna.bhatt20069@paruluniversity.ac.in"
-    },
-    {
-        "Day": "Monday",
-        "Time": "1.35-2.25",
-        "Subject": "MAD",
-        "Faculty": "Akash Sayaji Ugalmugale",
-        "Room_No": 361,
-        "Division": "6A6",
-        "Faculty_Email": "akashugale8554@gmail.com"
-    },
-    {
-        "Day": "Monday",
-        "Time": "2.45-3.45",
-        "Subject": "MSWD",
-        "Faculty": "Maksud Vhora",
-        "Room_No": 361,
-        "Division": "6A6",
-        "Faculty_Email": "maksud.vahora72@gmail.com"
-    },
-    {
-        "Day": "Tuesday",
-        "Time": "9.45-10.45",
-        "Subject": "QR",
-        "Faculty": "Jay Vadodariya",
-        "Room_No": 361,
-        "Division": "6A6",
-        "Faculty_Email": "JAYKUMAR.VADODARIYA31113@paruluniversity.ac.in"
-    },
-    {
-        "Day": "Tuesday",
-        "Time": "10.45-11.45",
-        "Subject": "MSWD",
-        "Faculty": "Maksud Vhora",
-        "Room_No": 361,
-        "Division": "6A6",
-        "Faculty_Email": "maksud.vahora72@gmail.com"
-    },
-    {
-        "Day": "Tuesday",
-        "Time": "12.45-1.35",
-        "Subject": "CD",
-        "Faculty": "Kapil Dev Raghuwanshi",
-        "Room_No": 361,
-        "Division": "6A6",
-        "Faculty_Email": "Kapil.raghuwanshi24672@paruluniversity.ac.in"
-    },
-    {
-        "Day": "Tuesday",
-        "Time": "1.35-2.25",
-        "Subject": "MAD",
-        "Faculty": "Akash Sayaji Ugalmugale",
-        "Room_No": 361,
-        "Division": "6A6",
-        "Faculty_Email": "akashugale8554@gmail.com"
-    },
-    {
-        "Day": "Tuesday",
-        "Time": "2.45-3.45",
-        "Subject": "CD",
-        "Faculty": "Bhumi Shah/Shivkumar Lihare",
-        "Room_No": 361,
-        "Division": "6A6",
-        "Faculty_Email": "bhumi.shah19174@paruluniversity.ac.in"
-    },
-    {
-        "Day": "Wednesday",
-        "Time": "9.45-4.45",
-        "Subject": "LIBRARY/SELF STUDY",
-        "Faculty": "-",
-        "Room_No": null,
-        "Division": "6A6",
-        "Faculty_Email": "-"
-    },
-    {
-        "Day": "Thursday",
-        "Time": "9.45-4.45",
-        "Subject": "IMP",
-        "Faculty": "Narasimha Pillai",
-        "Room_No": 362,
-        "Division": "6A6",
-        "Faculty_Email": "narasimhaethics@gmail.com"
-    },
-    {
-        "Day": "Friday",
-        "Time": "9.45-10.45",
-        "Subject": "ML",
-        "Faculty": "Meetkumar Manojkumar Patel",
-        "Room_No": 362,
-        "Division": "6A6",
-        "Faculty_Email": "meetkumar.patel19440@paruluniversity.ac.in"
-    },
-    {
-        "Day": "Friday",
-        "Time": "10.45-11.45",
-        "Subject": "CD",
-        "Faculty": "Kapil Dev Raghuwanshi",
-        "Room_No": 362,
-        "Division": "6A6",
-        "Faculty_Email": "Kapil.raghuwanshi24672@paruluniversity.ac.in"
-    },
-    {
-        "Day": "Friday",
-        "Time": "12.45-1.35",
-        "Subject": "ML",
-        "Faculty": "Meetkumar Manojkumar Patel/Shivangi Patel",
-        "Room_No": 362,
-        "Division": "6A6",
-        "Faculty_Email": "meetkumar.patel19440@paruluniversity.ac.in"
-    },
-    {
-        "Day": "Friday",
-        "Time": "2.45-3.45",
-        "Subject": "MAD",
-        "Faculty": "Akash Sayaji Ugalmugale",
-        "Room_No": 362,
-        "Division": "6A6",
-        "Faculty_Email": "akashugale8554@gmail.com"
-    },
-    {
-        "Day": "Saturday",
-        "Time": "9.45-10.45",
-        "Subject": "ML",
-        "Faculty": "Meetkumar Manojkumar Patel",
-        "Room_No": 362,
-        "Division": "6A6",
-        "Faculty_Email": "meetkumar.patel19440@paruluniversity.ac.in"
-    },
-    {
-        "Day": "Saturday",
-        "Time": "10.45-11.45",
-        "Subject": "MSWD",
-        "Faculty": "Maksud Vhora",
-        "Room_No": 362,
-        "Division": "6A6",
-        "Faculty_Email": "maksud.vahora72@gmail.com"
-    },
-    {
-        "Day": "Saturday",
-        "Time": "12.45-1.35",
-        "Subject": "QR",
-        "Faculty": "Jay Vadodariya",
-        "Room_No": 362,
-        "Division": "6A6",
-        "Faculty_Email": "JAYKUMAR.VADODARIYA31113@paruluniversity.ac.in"
-    },
-    {
-        "Day": "Saturday",
-        "Time": "1.35-2.25",
-        "Subject": "CD",
-        "Faculty": "Kapil Dev Raghuwanshi",
-        "Room_No": 362,
-        "Division": "6A6",
-        "Faculty_Email": "Kapil.raghuwanshi24672@paruluniversity.ac.in"
-    },
-    {
-        "Day": "Saturday",
-        "Time": "2.45-3.45",
-        "Subject": "MSWD",
-        "Faculty": "Maksud Vhora",
-        "Room_No": 362,
-        "Division": "6A6",
-        "Faculty_Email": "maksud.vahora72@gmail.com"
-    },
-    {
-        "Day": "Saturday",
-        "Time": "3.45-4.45",
-        "Subject": "MAD",
-        "Faculty": "Akash Sayaji Ugalmugale",
-        "Room_No": 362,
-        "Division": "6A6",
-        "Faculty_Email": "akashugale8554@gmail.com"
-    },
+,
+  {
+    "Day": "Monday",
+    "Time": "11:20-12:20",
+    "Subject": "Cyber Physical Systems",
+    "Faculty": "Tushar Jakhaniya",
+    "Email": "tushar.jakhaniya37924@paruluniversity.ac.in",
+    "Room_No": 331,
+    "Division": "7A11"
+  },
+  {
+    "Day": "Tuesday",
+    "Time": "09:30-10:25",
+    "Subject": "Big Data Analytics",
+    "Faculty": "Dr. Praveen Kumar Patidar",
+    "Email": "pravin.patidar33727@paruluniversity.ac.in",
+    "Room_No": 331,
+    "Division": "7A11"
+  },
+  {
+    "Day": "Tuesday",
+    "Time": "11:20-12:20",
+    "Subject": "Information and Network Security",
+    "Faculty": "Bela Shah",
+    "Email": "bela.shah35326@paruluniversity.ac.in",
+    "Room_No": 331,
+    "Division": "7A11"
+  },
+  {
+    "Day": "Wednesday",
+    "Time": "11:20-12:20",
+    "Subject": "Software Testing and Quality Assurance",
+    "Faculty": "Mr. Utpalkumar Bhupendrabhai Patel",
+    "Email": "utpalkumar.patel8853@paruluniversity.ac.in",
+    "Room_No": 331,
+    "Division": "7A11"
+  },
+  {
+    "Day": "Wednesday",
+    "Time": "12:20-01:15",
+    "Subject": "Big Data Analytics",
+    "Faculty": "Dr. Praveen Kumar Patidar",
+    "Email": "pravin.patidar33727@paruluniversity.ac.in",
+    "Room_No": 331,
+    "Division": "7A11"
+  },
+  {
+    "Day": "Thursday",
+    "Time": "11:20-12:20",
+    "Subject": "Cyber Security",
+    "Faculty": "Rakshith Bairi",
+    "Email": "rakshith.bairi@techdefence.com",
+    "Room_No": 331,
+    "Division": "7A11"
+  },
+  {
+    "Day": "Friday",
+    "Time": "09:30-11:20",
+    "Subject": "Software Testing and Quality Assurance Lab",
+    "Faculty": "Mr. Utpalkumar Bhupendrabhai Patel",
+    "Email": "utpalkumar.patel8853@paruluniversity.ac.in",
+    "Room_No": 331,
+    "Division": "7A11"
+  },
+  {
+    "Day": "Friday",
+    "Time": "11:20-01:15",
+    "Subject": "Big Data Analytics Lab",
+    "Faculty": "Dr. Praveen Kumar Patidar",
+    "Email": "pravin.patidar33727@paruluniversity.ac.in",
+    "Room_No": 331,
+    "Division": "7A11"
+  },
+  {
+    "Day": "Friday",
+    "Time": "02:30-04:20",
+    "Subject": "Cyber Security Lab",
+    "Faculty": "Rakshith Bairi",
+    "Email": "rakshith.bairi@techdefence.com",
+    "Room_No": 331,
+    "Division": "7A11"
+  }
 
-    {
-        "Day": "Monday",
-        "Time": "9.45-10.45",
-        "Subject": "MAD",
-        "Faculty": "Akash Sayaji Ugalmugale",
-        "Room_No": 362,
-        "Division": "6A7",
-        "Email": "akashugale8554@gmail.com"
-    },
-    {
-        "Day": "Monday",
-        "Time": "12.45-1.35",
-        "Subject": "MSWD",
-        "Faculty": "Bisal Kumar Show",
-        "Room_No": 362,
-        "Division": "6A7",
-        "Email": "bisalshaw@gmail.com"
-    },
-    {
-        "Day": "Monday",
-        "Time": "1.35-2.25",
-        "Subject": "ES",
-        "Faculty": "Fedrick Mecwan",
-        "Room_No": 362,
-        "Division": "6A7",
-        "Email": "fedrick.mecwan20035@paruluniversity.ac.in"
-    },
-    {
-        "Day": "Monday",
-        "Time": "2.45-3.45",
-        "Subject": "QR",
-        "Faculty": "Parthik Degama",
-        "Room_No": 362,
-        "Division": "6A7",
-        "Email": "PARTHIKBHAI.DEGAMA35558@paruluniversity.ac.in"
-    },
-    {
-        "Day": "Monday",
-        "Time": "3.45-4.45",
-        "Subject": "CD",
-        "Faculty": "Bhumi Shah",
-        "Room_No": 362,
-        "Division": "6A7",
-        "Email": "bhumi.shah19174@paruluniversity.ac.in"
-    },
-    {
-        "Day": "Tuesday",
-        "Time": "9.45-10.45",
-        "Subject": "CD",
-        "Faculty": "Bhumi Shah",
-        "Room_No": 362,
-        "Division": "6A7",
-        "Email": "bhumi.shah19174@paruluniversity.ac.in"
-    },
-    {
-        "Day": "Tuesday",
-        "Time": "10.45-11.45",
-        "Subject": "MAD",
-        "Faculty": "Akash Sayaji Ugalmugale",
-        "Room_No": 362,
-        "Division": "6A7",
-        "Email": "akashugale8554@gmail.com"
-    },
-    {
-        "Day": "Tuesday",
-        "Time": "12.45-1.35",
-        "Subject": "QR",
-        "Faculty": "Parthik Degama",
-        "Room_No": 362,
-        "Division": "6A7",
-        "Email": "PARTHIKBHAI.DEGAMA35558@paruluniversity.ac.in"
-    },
-    {
-        "Day": "Tuesday",
-        "Time": "1.35-2.25",
-        "Subject": "ML",
-        "Faculty": "Mohitkumar Jagdishchandra Rathod",
-        "Room_No": 362,
-        "Division": "6A7",
-        "Email": "mohitkumar.rathod20807@paruluniversity.ac.in"
-    },
-    {
-        "Day": "Tuesday",
-        "Time": "2.45-3.45",
-        "Subject": "MSWD",
-        "Faculty": "Bisal Kumar Show",
-        "Room_No": 362,
-        "Division": "6A7",
-        "Email": "bisalshaw@gmail.com"
-    },
-    {
-        "Day": "Wednesday",
-        "Time": "9.45-10.45",
-        "Subject": "MAD",
-        "Faculty": "Akash Sayaji Ugalmugale",
-        "Room_No": 362,
-        "Division": "6A7",
-        "Email": "akashugale8554@gmail.com"
-    },
-    {
-        "Day": "Wednesday",
-        "Time": "12.45-1.35",
-        "Subject": "CD",
-        "Faculty": "Bhumi Shah",
-        "Room_No": 362,
-        "Division": "6A7",
-        "Email": "bhumi.shah19174@paruluniversity.ac.in"
-    },
-    {
-        "Day": "Wednesday",
-        "Time": "2.45-3.45",
-        "Subject": "ML",
-        "Faculty": "Mohitkumar Jagdishchandra Rathod",
-        "Room_No": 362,
-        "Division": "6A7",
-        "Email": "mohitkumar.rathod20807@paruluniversity.ac.in"
-    },
-    {
-        "Day": "Wednesday",
-        "Time": "3.45-4.45",
-        "Subject": "MSWD",
-        "Faculty": "Bisal Kumar Show",
-        "Room_No": 362,
-        "Division": "6A7",
-        "Email": "bisalshaw@gmail.com"
-    },
-    {
-        "Day": "Friday",
-        "Time": "9.45-4.45",
-        "Subject": "IMP",
-        "Faculty": "Narasimha Pillai",
-        "Room_No": 370,
-        "Division": "6A7",
-        "Email": "narasimhaethics@gmail.com"
-    },
-    {
-        "Day": "Saturday",
-        "Time": "9.45-10.45",
-        "Subject": "CD",
-        "Faculty": "Bhumi Shah",
-        "Room_No": 370,
-        "Division": "6A7",
-        "Email": "bhumi.shah19174@paruluniversity.ac.in"
-    },
-    {
-        "Day": "Saturday",
-        "Time": "10.45-11.45",
-        "Subject": "ML",
-        "Faculty": "Mohitkumar Jagdishchandra Rathod",
-        "Room_No": 370,
-        "Division": "6A7",
-        "Email": "mohitkumar.rathod20807@paruluniversity.ac.in"
-    },
-    {
-        "Day": "Saturday",
-        "Time": "12.45-1.35",
-        "Subject": "ML",
-        "Faculty": "Mohitkumar Jagdishchandra Rathod",
-        "Room_No": 370,
-        "Division": "6A7",
-        "Email": "mohitkumar.rathod20807@paruluniversity.ac.in"
-    },
-    {
-        "Day": "Saturday",
-        "Time": "2.45-3.45",
-        "Subject": "MAD",
-        "Faculty": "Akash Sayaji Ugalmugale",
-        "Room_No": 370,
-        "Division": "6A7",
-        "Email": "akashugale8554@gmail.com"
-    },
-    {
-        "Day": "Saturday",
-        "Time": "3.45-4.45",
-        "Subject": "MSWD",
-        "Faculty": "Bisal Kumar Show",
-        "Room_No": 370,
-        "Division": "6A7",
-        "Email": "bisalshaw@gmail.com"
-    }
+
+,
+  {
+    "Day": "Monday",
+    "Time": "11:20-12:20",
+    "Subject": "Cyber Physical Systems",
+    "Faculty": "Tushar Jakhaniya",
+    "Email": "tushar.jakhaniya37924@paruluniversity.ac.in",
+    "Room_No": 332,
+    "Division": "7A12"
+  },
+  {
+    "Day": "Tuesday",
+    "Time": "09:30-10:25",
+    "Subject": "Big Data Analytics",
+    "Faculty": "Dr. Praveen Kumar Patidar",
+    "Email": "pravin.patidar33727@paruluniversity.ac.in",
+    "Room_No": 332,
+    "Division": "7A12"
+  },
+  {
+    "Day": "Tuesday",
+    "Time": "11:20-12:20",
+    "Subject": "Information and Network Security",
+    "Faculty": "Bela Shah",
+    "Email": "bela.shah35326@paruluniversity.ac.in",
+    "Room_No": 332,
+    "Division": "7A12"
+  },
+  {
+    "Day": "Wednesday",
+    "Time": "11:20-12:20",
+    "Subject": "Software Testing and Quality Assurance",
+    "Faculty": "Mr. Utpalkumar Bhupendrabhai Patel",
+    "Email": "utpalkumar.patel8853@paruluniversity.ac.in",
+    "Room_No": 332,
+    "Division": "7A12"
+  },
+  {
+    "Day": "Wednesday",
+    "Time": "12:20-01:15",
+    "Subject": "Big Data Analytics",
+    "Faculty": "Dr. Praveen Kumar Patidar",
+    "Email": "pravin.patidar33727@paruluniversity.ac.in",
+    "Room_No": 332,
+    "Division": "7A12"
+  },
+  {
+    "Day": "Thursday",
+    "Time": "11:20-12:20",
+    "Subject": "Cyber Security",
+    "Faculty": "Rakshith Bairi",
+    "Email": "rakshith.bairi@techdefence.com",
+    "Room_No": 332,
+    "Division": "7A12"
+  },
+  {
+    "Day": "Friday",
+    "Time": "09:30-11:20",
+    "Subject": "Software Testing and Quality Assurance Lab",
+    "Faculty": "Mr. Utpalkumar Bhupendrabhai Patel",
+    "Email": "utpalkumar.patel8853@paruluniversity.ac.in",
+    "Room_No": 332,
+    "Division": "7A12"
+  },
+  {
+    "Day": "Friday",
+    "Time": "11:20-01:15",
+    "Subject": "Big Data Analytics Lab",
+    "Faculty": "Dr. Praveen Kumar Patidar",
+    "Email": "pravin.patidar33727@paruluniversity.ac.in",
+    "Room_No": 332,
+    "Division": "7A12"
+  },
+  {
+    "Day": "Friday",
+    "Time": "02:30-04:20",
+    "Subject": "Cyber Security Lab",
+    "Faculty": "Rakshith Bairi",
+    "Email": "rakshith.bairi@techdefence.com",
+    "Room_No": 332,
+    "Division": "7A12"
+  }
+,
+  {
+    "Day": "Monday",
+    "Time": "09:30-10:25",
+    "Subject": "Information and Network Security",
+    "Faculty": "Bela Shah",
+    "Email": "bela.shah35326@paruluniversity.ac.in",
+    "Room_No": 332,
+    "Division": "7A13"
+  },
+  {
+    "Day": "Monday",
+    "Time": "11:20-12:20",
+    "Subject": "Cyber Physical Systems",
+    "Faculty": "Tushar Jakhaniya",
+    "Email": "tushar.jakhaniya37924@paruluniversity.ac.in",
+    "Room_No": 332,
+    "Division": "7A13"
+  },
+  {
+    "Day": "Tuesday",
+    "Time": "09:30-10:25",
+    "Subject": "Big Data Analytics",
+    "Faculty": "Dr. Praveen Kumar Patidar",
+    "Email": "pravin.patidar33727@paruluniversity.ac.in",
+    "Room_No": 332,
+    "Division": "7A13"
+  },
+  {
+    "Day": "Wednesday",
+    "Time": "11:20-12:20",
+    "Subject": "Software Testing and Quality Assurance",
+    "Faculty": "Mr. Utpalkumar Bhupendrabhai Patel",
+    "Email": "utpalkumar.patel8853@paruluniversity.ac.in",
+    "Room_No": 332,
+    "Division": "7A13"
+  },
+  {
+    "Day": "Wednesday",
+    "Time": "12:20-01:15",
+    "Subject": "Big Data Analytics",
+    "Faculty": "Dr. Praveen Kumar Patidar",
+    "Email": "pravin.patidar33727@paruluniversity.ac.in",
+    "Room_No": 332,
+    "Division": "7A13"
+  },
+  {
+    "Day": "Thursday",
+    "Time": "11:20-12:20",
+    "Subject": "Cyber Security",
+    "Faculty": "Rakshith Bairi",
+    "Email": "rakshith.bairi@techdefence.com",
+    "Room_No": 332,
+    "Division": "7A13"
+  },
+  {
+    "Day": "Friday",
+    "Time": "09:30-11:20",
+    "Subject": "Software Testing and Quality Assurance Lab",
+    "Faculty": "Mr. Utpalkumar Bhupendrabhai Patel",
+    "Email": "utpalkumar.patel8853@paruluniversity.ac.in",
+    "Room_No": 332,
+    "Division": "7A13"
+  },
+  {
+    "Day": "Friday",
+    "Time": "11:20-01:15",
+    "Subject": "Big Data Analytics Lab",
+    "Faculty": "Dr. Praveen Kumar Patidar",
+    "Email": "pravin.patidar33727@paruluniversity.ac.in",
+    "Room_No": 332,
+    "Division": "7A13"
+  },
+  {
+    "Day": "Friday",
+    "Time": "02:30-04:20",
+    "Subject": "Cyber Security Lab",
+    "Faculty": "Rakshith Bairi",
+    "Email": "rakshith.bairi@techdefence.com",
+    "Room_No": 332,
+    "Division": "7A13"
+  }
+
+,
+  {
+    "Day": "Monday",
+    "Time": "09:30-10:25",
+    "Subject": "Information and Network Security",
+    "Faculty": "Bela Shah",
+    "Email": "bela.shah35326@paruluniversity.ac.in",
+    "Room_No": 333,
+    "Division": "7A14"
+  },
+  {
+    "Day": "Monday",
+    "Time": "11:20-12:20",
+    "Subject": "Cyber Physical Systems",
+    "Faculty": "Tushar Jakhaniya",
+    "Email": "tushar.jakhaniya37924@paruluniversity.ac.in",
+    "Room_No": 333,
+    "Division": "7A14"
+  },
+  {
+    "Day": "Tuesday",
+    "Time": "09:30-10:25",
+    "Subject": "Big Data Analytics",
+    "Faculty": "Dr. Praveen Kumar Patidar",
+    "Email": "pravin.patidar33727@paruluniversity.ac.in",
+    "Room_No": 333,
+    "Division": "7A14"
+  },
+  {
+    "Day": "Wednesday",
+    "Time": "11:20-12:20",
+    "Subject": "Software Testing and Quality Assurance",
+    "Faculty": "Mr. Utpalkumar Bhupendrabhai Patel",
+    "Email": "utpalkumar.patel8853@paruluniversity.ac.in",
+    "Room_No": 333,
+    "Division": "7A14"
+  },
+  {
+    "Day": "Wednesday",
+    "Time": "12:20-01:15",
+    "Subject": "Big Data Analytics",
+    "Faculty": "Dr. Praveen Kumar Patidar",
+    "Email": "pravin.patidar33727@paruluniversity.ac.in",
+    "Room_No": 333,
+    "Division": "7A14"
+  },
+  {
+    "Day": "Thursday",
+    "Time": "11:20-12:20",
+    "Subject": "Cyber Security",
+    "Faculty": "Rakshith Bairi",
+    "Email": "rakshith.bairi@techdefence.com",
+    "Room_No": 333,
+    "Division": "7A14"
+  },
+  {
+    "Day": "Friday",
+    "Time": "09:30-11:20",
+    "Subject": "Software Testing and Quality Assurance Lab",
+    "Faculty": "Mr. Utpalkumar Bhupendrabhai Patel",
+    "Email": "utpalkumar.patel8853@paruluniversity.ac.in",
+    "Room_No": 333,
+    "Division": "7A14"
+  },
+  {
+    "Day": "Friday",
+    "Time": "11:20-01:15",
+    "Subject": "Big Data Analytics Lab",
+    "Faculty": "Dr. Praveen Kumar Patidar",
+    "Email": "pravin.patidar33727@paruluniversity.ac.in",
+    "Room_No": 333,
+    "Division": "7A14"
+  },
+  {
+    "Day": "Friday",
+    "Time": "02:30-04:20",
+    "Subject": "Cyber Security Lab",
+    "Faculty": "Rakshith Bairi",
+    "Email": "rakshith.bairi@techdefence.com",
+    "Room_No": 333,
+    "Division": "7A14"
+  }
+
+,
+  {
+    "Day": "Monday",
+    "Time": "09:30-10:25",
+    "Subject": "Information and Network Security",
+    "Faculty": "Bela Shah",
+    "Email": "bela.shah35326@paruluniversity.ac.in",
+    "Room_No": 334,
+    "Division": "7A15"
+  },
+  {
+    "Day": "Monday",
+    "Time": "11:20-12:20",
+    "Subject": "Cyber Physical Systems",
+    "Faculty": "Tushar Jakhaniya",
+    "Email": "tushar.jakhaniya37924@paruluniversity.ac.in",
+    "Room_No": 334,
+    "Division": "7A15"
+  },
+  {
+    "Day": "Tuesday",
+    "Time": "09:30-10:25",
+    "Subject": "Big Data Analytics",
+    "Faculty": "Dr. Praveen Kumar Patidar",
+    "Email": "pravin.patidar33727@paruluniversity.ac.in",
+    "Room_No": 334,
+    "Division": "7A15"
+  },
+  {
+    "Day": "Wednesday",
+    "Time": "11:20-12:20",
+    "Subject": "Software Testing and Quality Assurance",
+    "Faculty": "Mr. Utpalkumar Bhupendrabhai Patel",
+    "Email": "utpalkumar.patel8853@paruluniversity.ac.in",
+    "Room_No": 334,
+    "Division": "7A15"
+  },
+  {
+    "Day": "Wednesday",
+    "Time": "12:20-01:15",
+    "Subject": "Big Data Analytics",
+    "Faculty": "Dr. Praveen Kumar Patidar",
+    "Email": "pravin.patidar33727@paruluniversity.ac.in",
+    "Room_No": 334,
+    "Division": "7A15"
+  },
+  {
+    "Day": "Thursday",
+    "Time": "11:20-12:20",
+    "Subject": "Cyber Security",
+    "Faculty": "Rakshith Bairi",
+    "Email": "rakshith.bairi@techdefence.com",
+    "Room_No": 334,
+    "Division": "7A15"
+  },
+  {
+    "Day": "Friday",
+    "Time": "09:30-11:20",
+    "Subject": "Software Testing and Quality Assurance Lab",
+    "Faculty": "Mr. Utpalkumar Bhupendrabhai Patel",
+    "Email": "utpalkumar.patel8853@paruluniversity.ac.in",
+    "Room_No": 334,
+    "Division": "7A15"
+  },
+  {
+    "Day": "Friday",
+    "Time": "11:20-01:15",
+    "Subject": "Big Data Analytics Lab",
+    "Faculty": "Dr. Praveen Kumar Patidar",
+    "Email": "pravin.patidar33727@paruluniversity.ac.in",
+    "Room_No": 334,
+    "Division": "7A15"
+  },
+  {
+    "Day": "Friday",
+    "Time": "02:30-04:20",
+    "Subject": "Cyber Security Lab",
+    "Faculty": "Rakshith Bairi",
+    "Email": "rakshith.bairi@techdefence.com",
+    "Room_No": 334,
+    "Division": "7A15"
+  }
+
+,
+  {
+    "Day": "Monday",
+    "Time": "09:30-10:25",
+    "Subject": "Information and Network Security",
+    "Faculty": "Bela Shah",
+    "Email": "bela.shah35326@paruluniversity.ac.in",
+    "Room_No": 335,
+    "Division": "7A16"
+  },
+  {
+    "Day": "Monday",
+    "Time": "11:20-12:20",
+    "Subject": "Cyber Physical Systems",
+    "Faculty": "Tushar Jakhaniya",
+    "Email": "tushar.jakhaniya37924@paruluniversity.ac.in",
+    "Room_No": 335,
+    "Division": "7A16"
+  },
+  {
+    "Day": "Tuesday",
+    "Time": "09:30-10:25",
+    "Subject": "Big Data Analytics",
+    "Faculty": "Dr. Praveen Kumar Patidar",
+    "Email": "pravin.patidar33727@paruluniversity.ac.in",
+    "Room_No": 335,
+    "Division": "7A16"
+  },
+  {
+    "Day": "Wednesday",
+    "Time": "11:20-12:20",
+    "Subject": "Software Testing and Quality Assurance",
+    "Faculty": "Mr. Utpalkumar Bhupendrabhai Patel",
+    "Email": "utpalkumar.patel8853@paruluniversity.ac.in",
+    "Room_No": 335,
+    "Division": "7A16"
+  },
+  {
+    "Day": "Wednesday",
+    "Time": "12:20-01:15",
+    "Subject": "Big Data Analytics",
+    "Faculty": "Dr. Praveen Kumar Patidar",
+    "Email": "pravin.patidar33727@paruluniversity.ac.in",
+    "Room_No": 335,
+    "Division": "7A16"
+  },
+  {
+    "Day": "Thursday",
+    "Time": "11:20-12:20",
+    "Subject": "Cyber Security",
+    "Faculty": "Rakshith Bairi",
+    "Email": "rakshith.bairi@techdefence.com",
+    "Room_No": 335,
+    "Division": "7A16"
+  },
+  {
+    "Day": "Friday",
+    "Time": "09:30-11:20",
+    "Subject": "Software Testing and Quality Assurance Lab",
+    "Faculty": "Mr. Utpalkumar Bhupendrabhai Patel",
+    "Email": "utpalkumar.patel8853@paruluniversity.ac.in",
+    "Room_No": 335,
+    "Division": "7A16"
+  },
+  {
+    "Day": "Friday",
+    "Time": "11:20-01:15",
+    "Subject": "Big Data Analytics Lab",
+    "Faculty": "Dr. Praveen Kumar Patidar",
+    "Email": "pravin.patidar33727@paruluniversity.ac.in",
+    "Room_No": 335,
+    "Division": "7A16"
+  },
+  {
+    "Day": "Friday",
+    "Time": "02:30-04:20",
+    "Subject": "Cyber Security Lab",
+    "Faculty": "Rakshith Bairi",
+    "Email": "rakshith.bairi@techdefence.com",
+    "Room_No": 335,
+    "Division": "7A16"
+  }
+
+,
+  {
+    "Day": "Monday",
+    "Time": "09:30-10:25",
+    "Subject": "Information and Network Security",
+    "Faculty": "Bela Shah",
+    "Email": "bela.shah35326@paruluniversity.ac.in",
+    "Room_No": 336,
+    "Division": "7A17"
+  },
+  {
+    "Day": "Monday",
+    "Time": "11:20-12:20",
+    "Subject": "Cyber Physical Systems",
+    "Faculty": "Tushar Jakhaniya",
+    "Email": "tushar.jakhaniya37924@paruluniversity.ac.in",
+    "Room_No": 336,
+    "Division": "7A17"
+  },
+  {
+    "Day": "Tuesday",
+    "Time": "09:30-10:25",
+    "Subject": "Big Data Analytics",
+    "Faculty": "Dr. Praveen Kumar Patidar",
+    "Email": "pravin.patidar33727@paruluniversity.ac.in",
+    "Room_No": 336,
+    "Division": "7A17"
+  },
+  {
+    "Day": "Wednesday",
+    "Time": "11:20-12:20",
+    "Subject": "Software Testing and Quality Assurance",
+    "Faculty": "Mr. Utpalkumar Bhupendrabhai Patel",
+    "Email": "utpalkumar.patel8853@paruluniversity.ac.in",
+    "Room_No": 336,
+    "Division": "7A17"
+  },
+  {
+    "Day": "Wednesday",
+    "Time": "12:20-01:15",
+    "Subject": "Big Data Analytics",
+    "Faculty": "Dr. Praveen Kumar Patidar",
+    "Email": "pravin.patidar33727@paruluniversity.ac.in",
+    "Room_No": 336,
+    "Division": "7A17"
+  },
+  {
+    "Day": "Thursday",
+    "Time": "11:20-12:20",
+    "Subject": "Cyber Security",
+    "Faculty": "Rakshith Bairi",
+    "Email": "rakshith.bairi@techdefence.com",
+    "Room_No": 336,
+    "Division": "7A17"
+  },
+  {
+    "Day": "Friday",
+    "Time": "09:30-11:20",
+    "Subject": "Software Testing and Quality Assurance Lab",
+    "Faculty": "Mr. Utpalkumar Bhupendrabhai Patel",
+    "Email": "utpalkumar.patel8853@paruluniversity.ac.in",
+    "Room_No": 336,
+    "Division": "7A17"
+  },
+  {
+    "Day": "Friday",
+    "Time": "11:20-01:15",
+    "Subject": "Big Data Analytics Lab",
+    "Faculty": "Dr. Praveen Kumar Patidar",
+    "Email": "pravin.patidar33727@paruluniversity.ac.in",
+    "Room_No": 336,
+    "Division": "7A17"
+  },
+  {
+    "Day": "Friday",
+    "Time": "02:30-04:20",
+    "Subject": "Cyber Security Lab",
+    "Faculty": "Rakshith Bairi",
+    "Email": "rakshith.bairi@techdefence.com",
+    "Room_No": 336,
+    "Division": "7A17"
+  }
+
+
+
 
 ]
