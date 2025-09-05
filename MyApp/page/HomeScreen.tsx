@@ -204,51 +204,60 @@ const HomeScreen: React.FC = () => {
 
   const handleLike = async (postId: string) => {
     try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission needed', 'Camera roll permission is required');
-        return;
-      }
+      // Animation feedback
+      Animated.sequence([
+        Animated.timing(scaleAnim, {
+          toValue: 1.3,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleAnim, {
+          toValue: 1,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+      ]).start();
 
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: type === 'image' ? [ImagePicker.MediaType.Images] : [ImagePicker.MediaType.Videos],
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 0.8,
-        base64: false,
-      });
+      const userId = firebaseService.getCurrentUserId();
+      const currentUser = firebaseService.getCurrentUser();
+      const post = posts.find(p => p.id === postId);
+      const isLiked = post?.likes.includes(userId);
+      
+      if (!post || !userId || !currentUser) return;
+      
+      // Update local state immediately
+      setPosts(prevPosts =>
+        prevPosts.map(p => {
+          if (p.id === postId) {
+            return {
+              ...p,
+              likes: isLiked
+                ? p.likes.filter(id => id !== userId)
+                : [...p.likes, userId]
+            };
+          }
+          return p;
+        })
+      );
 
-      if (!result.canceled && result.assets[0]) {
-        setMediaUri(result.assets[0].uri);
-        setMediaType(type);
-      }
-    } catch (error) {
-      console.error('Media selection error:', error);
-      Alert.alert('Error', 'Failed to select media');
-    }
-  };
+      NotificationService.provideHapticFeedback('impact');
 
-  // Get current location
-  const getCurrentLocation = async () => {
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission needed', 'Location permission is required');
-        return;
-      }
-
-      const currentLocation = await Location.getCurrentPositionAsync({});
-      const address = await Location.reverseGeocodeAsync({
-        latitude: currentLocation.coords.latitude,
-        longitude: currentLocation.coords.longitude,
-      });
-
-      if (address[0]) {
-        setLocation({
-          name: `${address[0].city}, ${address[0].region}`,
-          latitude: currentLocation.coords.latitude,
-          longitude: currentLocation.coords.longitude,
-        });
+      // Update Firebase
+      await firebaseService.toggleLike(postId, userId);
+      
+      // Send notification if liking someone else's post (not unliking)
+      if (!isLiked && post.userId !== userId) {
+        await NotificationService.sendLikeNotification(
+          postId,
+          post.title,
+          post.userId,
+          {
+            id: userId,
+            username: currentUser.displayName || 'GoGuide User'
+          }
+        );
+        
+        console.log(`Like notification sent from ${currentUser.displayName} to post owner ${post.userId}`);
       }
     } catch (error) {
       console.error('Like error:', error);
@@ -445,409 +454,105 @@ const HomeScreen: React.FC = () => {
     }
   };
 
-  // Render post card
-  const renderPostCard = ({ item }: { item: FoodPost }) => {
-    const userId = firebaseService.getCurrentUserId();
-    const isLiked = userId && item.likes.includes(userId);
-    
-    return (
-      <Animated.View 
-        style={[
-          styles.postCard,
-          { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }
-        ]}
-      >
-        <View style={styles.postHeader}>
-          <View style={styles.userAvatar}>
-            <Ionicons name="person" size={20} color={colors.text} />
-          </View>
-          <View style={styles.userInfo}>
-            <Text style={styles.username}>{item.username}</Text>
-            <Text style={styles.location}>
-              <Ionicons name="location-outline" size={12} color={colors.textSecondary} />
-              {' '}{item.location.name}
-            </Text>
-          </View>
-          <TouchableOpacity style={styles.headerIcon}>
-            <Ionicons name="ellipsis-horizontal" size={20} color={colors.textSecondary} />
-          </TouchableOpacity>
-        </View>
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="light-content" backgroundColor="#000000" translucent={false} />
+      
+      {/* Floating Header */}
+      <Header
+        fadeAnim={fadeAnim}
+        unreadCount={unreadCount}
+        onNotificationsPress={openNotifications}
+        onMenuPress={() => NotificationService.provideHapticFeedback('selection')}
+      />
 
-        {/* Media Display */}
-        {item.imageUrl ? (
-          <Image source={{ uri: item.imageUrl }} style={styles.postMedia} />
-        ) : item.videoUrl ? (
-          <Video
-            source={item.videoUrl}
-            style={styles.postMedia}
-            shouldPlay={false}
-            isLooping={false}
-            useNativeControls={true}
+      {/* Main Content */}
+      <View style={styles.content}>
+        {/* Tab Navigation */}
+        <Animated.View 
+          style={[
+            styles.tabContainer,
+            { opacity: fadeAnim }
+          ]}
+        >
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'explore' && styles.activeTab]}
+            onPress={() => {
+              setActiveTab('explore');
+              NotificationService.provideHapticFeedback('selection');
+            }}
+            activeOpacity={0.8}
+          >
+            <Text style={[
+              styles.tabText,
+              activeTab === 'explore' && styles.activeTabText
+            ]}>
+              Explore
+            </Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'post' && styles.activeTab]}
+            onPress={() => {
+              setActiveTab('post');
+              NotificationService.provideHapticFeedback('selection');
+            }}
+            activeOpacity={0.8}
+          >
+            <Text style={[
+              styles.tabText,
+              activeTab === 'post' && styles.activeTabText
+            ]}>
+              Create Post
+            </Text>
+          </TouchableOpacity>
+        </Animated.View>
+
+        {/* Tab Content */}
+        {activeTab === 'explore' ? (
+          <ExploreTab
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+            filteredPosts={getFilteredPosts()}
+            loading={loading}
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            onLike={handleLike}
+            onComment={openComments}
+            slideAnim={slideAnim}
+            fadeAnim={fadeAnim}
+            scaleAnim={scaleAnim}
+            currentUserId={firebaseService.getCurrentUserId()}
+            timeAgo={timeAgo}
           />
         ) : (
-          <View style={[styles.postMedia, { alignItems: 'center', justifyContent: 'center' }]}>
-            <Ionicons name="image-outline" size={60} color={colors.textSecondary} />
-          </View>
+          <CreatePostTab
+            title={title}
+            setTitle={setTitle}
+            description={description}
+            setDescription={setDescription}
+            category={category}
+            setCategory={setCategory}
+            mediaUri={mediaUri}
+            setMediaUri={setMediaUri}
+            mediaType={mediaType}
+            setMediaType={setMediaType}
+            location={location}
+            setLocation={setLocation}
+            tags={tags}
+            setTags={setTags}
+            tagInput={tagInput}
+            setTagInput={setTagInput}
+            focusedInput={focusedInput}
+            setFocusedInput={setFocusedInput}
+            isPosting={isPosting}
+            fadeAnim={fadeAnim}
+            slideAnim={slideAnim}
+            onSubmit={handleSubmitPost}
+          />
         )}
-
-        <View style={styles.postContent}>
-          <Text style={styles.postTitle}>{item.title}</Text>
-          <Text style={styles.postDescription}>{item.description}</Text>
-          
-          {/* Tags */}
-          <View style={styles.postTags}>
-            {item.tags.map((tag, index) => (
-              <View key={index} style={styles.tag}>
-                <Text style={styles.tagText}>#{tag}</Text>
-              </View>
-            ))}
-          </View>
-
-          {/* Actions */}
-          <View style={styles.postActions}>
-            <View style={styles.actionButtons}>
-              <TouchableOpacity
-                style={[styles.actionButton, isLiked && styles.likedButton]}
-                onPress={() => handleLike(item.id!)}
-              >
-                <Ionicons
-                  name={isLiked ? "heart" : "heart-outline"}
-                  size={24}
-                  color={isLiked ? colors.error : colors.textSecondary}
-                />
-                <Text style={[styles.actionText, isLiked && styles.likedText]}>
-                  {item.likes.length}
-                </Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity style={styles.actionButton}>
-                <Ionicons name="chatbubble-outline" size={22} color={colors.textSecondary} />
-                <Text style={styles.actionText}>{item.comments.length}</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity style={styles.actionButton}>
-                <Ionicons name="share-outline" size={22} color={colors.textSecondary} />
-              </TouchableOpacity>
-            </View>
-            
-            <TouchableOpacity style={styles.actionButton}>
-              <Ionicons name="bookmark-outline" size={22} color={colors.textSecondary} />
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Animated.View>
-    );
-  };
-
-  // Render explore tab
-  const renderExploreTab = () => (
-    <View style={styles.exploreContainer}>
-      {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <Ionicons name="search-outline" size={20} color={colors.textSecondary} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search delicious food..."
-          placeholderTextColor={colors.textSecondary}
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-        {searchQuery ? (
-          <TouchableOpacity onPress={() => setSearchQuery('')}>
-            <Ionicons name="close-circle" size={20} color={colors.textSecondary} />
-          </TouchableOpacity>
-        ) : null}
-      </View>
-
-      {/* Categories */}
-      <View style={styles.categoryContainer}>
-        <Text style={styles.categoryTitle}>Categories</Text>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.categoryScroll}
-        >
-          {categories.map((cat, index) => (
-            <TouchableOpacity
-              key={index}
-              style={[
-                styles.categoryItem,
-                selectedCategory === cat && styles.activeCategoryItem
-              ]}
-              onPress={() => setSelectedCategory(cat)}
-            >
-              <Text style={[
-                styles.categoryText,
-                selectedCategory === cat && styles.activeCategoryText
-              ]}>
-                {cat}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
-
-      {/* Posts Feed */}
-      {loading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={styles.loadingText}>Loading delicious posts...</Text>
-        </View>
-      ) : (
-        <FlatList
-          data={getFilteredPosts()}
-          renderItem={renderPostCard}
-          keyExtractor={(item) => item.id!}
-          showsVerticalScrollIndicator={false}
-          refreshing={refreshing}
-          onRefresh={handleRefresh}
-          contentContainerStyle={getFilteredPosts().length === 0 ? styles.emptyContainer : {}}
-          ListEmptyComponent={() => (
-            <View style={styles.emptyContainer}>
-              <Ionicons name="restaurant-outline" size={80} color={colors.textSecondary} />
-              <Text style={styles.emptyText}>
-                No posts found{'\n'}Be the first to share something delicious!
-              </Text>
-            </View>
-          )}
-        />
-      )}
-    </View>
-  );
-
-  // Render post creation tab
-  const renderPostTab = () => (
-    <ScrollView style={styles.createContainer} showsVerticalScrollIndicator={false}>
-      <View style={styles.createForm}>
-        {/* Title Input */}
-        <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>Title *</Text>
-          <TextInput
-            style={[
-              styles.textInput,
-              focusedInput === 'title' && styles.focusedInput
-            ]}
-            placeholder="What's the dish called?"
-            placeholderTextColor={colors.textSecondary}
-            value={title}
-            onChangeText={setTitle}
-            onFocus={() => setFocusedInput('title')}
-            onBlur={() => setFocusedInput('')}
-          />
-        </View>
-
-        {/* Description Input */}
-        <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>Description *</Text>
-          <TextInput
-            style={[
-              styles.textInput,
-              styles.textArea,
-              focusedInput === 'description' && styles.focusedInput
-            ]}
-            placeholder="Tell us about this amazing food..."
-            placeholderTextColor={colors.textSecondary}
-            value={description}
-            onChangeText={setDescription}
-            multiline
-            onFocus={() => setFocusedInput('description')}
-            onBlur={() => setFocusedInput('')}
-          />
-        </View>
-
-        {/* Category Input */}
-        <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>Category *</Text>
-          <TextInput
-            style={[
-              styles.textInput,
-              focusedInput === 'category' && styles.focusedInput
-            ]}
-            placeholder="e.g., Pizza, Dessert, Street Food..."
-            placeholderTextColor={colors.textSecondary}
-            value={category}
-            onChangeText={setCategory}
-            onFocus={() => setFocusedInput('category')}
-            onBlur={() => setFocusedInput('')}
-          />
-        </View>
-
-        {/* Media Selection */}
-        <View style={styles.mediaSection}>
-          <Text style={styles.inputLabel}>Add Photo or Video</Text>
-          <View style={styles.mediaButtons}>
-            <TouchableOpacity
-              style={[
-                styles.mediaButton,
-                mediaType === 'image' && styles.activeMediaButton
-              ]}
-              onPress={() => selectMedia('image')}
-            >
-              <Ionicons
-                name="image-outline"
-                size={24}
-                color={mediaType === 'image' ? colors.text : colors.textSecondary}
-              />
-              <Text style={[
-                styles.mediaButtonText,
-                mediaType === 'image' && styles.activeMediaButtonText
-              ]}>
-                Photo
-              </Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity
-              style={[
-                styles.mediaButton,
-                mediaType === 'video' && styles.activeMediaButton
-              ]}
-              onPress={() => selectMedia('video')}
-            >
-              <Ionicons
-                name="videocam-outline"
-                size={24}
-                color={mediaType === 'video' ? colors.text : colors.textSecondary}
-              />
-              <Text style={[
-                styles.mediaButtonText,
-                mediaType === 'video' && styles.activeMediaButtonText
-              ]}>
-                Video
-              </Text>
-            </TouchableOpacity>
-          </View>
-          
-          {/* Media Preview */}
-          {mediaUri && (
-            <View style={styles.mediaPreview}>
-              {mediaType === 'image' ? (
-                <Image source={{ uri: mediaUri }} style={styles.mediaPreviewImage} />
-              ) : (
-                <Video
-                  source={mediaUri}
-                  style={styles.mediaPreviewImage}
-                  shouldPlay={false}
-                  isLooping={false}
-                  useNativeControls={true}
-                />
-              )}
-            </View>
-          )}
-        </View>
-
-        {/* Location */}
-        <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>Location</Text>
-          <TouchableOpacity
-            style={[
-              styles.locationButton,
-              location && styles.selectedLocationButton
-            ]}
-            onPress={getCurrentLocation}
-          >
-            <Ionicons
-              name="location-outline"
-              size={24}
-              color={location ? colors.accent : colors.textSecondary}
-            />
-            <Text style={[
-              styles.locationText,
-              location && styles.selectedLocationText
-            ]}>
-              {location ? location.name : 'Add location'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Tags */}
-        <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>Tags</Text>
-          <View style={styles.tagsInput}>
-            {tags.map((tag, index) => (
-              <TouchableOpacity
-                key={index}
-                style={styles.tag}
-                onPress={() => removeTag(tag)}
-              >
-                <Text style={styles.tagText}>#{tag} ×</Text>
-              </TouchableOpacity>
-            ))}
-            <TextInput
-              style={styles.tagInputField}
-              placeholder="Add tags..."
-              placeholderTextColor={colors.textSecondary}
-              value={tagInput}
-              onChangeText={setTagInput}
-              onSubmitEditing={addTag}
-              returnKeyType="done"
-            />
-          </View>
-        </View>
-
-        {/* Submit Button */}
-        <TouchableOpacity
-          style={[
-            styles.submitButton,
-            (!title.trim() || !description.trim() || !category.trim() || isPosting) && styles.disabledButton
-          ]}
-          onPress={handleSubmitPost}
-          disabled={!title.trim() || !description.trim() || !category.trim() || isPosting}
-        >
-          {isPosting ? (
-            <ActivityIndicator color={colors.text} />
-          ) : (
-            <Text style={styles.submitButtonText}>Share Your Food</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
-  );
-
-  return (
-    <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
-      {/* Header */}
-      <LinearGradient
-        colors={colors.gradient.orange}
-        style={styles.header}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-      >
-        <TouchableOpacity style={styles.headerIcon}>
-          <Ionicons name="menu-outline" size={24} color={colors.text} />
-        </TouchableOpacity>
-        
-        <Text style={styles.headerTitle}>GoGuide</Text>
-        
-        <TouchableOpacity style={styles.headerIcon}>
-          <Ionicons name="notifications-outline" size={24} color={colors.text} />
-        </TouchableOpacity>
-      </LinearGradient>
-
-      {/* Tab Navigation */}
-      <View style={styles.tabContainer}>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'explore' && styles.activeTab]}
-          onPress={() => setActiveTab('explore')}
-        >
-          <Text style={[
-            styles.tabText,
-            activeTab === 'explore' && styles.activeTabText
-          ]}>
-            Explore
-          </Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'post' && styles.activeTab]}
-          onPress={() => setActiveTab('post')}
-        >
-          <Text style={[
-            styles.tabText,
-            activeTab === 'post' && styles.activeTabText
-          ]}>
-            Post Food
-          </Text>
-        </TouchableOpacity>
       </View>
 
       {/* Comments Modal */}
