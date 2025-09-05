@@ -8,10 +8,18 @@ import {
   Animated,
   ActivityIndicator,
   StatusBar,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { styles } from './CalculatorStyles';
+import { 
+  saveWeeklySlots, 
+  loadWeeklySlots, 
+  hasUserSchedule,
+  WeeklySlots 
+} from '../Services/FirebaseService';
+import { useAuth } from '../hooks/useAuth';
 
 interface CalculationResult {
   type: 'positive' | 'negative';
@@ -27,17 +35,10 @@ interface CalculationResult {
   currentDay?: string;
 }
 
-interface WeeklySlots {
-  monday: number;
-  tuesday: number;
-  wednesday: number;
-  thursday: number;
-  friday: number;
-  saturday: number;
-  sunday: number;
-}
-
 const Calculator: React.FC = () => {
+  // Authentication hook
+  const { user, loading: authLoading, isAuthenticated } = useAuth();
+
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
@@ -57,8 +58,13 @@ const Calculator: React.FC = () => {
   const [isCalculating, setIsCalculating] = useState<boolean>(false);
   const [showSchedule, setShowSchedule] = useState<boolean>(false);
   const [editMode, setEditMode] = useState<boolean>(false);
+  
+  // Firebase related state
+  const [isLoadingSchedule, setIsLoadingSchedule] = useState<boolean>(true);
+  const [isSavingSchedule, setIsSavingSchedule] = useState<boolean>(false);
+  const [hasExistingSchedule, setHasExistingSchedule] = useState<boolean>(false);
 
-  // Weekly schedule state
+  // Weekly schedule state with default values
   const [slots, setSlots] = useState<WeeklySlots>({
     monday: 0,
     tuesday: 0,
@@ -68,6 +74,9 @@ const Calculator: React.FC = () => {
     saturday: 0,
     sunday: 0,
   });
+
+  // Use actual user ID from auth
+  const userId = user?.uid || 'anonymous_user';
 
   useEffect(() => {
     // Initial entrance animation
@@ -122,7 +131,86 @@ const Calculator: React.FC = () => {
       ])
     );
     pulseAnimation.start();
-  }, []);
+
+    // Load saved schedule on component mount
+    if (!authLoading && isAuthenticated) {
+      loadSavedSchedule();
+    } else if (!authLoading) {
+      setIsLoadingSchedule(false);
+    }
+  }, [authLoading, isAuthenticated]);
+
+  const loadSavedSchedule = async () => {
+    try {
+      setIsLoadingSchedule(true);
+      
+      // Check if user has existing schedule
+      const hasSchedule = await hasUserSchedule(userId);
+      setHasExistingSchedule(hasSchedule);
+      
+      if (hasSchedule) {
+        const savedSlots = await loadWeeklySlots(userId);
+        if (savedSlots) {
+          setSlots(savedSlots);
+          console.log('Loaded saved schedule:', savedSlots);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load schedule:', error);
+      // Don't show error to user, just use default values
+    } finally {
+      setIsLoadingSchedule(false);
+    }
+  };
+
+  const saveScheduleToFirebase = async (updatedSlots?: WeeklySlots) => {
+    if (!isAuthenticated) {
+      Alert.alert('Authentication Required', 'Please log in to save your schedule.');
+      return;
+    }
+
+    try {
+      setIsSavingSchedule(true);
+      const slotsToSave = updatedSlots || slots;
+      
+      await saveWeeklySlots(userId, slotsToSave);
+      setHasExistingSchedule(true);
+      
+      // Show success message
+      Alert.alert(
+        'Success',
+        'Weekly schedule saved successfully!',
+        [{ text: 'OK' }]
+      );
+    } catch (error) {
+      console.error('Failed to save schedule:', error);
+      Alert.alert(
+        'Error',
+        'Failed to save schedule. Please try again.',
+        [{ text: 'OK' }]
+      );
+    } finally {
+      setIsSavingSchedule(false);
+    }
+  };
+
+  const handleSlotChange = (day: keyof WeeklySlots, value: string) => {
+    const numValue = parseInt(value) || 0;
+    const updatedSlots = {
+      ...slots,
+      [day]: numValue,
+    };
+    setSlots(updatedSlots);
+    
+    // Auto-save if user already has a schedule
+    if (hasExistingSchedule && isAuthenticated) {
+      saveScheduleToFirebase(updatedSlots);
+    }
+  };
+
+  const handleSaveSchedule = () => {
+    saveScheduleToFirebase();
+  };
 
   const getCurrentDay = (): string => {
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
@@ -353,14 +441,6 @@ const Calculator: React.FC = () => {
     }, 1500);
   };
 
-  const handleSlotChange = (day: keyof WeeklySlots, value: string) => {
-    const numValue = parseInt(value) || 0;
-    setSlots((prevSlots) => ({
-      ...prevSlots,
-      [day]: numValue,
-    }));
-  };
-
   const totalWeeklySlots = Object.values(slots).reduce((sum, value) => sum + value, 0);
 
   const renderScheduleCard = () => (
@@ -404,7 +484,12 @@ const Calculator: React.FC = () => {
         </TouchableOpacity>
       </View>
 
-      {editMode ? (
+      {isLoadingSchedule ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator color="#A855F7" size="small" />
+          <Text style={styles.loadingText}>Loading schedule...</Text>
+        </View>
+      ) : editMode ? (
         <Animated.View 
           style={[
             styles.scheduleForm,
@@ -435,9 +520,39 @@ const Calculator: React.FC = () => {
               />
             </Animated.View>
           ))}
+          
           <View style={styles.totalSlots}>
             <Text style={styles.totalText}>Total: {totalWeeklySlots} classes/week</Text>
           </View>
+
+          {!hasExistingSchedule && isAuthenticated && (
+            <TouchableOpacity
+              style={[styles.saveButton, isSavingSchedule && styles.savingButton]}
+              onPress={handleSaveSchedule}
+              disabled={isSavingSchedule}
+            >
+              {isSavingSchedule ? (
+                <ActivityIndicator color="white" size="small" />
+              ) : (
+                <Icon name="save" size={20} color="white" />
+              )}
+              <Text style={styles.saveButtonText}>
+                {isSavingSchedule ? 'Saving...' : 'Save Schedule'}
+              </Text>
+            </TouchableOpacity>
+          )}
+
+          {hasExistingSchedule && isAuthenticated && (
+            <Text style={styles.autoSaveText}>
+              ✓ Changes are automatically saved
+            </Text>
+          )}
+
+          {!isAuthenticated && (
+            <Text style={styles.authWarningText}>
+              ⚠️ Please log in to save your schedule
+            </Text>
+          )}
         </Animated.View>
       ) : (
         <View style={styles.scheduleDisplay}>
@@ -631,6 +746,16 @@ const Calculator: React.FC = () => {
     inputRange: [0, 1],
     outputRange: ['0deg', '360deg'],
   });
+
+  // Show loading screen while checking authentication
+  if (authLoading) {
+    return (
+      <View style={styles.loadingScreen}>
+        <ActivityIndicator color="#A855F7" size="large" />
+        <Text style={styles.loadingScreenText}>Loading...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>

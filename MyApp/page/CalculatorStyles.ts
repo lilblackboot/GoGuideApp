@@ -1,7 +1,106 @@
 import { StyleSheet, Dimensions } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
+const additionalStyles = {
+  // Loading container for schedule
+  loadingContainer: {
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    color: '#6B7280',
+    marginTop: 8,
+    fontSize: 14,
+  },
 
+  // Save button styles
+  saveButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#059669',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    marginTop: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  savingButton: {
+    backgroundColor: '#6B7280',
+  },
+  saveButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8,
+  },
+
+  // Auto save indicator
+  autoSaveText: {
+    color: '#059669',
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: 12,
+    fontWeight: '500',
+  },
+
+  // Updated schedule form to include save button spacing
+  scheduleForm: {
+    padding: 16,
+  },
+
+  // Enhanced day input styling
+  dayInput: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+    marginVertical: 4,
+    borderRadius: 8,
+    backgroundColor: 'rgba(168, 85, 247, 0.05)',
+  },
+  dayLabel: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#374151',
+    flex: 1,
+  },
+  input: {
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 16,
+    minWidth: 80,
+    textAlign: 'center',
+    color: '#1F2937',
+  },
+
+  // Enhanced total slots display
+  totalSlots: {
+    backgroundColor: 'rgba(168, 85, 247, 0.1)',
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 16,
+    alignItems: 'center',
+  },
+  totalText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#A855F7',
+  },
+};
 export const styles = StyleSheet.create({
   container: {
     flex: 1,

@@ -1,5 +1,5 @@
 // firebaseService.ts
-import { collection, addDoc, getDocs, query, orderBy, limit, doc, updateDoc, arrayUnion, arrayRemove, where } from 'firebase/firestore';
+import { collection, addDoc, getDocs, getDoc, query, orderBy, limit, doc, updateDoc, arrayUnion, arrayRemove, where, serverTimestamp, setDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { db, auth } from '../firebaseConfig'; // Import your existing Firebase config
@@ -8,6 +8,100 @@ import app from '../firebaseConfig'; // Import your existing Firebase app
 // Initialize Firebase Storage using your existing app
 const storage = getStorage(app);
 
+
+
+export interface WeeklySlots {
+  monday: number;
+  tuesday: number;
+  wednesday: number;
+  thursday: number;
+  friday: number;
+  saturday: number;
+  sunday: number;
+}
+
+export interface UserSchedule {
+  weeklySlots: WeeklySlots;
+  lastUpdated: any;
+  userId: string;
+}
+
+const COLLECTION_NAME = 'userSchedules';
+
+// Save weekly slots to Firestore
+export const saveWeeklySlots = async (
+  userId: string, 
+  slots: WeeklySlots
+): Promise<void> => {
+  try {
+    const userScheduleRef = doc(db, COLLECTION_NAME, userId);
+    
+    const scheduleData: UserSchedule = {
+      weeklySlots: slots,
+      lastUpdated: serverTimestamp(),
+      userId: userId
+    };
+
+    await setDoc(userScheduleRef, scheduleData, { merge: true });
+    console.log('Weekly slots saved successfully');
+  } catch (error) {
+    console.error('Error saving weekly slots:', error);
+    throw new Error('Failed to save weekly slots');
+  }
+};
+
+// Load weekly slots from Firestore
+export const loadWeeklySlots = async (userId: string): Promise<WeeklySlots | null> => {
+  try {
+    const userScheduleRef = doc(db, COLLECTION_NAME, userId);
+    const docSnap = await getDoc(userScheduleRef);
+    
+    if (docSnap.exists()) {
+      const data = docSnap.data() as UserSchedule;
+      console.log('Weekly slots loaded successfully');
+      return data.weeklySlots;
+    } else {
+      console.log('No saved weekly slots found');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error loading weekly slots:', error);
+    throw new Error('Failed to load weekly slots');
+  }
+};
+
+// Update specific day slots
+export const updateDaySlots = async (
+  userId: string, 
+  day: keyof WeeklySlots, 
+  slots: number
+): Promise<void> => {
+  try {
+    const userScheduleRef = doc(db, COLLECTION_NAME, userId);
+    
+    await updateDoc(userScheduleRef, {
+      [`weeklySlots.${day}`]: slots,
+      lastUpdated: serverTimestamp()
+    });
+    
+    console.log(`${day} slots updated successfully`);
+  } catch (error) {
+    console.error(`Error updating ${day} slots:`, error);
+    throw new Error(`Failed to update ${day} slots`);
+  }
+};
+
+// Check if user has saved schedule
+export const hasUserSchedule = async (userId: string): Promise<boolean> => {
+  try {
+    const userScheduleRef = doc(db, COLLECTION_NAME, userId);
+    const docSnap = await getDoc(userScheduleRef);
+    return docSnap.exists();
+  } catch (error) {
+    console.error('Error checking user schedule:', error);
+    return false;
+  }
+};
 export interface FoodPost {
   id?: string;
   title: string;
