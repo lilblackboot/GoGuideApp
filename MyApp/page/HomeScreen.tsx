@@ -201,6 +201,7 @@ const HomeScreen: React.FC = () => {
     
     return filtered;
   };
+// Add this function to your HomeScreen.tsx component, after your other handlers
 
   const handleLike = async (postId: string) => {
     try {
@@ -337,7 +338,48 @@ const HomeScreen: React.FC = () => {
       console.error('Comment error:', error);
     }
   };
-
+const handleDeletePost = async (postId: string, post: FoodPost) => {
+  try {
+    // Show confirmation alert
+    Alert.alert(
+      'Delete Post',
+      'Are you sure you want to delete this post? This action cannot be undone.',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel'
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // Provide haptic feedback
+              NotificationService.provideHapticFeedback('impact');
+              
+              // Delete post from Firebase
+              await firebaseService.deletePost(postId);
+              
+              // Update local state immediately
+              setPosts(prevPosts => prevPosts.filter(p => p.id !== postId));
+              
+              // Show success feedback
+              NotificationService.provideHapticFeedback('success');
+              Alert.alert('Success', 'Post deleted successfully!');
+              
+            } catch (error) {
+              console.error('Delete post error:', error);
+              NotificationService.provideHapticFeedback('error');
+              Alert.alert('Error', 'Failed to delete post. Please try again.');
+            }
+          }
+        }
+      ]
+    );
+  } catch (error) {
+    console.error('Delete post confirmation error:', error);
+  }
+};
   const openNotifications = async () => {
     setShowNotifications(true);
     
@@ -386,73 +428,116 @@ const HomeScreen: React.FC = () => {
       console.error('Handle notification press error:', error);
     }
   };
+  
 
-  const handleSubmitPost = async () => {
-    if (!title.trim() || !description.trim() || !category.trim()) {
-      Alert.alert('Missing Information', 'Please fill in title, description, and category');
+  // Updated handleSubmitPost function for HomeScreen.tsx
+const handleSubmitPost = async () => {
+  if (!title.trim() || !description.trim() || !category.trim()) {
+    Alert.alert('Missing Information', 'Please fill in title, description, and category');
+    return;
+  }
+
+  try {
+    setIsPosting(true);
+    
+    NotificationService.provideHapticFeedback('impact');
+
+    const user = firebaseService.getCurrentUser();
+    const userId = firebaseService.getCurrentUserId();
+
+    if (!user || !userId) {
+      Alert.alert('Error', 'Please sign in to post');
       return;
     }
 
-    try {
-      setIsPosting(true);
-      
-      NotificationService.provideHapticFeedback('impact');
-
-      const user = firebaseService.getCurrentUser();
-      const userId = firebaseService.getCurrentUserId();
-
-      if (!user || !userId) {
-        Alert.alert('Error', 'Please sign in to post');
+    let mediaUrl = '';
+    
+    // Handle media upload if present
+    if (mediaUri && mediaType) {
+      try {
+        console.log('Uploading media to Cloudinary...');
+        mediaUrl = await firebaseService.uploadMedia(mediaUri, mediaType);
+        console.log('Media upload successful:', mediaUrl);
+        
+        // Verify the URL is a Cloudinary URL (basic check)
+        if (!mediaUrl.includes('cloudinary.com') && !mediaUrl.startsWith('file://')) {
+          console.warn('Unexpected media URL format:', mediaUrl);
+        }
+        
+      } catch (uploadError) {
+        console.error('Media upload failed:', uploadError);
+        
+        // Show user-friendly error message
+        Alert.alert(
+          'Upload Failed', 
+          'Failed to upload media. Would you like to post without media or try again?',
+          [
+            { text: 'Post without media', onPress: () => { mediaUrl = ''; } },
+            { text: 'Try again', style: 'cancel', onPress: () => setIsPosting(false) }
+          ]
+        );
         return;
       }
-
-      let mediaUrl = '';
-      if (mediaUri && mediaType) {
-        try {
-          mediaUrl = await firebaseService.uploadMedia(mediaUri, mediaType);
-        } catch (uploadError) {
-          console.log('Media upload failed:', uploadError);
-        }
-      }
-
-      const postData = {
-        title: title.trim(),
-        description: description.trim(),
-        imageUrl: mediaType === 'image' ? mediaUrl : '',
-        videoUrl: mediaType === 'video' ? mediaUrl : '',
-        location: location || { name: 'Unknown', latitude: 0, longitude: 0 },
-        userId: userId,
-        username: user.displayName || 'GoGuide User',
-        category: category.trim(),
-        tags: tags,
-      };
-
-      await firebaseService.createPost(postData);
-      
-      // Reset form
-      setTitle('');
-      setDescription('');
-      setMediaUri('');
-      setMediaType(null);
-      setLocation(null);
-      setTags([]);
-      setTagInput('');
-      setCategory('');
-      
-      // Switch to explore and refresh
-      setActiveTab('explore');
-      await loadPosts();
-      
-      NotificationService.provideHapticFeedback('success');
-      Alert.alert('Success', 'Your post has been shared!');
-    } catch (error) {
-      console.error('Submit post error:', error);
-      Alert.alert('Error', 'Failed to create post');
-      NotificationService.provideHapticFeedback('error');
-    } finally {
-      setIsPosting(false);
     }
-  };
+
+    // Create post data
+    const postData = {
+      title: title.trim(),
+      description: description.trim(),
+      imageUrl: mediaType === 'image' ? mediaUrl : '',
+      videoUrl: mediaType === 'video' ? mediaUrl : '',
+      location: location || { name: 'Unknown', latitude: 0, longitude: 0 },
+      userId: userId,
+      username: user.displayName || 'GoGuide User',
+      category: category.trim(),
+      tags: tags,
+    };
+
+    // Create post in Firebase
+    console.log('Creating post in Firebase...');
+    await firebaseService.createPost(postData);
+    console.log('Post created successfully');
+    
+    // Reset form
+    setTitle('');
+    setDescription('');
+    setMediaUri('');
+    setMediaType(null);
+    setLocation(null);
+    setTags([]);
+    setTagInput('');
+    setCategory('');
+    
+    // Switch to explore and refresh
+    setActiveTab('explore');
+    await loadPosts();
+    
+    NotificationService.provideHapticFeedback('success');
+    Alert.alert('Success', 'Your post has been shared!');
+    
+  } catch (error) {
+    console.error('Submit post error:', error);
+    
+    // More specific error messages
+    let errorMessage = 'Failed to create post';
+    
+    if (error instanceof Error) {
+      if (error.message.includes('network')) {
+        errorMessage = 'Network error. Please check your connection and try again.';
+      } else if (error.message.includes('permission')) {
+        errorMessage = 'Permission denied. Please check your account permissions.';
+      } else if (error.message.includes('storage')) {
+        errorMessage = 'Storage error. Please try uploading a smaller file.';
+      }
+    }
+    
+    Alert.alert('Error', errorMessage);
+    NotificationService.provideHapticFeedback('error');
+    
+  } finally {
+    setIsPosting(false);
+  }
+};
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -521,6 +606,7 @@ const HomeScreen: React.FC = () => {
             onRefresh={handleRefresh}
             onLike={handleLike}
             onComment={openComments}
+            onDeletePost={handleDeletePost} 
             slideAnim={slideAnim}
             fadeAnim={fadeAnim}
             scaleAnim={scaleAnim}

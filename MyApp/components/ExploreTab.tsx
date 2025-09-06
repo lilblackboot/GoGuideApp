@@ -1,4 +1,4 @@
-// components/ExploreTab.tsx
+// components/ExploreTab.tsx - Updated with delete functionality
 import React from 'react';
 import { 
   View, 
@@ -27,6 +27,7 @@ interface ExploreTabProps {
   onRefresh: () => void;
   onLike: (postId: string) => void;
   onComment: (post: FoodPost) => void;
+  onDeletePost: (postId: string, post: FoodPost) => void; // Add this new prop
   slideAnim: Animated.Value;
   fadeAnim: Animated.Value;
   scaleAnim: Animated.Value;
@@ -50,6 +51,7 @@ export const ExploreTab: React.FC<ExploreTabProps> = ({
   onRefresh,
   onLike,
   onComment,
+  onDeletePost, // Add this new prop
   slideAnim,
   fadeAnim,
   scaleAnim,
@@ -65,6 +67,7 @@ export const ExploreTab: React.FC<ExploreTabProps> = ({
       currentUserId={currentUserId}
       onLike={onLike}
       onComment={onComment}
+      onDeletePost={onDeletePost} // Pass the delete handler to PostCard
       timeAgo={timeAgo}
     />
   );

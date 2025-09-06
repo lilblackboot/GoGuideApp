@@ -1,4 +1,4 @@
-// components/CreatePostTab.tsx
+// components/CreatePostTab.tsx - Updated with better error handling for Cloudinary
 import React from 'react';
 import { 
   View, 
@@ -77,32 +77,91 @@ export const CreatePostTab: React.FC<CreatePostTabProps> = ({
     }
   };
 
-  // Duplicate removeTag function removed to fix redeclaration error.
+  const removeTag = (tagToRemove: string) => {
+    setTags(tags.filter(tag => tag !== tagToRemove));
+    NotificationService.provideHapticFeedback('selection');
+  };
 
-  const selectMedia = async (type: 'image' | 'video') => {
-    try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission Required', 'Please grant camera roll permission to upload media');
-        return;
-      }
+  // Fixed selectMedia function for CreatePostTab.tsx
+const selectMedia = async (type: 'image' | 'video') => {
+  try {
+    // Request permissions
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission Required', 'Please grant camera roll permission to upload media');
+      return;
+    }
 
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: type === 'image' ? [ImagePicker.MediaType.Images] : [ImagePicker.MediaType.Videos],
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 0.8,
+    // Configure options based on the correct API
+    const options = {
+      mediaTypes: type === 'image' 
+        ? ImagePicker.MediaTypeOptions.Images 
+        : ImagePicker.MediaTypeOptions.Videos,
+      allowsEditing: true,
+      aspect: [4, 3] as [number, number],
+      quality: 0.8,
+      // Add video-specific options
+      ...(type === 'video' && { 
+        videoMaxDuration: 60, // 60 seconds max
+        videoQuality: ImagePicker.VideoQuality.Medium 
+      })
+    };
+
+    console.log('Launching image picker with options:', options);
+
+    const result = await ImagePicker.launchImageLibraryAsync(options);
+
+    console.log('Image picker result:', result);
+
+    if (!result.canceled && result.assets && result.assets[0]) {
+      const selectedAsset = result.assets[0];
+      
+      console.log('Selected asset:', {
+        uri: selectedAsset.uri,
+        type: selectedAsset.type,
+        width: selectedAsset.width,
+        height: selectedAsset.height,
+        fileSize: selectedAsset.fileSize
       });
 
-      if (!result.canceled && result.assets[0]) {
-        setMediaUri(result.assets[0].uri);
-        setMediaType(type);
-        NotificationService.provideHapticFeedback('selection');
+      // Check file size if available (optional)
+      if (selectedAsset.fileSize) {
+        const maxSize = type === 'image' ? 10 * 1024 * 1024 : 100 * 1024 * 1024; // 10MB for images, 100MB for videos
+        if (selectedAsset.fileSize > maxSize) {
+          Alert.alert(
+            'File Too Large', 
+            `Please select a ${type} smaller than ${type === 'image' ? '10MB' : '100MB'}`
+          );
+          return;
+        }
       }
-    } catch (error) {
-      console.error('Media selection error:', error);
+      
+      setMediaUri(selectedAsset.uri);
+      setMediaType(type);
+      NotificationService.provideHapticFeedback('selection');
+      
+      console.log(`Successfully selected ${type}: ${selectedAsset.uri}`);
+    } else {
+      console.log('Media selection cancelled or failed:', result);
     }
-  };
+
+  } catch (error) {
+    console.error('Media selection error details:', error);
+    
+    // More specific error handling
+    if (error instanceof Error) {
+      if (error.message.includes('permission')) {
+        Alert.alert('Permission Error', 'Please grant media library permissions in device settings');
+      } else if (error.message.includes('cancelled')) {
+        console.log('User cancelled media selection');
+      } else {
+        Alert.alert('Error', `Failed to select media: ${error.message}`);
+      }
+    } else {
+      Alert.alert('Error', 'Failed to select media. Please try again.');
+    }
+  }
+};
 
   const getCurrentLocation = async () => {
     try {
@@ -112,28 +171,43 @@ export const CreatePostTab: React.FC<CreatePostTabProps> = ({
         return;
       }
 
-      const currentLocation = await Location.getCurrentPositionAsync({});
+      // Show loading state
+      const loadingLocation = {
+        name: 'Getting location...',
+        latitude: 0,
+        longitude: 0
+      };
+      setLocation(loadingLocation);
+
+      const currentLocation = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced
+      });
+      
       const address = await Location.reverseGeocodeAsync({
         latitude: currentLocation.coords.latitude,
         longitude: currentLocation.coords.longitude,
       });
 
       if (address[0]) {
-        setLocation({
+        const locationData = {
           name: `${address[0].city || 'Unknown'}, ${address[0].region || 'Unknown'}`,
           latitude: currentLocation.coords.latitude,
           longitude: currentLocation.coords.longitude,
-        });
+        };
         
+        setLocation(locationData);
         NotificationService.provideHapticFeedback('success');
       }
     } catch (error) {
       console.error('Location error:', error);
+      setLocation(null); // Reset loading state
+      Alert.alert('Location Error', 'Failed to get current location. Please try again or add location manually.');
     }
   };
 
-  const removeTag = (tagToRemove: string) => {
-    setTags(tags.filter(tag => tag !== tagToRemove));
+  const removeMedia = () => {
+    setMediaUri('');
+    setMediaType(null);
     NotificationService.provideHapticFeedback('selection');
   };
 
@@ -142,6 +216,7 @@ export const CreatePostTab: React.FC<CreatePostTabProps> = ({
       style={styles.createContainer} 
       showsVerticalScrollIndicator={false}
       contentContainerStyle={{ paddingBottom: 100 }}
+      keyboardShouldPersistTaps="handled"
     >
       <Animated.View 
         style={[
@@ -165,7 +240,11 @@ export const CreatePostTab: React.FC<CreatePostTabProps> = ({
             onChangeText={setTitle}
             onFocus={() => setFocusedInput('title')}
             onBlur={() => setFocusedInput('')}
+            maxLength={100}
           />
+          {title.length > 80 && (
+            <Text style={styles.characterCount}>{title.length}/100</Text>
+          )}
         </View>
 
         <View style={styles.inputGroup}>
@@ -183,7 +262,11 @@ export const CreatePostTab: React.FC<CreatePostTabProps> = ({
             multiline
             onFocus={() => setFocusedInput('description')}
             onBlur={() => setFocusedInput('')}
+            maxLength={500}
           />
+          {description.length > 400 && (
+            <Text style={styles.characterCount}>{description.length}/500</Text>
+          )}
         </View>
 
         <View style={styles.inputGroup}>
@@ -199,6 +282,7 @@ export const CreatePostTab: React.FC<CreatePostTabProps> = ({
             onChangeText={setCategory}
             onFocus={() => setFocusedInput('category')}
             onBlur={() => setFocusedInput('')}
+            maxLength={50}
           />
         </View>
 
@@ -267,6 +351,13 @@ export const CreatePostTab: React.FC<CreatePostTabProps> = ({
                   resizeMode="cover"
                 />
               )}
+              <TouchableOpacity 
+                style={styles.removeMediaButton}
+                onPress={removeMedia}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="close-circle" size={24} color="#FF4444" />
+              </TouchableOpacity>
             </Animated.View>
           )}
         </View>
@@ -293,10 +384,19 @@ export const CreatePostTab: React.FC<CreatePostTabProps> = ({
               {location ? location.name : 'Add location'}
             </Text>
           </TouchableOpacity>
+          {location && location.name !== 'Getting location...' && (
+            <TouchableOpacity
+              style={styles.removeLocationButton}
+              onPress={() => setLocation(null)}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.removeLocationText}>Remove location</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>Tags</Text>
+          <Text style={styles.inputLabel}>Tags (Optional)</Text>
           <View style={styles.tagsInput}>
             {tags.map((tag, index) => (
               <TouchableOpacity
@@ -308,16 +408,22 @@ export const CreatePostTab: React.FC<CreatePostTabProps> = ({
                 <Text style={styles.tagText}>#{tag} ×</Text>
               </TouchableOpacity>
             ))}
-            <TextInput
-              style={styles.tagInputField}
-              placeholder="Add tags..."
-              placeholderTextColor="rgba(255,255,255,0.5)"
-              value={tagInput}
-              onChangeText={setTagInput}
-              onSubmitEditing={addTag}
-              returnKeyType="done"
-            />
+            {tags.length < 5 && (
+              <TextInput
+                style={styles.tagInputField}
+                placeholder={tags.length === 0 ? "Add tags (e.g., spicy, homemade)..." : "Add more..."}
+                placeholderTextColor="rgba(255,255,255,0.5)"
+                value={tagInput}
+                onChangeText={setTagInput}
+                onSubmitEditing={addTag}
+                returnKeyType="done"
+                maxLength={20}
+              />
+            )}
           </View>
+          {tags.length >= 5 && (
+            <Text style={styles.tagLimitText}>Maximum 5 tags allowed</Text>
+          )}
         </View>
 
         <TouchableOpacity
@@ -330,11 +436,28 @@ export const CreatePostTab: React.FC<CreatePostTabProps> = ({
           activeOpacity={0.8}
         >
           {isPosting ? (
-            <ActivityIndicator color="#000000" />
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator color="#000000" size="small" />
+              <Text style={styles.loadingText}>
+                {mediaUri ? 'Uploading media...' : 'Creating post...'}
+              </Text>
+            </View>
           ) : (
             <Text style={styles.submitButtonText}>Share Post</Text>
           )}
         </TouchableOpacity>
+
+        {/* Upload Progress Indicator */}
+        {isPosting && mediaUri && (
+          <View style={styles.uploadProgress}>
+            <Text style={styles.uploadProgressText}>
+              📤 Uploading to Cloudinary...
+            </Text>
+            <Text style={styles.uploadHelpText}>
+              This may take a moment depending on file size
+            </Text>
+          </View>
+        )}
       </Animated.View>
     </ScrollView>
   );

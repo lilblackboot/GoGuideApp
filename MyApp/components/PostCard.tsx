@@ -1,4 +1,4 @@
-// components/PostCard.tsx
+// components/PostCard.tsx - Updated with delete functionality
 import React from 'react';
 import { 
   View, 
@@ -23,6 +23,7 @@ interface PostCardProps {
   currentUserId: string | null;
   onLike: (postId: string) => void;
   onComment: (post: FoodPost) => void;
+  onDeletePost: (postId: string, post: FoodPost) => void; // Add this new prop
   timeAgo: (date: Date) => string;
 }
 
@@ -34,9 +35,11 @@ export const PostCard: React.FC<PostCardProps> = ({
   currentUserId,
   onLike,
   onComment,
+  onDeletePost, // Add this new prop
   timeAgo
 }) => {
   const isLiked = currentUserId && item.likes.includes(currentUserId);
+  const isOwner = currentUserId && item.userId === currentUserId; // Check if current user owns this post
 
   const handleShare = () => {
     NotificationService.provideHapticFeedback('selection');
@@ -46,6 +49,12 @@ export const PostCard: React.FC<PostCardProps> = ({
   const handleBookmark = () => {
     NotificationService.provideHapticFeedback('selection');
     // Implement bookmark functionality
+  };
+
+  const handleDelete = () => {
+    if (item.id) {
+      onDeletePost(item.id, item);
+    }
   };
 
   return (
@@ -73,9 +82,22 @@ export const PostCard: React.FC<PostCardProps> = ({
             </Text>
           </View>
         </View>
-        <TouchableOpacity style={styles.headerIcon}>
-          <Ionicons name="ellipsis-horizontal" size={20} color="rgba(255,255,255,0.7)" />
-        </TouchableOpacity>
+        
+        {/* Header actions - Delete button for owner, menu for others */}
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          {isOwner && (
+            <TouchableOpacity 
+              style={[styles.headerIcon, { marginRight: 8 }]}
+              onPress={handleDelete}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="trash-outline" size={18} color="#FF3B30" />
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity style={styles.headerIcon}>
+            <Ionicons name="ellipsis-horizontal" size={20} color="rgba(255,255,255,0.7)" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Full-width Media */}
