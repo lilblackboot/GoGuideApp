@@ -29,6 +29,11 @@ import {
 import { db } from '../firebaseConfig';
 import { useAuth } from '../AuthContext';
 import styles from '../styles/AdminEventsScreenStyle';
+import { CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET } from '@env';
+
+// Cloudinary configuration - replace with your actual values
+// const CLOUDINARY_CLOUD_NAME = 'dogoeyzeu'; // Replace with your Cloudinary cloud name
+// const CLOUDINARY_UPLOAD_PRESET = 'unsigned_preset'; // Replace with your unsigned upload preset
 
 interface Event {
   id: string;
@@ -40,7 +45,7 @@ interface Event {
   location: string;
   price: string;
   maxAttendees: string;
-  imageBase64: string;
+  imageUrl: string; // Changed from imageBase64 to imageUrl
   createdAt: Timestamp;
   updatedAt: Timestamp;
   createdBy: string;
@@ -57,7 +62,7 @@ interface EventForm {
   price: string;
   maxAttendees: string;
   image: ImagePicker.ImagePickerAsset | null;
-  imageBase64: string;
+  imageUrl: string; // Changed from imageBase64 to imageUrl
 }
 
 interface AdminCredentials {
@@ -79,6 +84,7 @@ const AdminEventsScreen: React.FC = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [processing, setProcessing] = useState<boolean>(false);
+  const [uploadingImage, setUploadingImage] = useState<boolean>(false);
   
   // Date and time picker states
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
@@ -94,7 +100,7 @@ const AdminEventsScreen: React.FC = () => {
     price: '',
     maxAttendees: '',
     image: null,
-    imageBase64: ''
+    imageUrl: '' // Changed from imageBase64 to imageUrl
   });
 
   const [adminCredentials, setAdminCredentials] = useState<AdminCredentials>({
@@ -122,7 +128,13 @@ const AdminEventsScreen: React.FC = () => {
       
       const eventsList: Event[] = [];
       querySnapshot.forEach((doc) => {
-        eventsList.push({ id: doc.id, ...doc.data() } as Event);
+        const eventData = doc.data();
+        // Handle both old imageBase64 and new imageUrl fields for backward compatibility
+        eventsList.push({ 
+          id: doc.id, 
+          ...eventData,
+          imageUrl: eventData.imageUrl || eventData.imageBase64 || ''
+        } as Event);
       });
       
       setEvents(eventsList);
@@ -152,50 +164,91 @@ const AdminEventsScreen: React.FC = () => {
     setFilteredEvents(filtered);
   };
 
+  const uploadImageToCloudinary = async (imageUri: string): Promise<string> => {
+    try {
+      setUploadingImage(true);
+      
+      // Validate that we have a valid image URI
+      if (!imageUri) {
+        throw new Error('No image selected');
+      }
+
+      // Create form data for Cloudinary upload
+      const formData = new FormData();
+      
+      // Add the image file
+      formData.append('file', {
+        uri: imageUri,
+        type: 'image/jpeg',
+        name: `event_${Date.now()}.jpg`,
+      } as any);
+      
+      // Add upload preset and other parameters
+      formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+      formData.append('resource_type', 'image'); // Ensure only images are uploaded
+      formData.append('folder', 'events'); // Organize images in a folder
+      
+      // Cloudinary upload URL
+      const uploadUrl = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
+      
+      const response = await fetch(uploadUrl, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || 'Upload failed');
+      }
+
+      const result = await response.json();
+      
+      // Return the secure URL of the uploaded image
+      return result.secure_url;
+    } catch (error) {
+      console.error('Error uploading to Cloudinary:', error);
+      throw new Error('Failed to upload image. Please try again.');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   const pickImage = async (): Promise<void> => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [16, 9],
-        quality: 0.6, // Reduced quality to keep base64 size manageable
+        quality: 0.8, // Good quality for upload
       });
 
-      if (!result.canceled) {
+      if (!result.canceled && result.assets[0]) {
         setProcessing(true);
-        const imageBase64 = await convertImageToBase64(result.assets[0].uri);
-        setEventForm(prev => ({
-          ...prev,
-          image: result.assets[0],
-          imageBase64: imageBase64
-        }));
+        
+        try {
+          // Upload image to Cloudinary
+          const imageUrl = await uploadImageToCloudinary(result.assets[0].uri);
+          
+          setEventForm(prev => ({
+            ...prev,
+            image: result.assets[0],
+            imageUrl: imageUrl
+          }));
+          
+          Alert.alert('Success', 'Image uploaded successfully!');
+        } catch (uploadError) {
+          const errorMessage = uploadError instanceof Error ? uploadError.message : 'Failed to upload image';
+          Alert.alert('Upload Error', errorMessage);
+        }
+        
         setProcessing(false);
       }
     } catch (error) {
       setProcessing(false);
-      Alert.alert('Error', 'Failed to process image');
-    }
-  };
-
-  const convertImageToBase64 = async (imageUri: string): Promise<string> => {
-    try {
-      const response = await fetch(imageUri);
-      const blob = await response.blob();
-      
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          if (typeof reader.result === 'string') {
-            resolve(reader.result);
-          } else {
-            reject(new Error('Failed to convert image to base64'));
-          }
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      });
-    } catch (error) {
-      throw new Error('Failed to convert image to base64');
+      Alert.alert('Error', 'Failed to select image');
     }
   };
 
@@ -273,7 +326,7 @@ const AdminEventsScreen: React.FC = () => {
         location: eventForm.location,
         price: eventForm.price,
         maxAttendees: eventForm.maxAttendees,
-        imageBase64: eventForm.imageBase64,
+        imageUrl: eventForm.imageUrl, // Store Cloudinary URL
         updatedAt: Timestamp.now()
       };
 
@@ -314,7 +367,7 @@ const AdminEventsScreen: React.FC = () => {
       price: event.price || '',
       maxAttendees: event.maxAttendees || '',
       image: null,
-      imageBase64: event.imageBase64 || ''
+      imageUrl: event.imageUrl || '' // Use imageUrl instead of imageBase64
     });
     setModalVisible(true);
   };
@@ -354,7 +407,7 @@ const AdminEventsScreen: React.FC = () => {
       price: '',
       maxAttendees: '',
       image: null,
-      imageBase64: ''
+      imageUrl: '' // Reset imageUrl instead of imageBase64
     });
     setEditingEvent(null);
   };
@@ -491,9 +544,9 @@ const AdminEventsScreen: React.FC = () => {
                 style={styles.cardGradient}
               >
                 <View style={styles.eventCard}>
-                  {event.imageBase64 ? (
+                  {event.imageUrl ? (
                     <Image
-                      source={{ uri: event.imageBase64 }}
+                      source={{ uri: event.imageUrl }}
                       style={styles.eventImage}
                       resizeMode="cover"
                     />
@@ -692,16 +745,18 @@ const AdminEventsScreen: React.FC = () => {
                 <TouchableOpacity 
                   style={styles.imagePicker} 
                   onPress={pickImage}
-                  disabled={processing}
+                  disabled={processing || uploadingImage}
                 >
-                  {processing ? (
+                  {(processing || uploadingImage) ? (
                     <View style={styles.imagePickerPlaceholder}>
                       <ActivityIndicator size="small" color="#ec4899" />
-                      <Text style={styles.imagePickerText}>Processing image...</Text>
+                      <Text style={styles.imagePickerText}>
+                        {uploadingImage ? 'Uploading to cloud...' : 'Processing image...'}
+                      </Text>
                     </View>
-                  ) : (eventForm.image || eventForm.imageBase64) ? (
+                  ) : (eventForm.image || eventForm.imageUrl) ? (
                     <Image
-                      source={{ uri: eventForm.image?.uri || eventForm.imageBase64 }}
+                      source={{ uri: eventForm.image?.uri || eventForm.imageUrl }}
                       style={styles.imagePreview}
                       resizeMode="cover"
                     />
@@ -714,12 +769,13 @@ const AdminEventsScreen: React.FC = () => {
               </View>
 
               <TouchableOpacity
-                style={[styles.submitButton, (loading || processing) && styles.submitButtonDisabled]}
+                style={[styles.submitButton, (loading || processing || uploadingImage) && styles.submitButtonDisabled]}
                 onPress={handleSubmit}
-                disabled={loading || processing}
+                disabled={loading || processing || uploadingImage}
               >
                 <Text style={styles.submitButtonText}>
-                  {processing ? 'Processing...' : 
+                  {uploadingImage ? 'Uploading Image...' :
+                   processing ? 'Processing...' : 
                    loading ? 'Saving...' : 
                    editingEvent ? 'Update Event' : 'Create Event'}
                 </Text>

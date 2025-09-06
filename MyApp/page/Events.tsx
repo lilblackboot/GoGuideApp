@@ -37,7 +37,7 @@ interface Event {
   location: string;
   price: string;
   maxAttendees: string;
-  imageBase64: string;
+  imageUrl: string; // Changed from imageBase64 to imageUrl
   createdAt: Timestamp;
   updatedAt: Timestamp;
   createdBy: string;
@@ -77,7 +77,13 @@ const EventsScreen: React.FC = () => {
       
       const eventsList: Event[] = [];
       querySnapshot.forEach((doc) => {
-        eventsList.push({ id: doc.id, ...doc.data() } as Event);
+        const eventData = doc.data();
+        // Handle both old imageBase64 and new imageUrl fields for backward compatibility
+        eventsList.push({ 
+          id: doc.id, 
+          ...eventData,
+          imageUrl: eventData.imageUrl || eventData.imageBase64 || ''
+        } as Event);
       });
       
       setEvents(eventsList);
@@ -273,9 +279,9 @@ const EventsScreen: React.FC = () => {
                   style={styles.cardGradient}
                 >
                   <View style={styles.youtubeCard}>
-                    {event.imageBase64 ? (
+                    {event.imageUrl ? (
                       <Image
-                        source={{ uri: event.imageBase64 }}
+                        source={{ uri: event.imageUrl }}
                         style={styles.youtubeCardImage}
                         resizeMode="cover"
                       />
@@ -341,9 +347,9 @@ const EventsScreen: React.FC = () => {
 
             {selectedEvent && (
               <ScrollView style={styles.modalContent}>
-                {selectedEvent.imageBase64 && (
+                {selectedEvent.imageUrl && (
                   <Image
-                    source={{ uri: selectedEvent.imageBase64 }}
+                    source={{ uri: selectedEvent.imageUrl }}
                     style={styles.modalImage}
                     resizeMode="cover"
                   />
