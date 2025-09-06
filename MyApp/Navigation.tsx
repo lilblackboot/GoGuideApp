@@ -10,6 +10,7 @@ import Sections from './page/Sections'
 import Chatbot from './page/Chatbot';
 import Events from './page/Events';
 import Calculator from './page/Calculator';
+import AdminEventsScreen from './page/AdminEventsScreen';
 const Stack = createNativeStackNavigator();
 
 export default function Navigation() {
@@ -17,6 +18,7 @@ export default function Navigation() {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="AdminEvents" component={AdminEventsScreen} />
         <Stack.Screen name="ProfileData" component={ProfileData} />
         <Stack.Screen name="Sections" component={Sections} />
         <Stack.Screen name="Home" component={HomeScreen} />

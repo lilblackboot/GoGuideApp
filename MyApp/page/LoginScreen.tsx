@@ -19,57 +19,68 @@ type RootStackParamList = {
   ProfileData: undefined;
   Home: undefined;
   Sections: undefined;
+  AdminEvents: undefined;
   // add other screens here if needed
 };
 
-export default function LoginScreen() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLogin, setIsLogin] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const { login, signup } = useAuth();
+type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'LoginScreen'>;
 
-  const navigation = useNavigation<StackNavigationProp<RootStackParamList, 'LoginScreen'>>();
- // const navigation = useNavigation();
+const LoginScreen: React.FC = () => {
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [isLogin, setIsLogin] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
+  const { login, signup, adminLogin } = useAuth();
 
+  const navigation = useNavigation<LoginScreenNavigationProp>();
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (): Promise<void> => {
     if (!email || !password) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
 
-    // Only allow @paruluniversity.ac.in emails for signup
-    if (!isLogin && !/^[A-Za-z0-9._%+-]+@paruluniversity\.ac\.in$/.test(email)) {
-      Alert.alert('Can not register', 'Only use offical Parul University email addresses for signup');
-      return;
-    }
-
     setLoading(true);
+    
     try {
+      // Try admin login first
+      try {
+        await adminLogin(email, password);
+        navigation.navigate('AdminEvents');
+        setLoading(false);
+        return;
+      } catch (adminError) {
+        // If admin login fails, continue with regular login/signup
+        console.log('Admin login failed, trying regular login');
+      }
+
+      // Regular user login/signup
       if (isLogin) {
         await login(email, password);
-        navigation.navigate('Sections')
+        navigation.navigate('Sections');
       } else {
+        // Only allow @paruluniversity.ac.in emails for signup
+        if (!/^[A-Za-z0-9._%+-]+@paruluniversity\.ac\.in$/.test(email)) {
+          Alert.alert('Cannot register', 'Only use official Parul University email addresses for signup');
+          setLoading(false);
+          return;
+        }
         await signup(email, password);
         navigation.navigate('ProfileData');
       }
     } catch (error) {
-      const errorMessage = typeof error === 'object' && error !== null && 'message' in error
-        ? String((error as { message?: string }).message)
-        : 'An unexpected error occurred';
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
       Alert.alert('Error', errorMessage);
     }
+    
     setLoading(false);
   };
 
   return (
-    // To support gradients, wrap this in LinearGradient instead
-    <ScrollView style={{ flex: 1, backgroundColor: '#18181b' /* dark background */ }}>
+    <ScrollView style={{ flex: 1, backgroundColor: '#18181b' }}>
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          {/* Logo image for GoGuide */}
           <View style={styles.logo}>
             <Image
               source={require('../assets/goguide-logo.png')}
@@ -90,12 +101,10 @@ export default function LoginScreen() {
             {isLogin ? 'Welcome Back!' : 'Join GoGuide'}
           </Text>
           <Text style={styles.formSubtitle}>
-            {isLogin
-              ? 'Sign in to continue '
-              : 'Create account and find your way around campus'}
+            {isLogin ? 'Sign in to continue' : 
+             'Create account and find your way around campus'}
           </Text>
 
-          {/* Email Input */}
           <View style={{ marginBottom: 16 }}>
             <Text style={styles.label}>Email Address</Text>
             <TextInput
@@ -109,7 +118,6 @@ export default function LoginScreen() {
             />
           </View>
 
-          {/* Password Input */}
           <View style={{ marginBottom: 24 }}>
             <Text style={styles.label}>Password</Text>
             <TextInput
@@ -136,13 +144,17 @@ export default function LoginScreen() {
               activeOpacity={0.8}
             >
               <Text style={styles.submitText}>
-                {loading ? 'Loading...' : isLogin ? '🍽️ Sign In' : '🚀 Create Account'}
+                {loading ? 'Loading...' : 
+                 isLogin ? 'Sign In' : 'Create Account'}
               </Text>
             </TouchableOpacity>
           </LinearGradient>
 
           {/* Toggle Button */}
-          <TouchableOpacity onPress={() => setIsLogin(!isLogin)} style={{ paddingVertical: 12 }}>
+          <TouchableOpacity 
+            onPress={() => setIsLogin(!isLogin)} 
+            style={{ paddingVertical: 12 }}
+          >
             <Text style={styles.toggleText}>
               {isLogin
                 ? 'New to GoGuide? Sign Up'
@@ -161,7 +173,7 @@ export default function LoginScreen() {
       </View>
     </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -169,16 +181,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 24,
     paddingVertical: 48,
-    backgroundColor: '#18181b', // dark background
+    backgroundColor: '#18181b',
   },
   header: {
     alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: 24,
   },
   logo: {
     width: 96,
     height: 96,
-    backgroundColor: '#27272a', // darker circle
+    backgroundColor: '#27272a',
     borderRadius: 48,
     alignItems: 'center',
     justifyContent: 'center',
@@ -191,16 +203,16 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#fafafa', // light text
+    color: '#fafafa',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#f9a8d4', // soft pink
+    color: '#f9a8d4',
     textAlign: 'center',
   },
   form: {
-    backgroundColor: '#23232b', // dark form
+    backgroundColor: '#23232b',
     borderRadius: 24,
     padding: 32,
     shadowColor: '#000',
@@ -218,29 +230,29 @@ const styles = StyleSheet.create({
   },
   formSubtitle: {
     fontSize: 14,
-    color: '#a1a1aa', // muted grey
+    color: '#a1a1aa',
     textAlign: 'center',
     marginBottom: 32,
   },
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#f9fafb', // lighter label
+    color: '#f9fafb',
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#18181b', // input dark
+    backgroundColor: '#18181b',
     borderWidth: 2,
     borderColor: '#27272a',
     borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 16,
     color: '#fafafa',
+    fontSize: 16,
   },
   gradientBtn: {
     borderRadius: 16,
     marginBottom: 24,
-    // paddingVertical: 16, // handled by submitBtn
     alignItems: 'center',
     shadowColor: '#ec4899',
     shadowOpacity: 0.3,
@@ -252,7 +264,6 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     alignItems: 'center',
     width: '100%',
-    // backgroundColor: 'transparent', // handled in render
   },
   submitText: {
     color: '#fff',
@@ -262,9 +273,10 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   toggleText: {
-    color: '#f472b6', // pink
+    color: '#f472b6',
     textAlign: 'center',
     fontWeight: '600',
+    fontSize: 16,
   },
   bottomIcons: {
     flexDirection: 'row',
@@ -277,3 +289,5 @@ const styles = StyleSheet.create({
     fontSize: 24,
   },
 });
+
+export default LoginScreen;

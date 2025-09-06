@@ -1,40 +1,192 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   ScrollView,
-  StyleSheet,
   TextInput,
   Image,
+  Modal,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../AuthContext';
+import { 
+  collection, 
+  getDocs, 
+  query, 
+  orderBy, 
+  doc, 
+  updateDoc, 
+  arrayUnion, 
+  arrayRemove,
+  getDoc,
+  Timestamp
+} from 'firebase/firestore';
+import { db } from '../firebaseConfig';
+import styles from '../styles/EventsStyle';
 
-const categories = ['Music', 'Food', 'Art', 'Tech', 'Sports'];
+interface Event {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  date: string;
+  time: string;
+  location: string;
+  price: string;
+  maxAttendees: string;
+  imageBase64: string;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  createdBy: string;
+  attendees?: string[];
+}
 
-const events = [
-  {
-    title: 'Summer Beats Festival',
-    description: 'Enjoy live music from top artists in an open-air venue.',
-    image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
-  },
-  {
-    title: 'Gourmet Food Expo',
-    description: 'Taste dishes from the best chefs in town.',
-    image: 'https://images.unsplash.com/photo-1519864600265-abb23843b6c1',
-  },
-  {
-    title: 'Art & Craft Fair',
-    description: 'Discover unique handmade art and crafts.',
-    image: 'https://images.unsplash.com/photo-1464983953574-0892a716854b',
-  },
-];
+const categories: string[] = ['All', 'Music', 'Food', 'Art', 'Tech', 'Sports'];
 
-export default function EventsScreen() {
+const EventsScreen: React.FC = () => {
   const { currentUser } = useAuth();
-  const [selectedCategory, setSelectedCategory] = useState(categories[0]);
-  const profileEmoji = currentUser?.photoURL || '😎';
+  const [events, setEvents] = useState<Event[]>([]);
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(true);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [userBookings, setUserBookings] = useState<string[]>([]);
+  
+  const profileEmoji: string = currentUser?.photoURL || '😎';
+
+  useEffect(() => {
+    fetchEvents();
+    fetchUserBookings();
+  }, [currentUser]);
+
+  useEffect(() => {
+    filterEvents();
+  }, [events, selectedCategory, searchQuery]);
+
+  const fetchEvents = async (): Promise<void> => {
+    try {
+      setLoading(true);
+      const eventsRef = collection(db, 'events');
+      const q = query(eventsRef, orderBy('createdAt', 'desc'));
+      const querySnapshot = await getDocs(q);
+      
+      const eventsList: Event[] = [];
+      querySnapshot.forEach((doc) => {
+        eventsList.push({ id: doc.id, ...doc.data() } as Event);
+      });
+      
+      setEvents(eventsList);
+    } catch (error) {
+      console.error('Error fetching events:', error);
+      Alert.alert('Error', 'Failed to fetch events');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchUserBookings = async (): Promise<void> => {
+    if (!currentUser || currentUser.uid === 'admin_user') return;
+    
+    try {
+      const userRef = doc(db, 'users', currentUser.uid);
+      const userDoc = await getDoc(userRef);
+      
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        setUserBookings(userData.bookedEvents || []);
+      }
+    } catch (error) {
+      console.error('Error fetching user bookings:', error);
+    }
+  };
+
+  const filterEvents = (): void => {
+    let filtered = events;
+    
+    if (selectedCategory !== 'All') {
+      filtered = filtered.filter(event => event.category === selectedCategory);
+    }
+    
+    if (searchQuery) {
+      filtered = filtered.filter(event => 
+        event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (event.location && event.location.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+    }
+    
+    setFilteredEvents(filtered);
+  };
+
+  const handleEventPress = (event: Event): void => {
+    setSelectedEvent(event);
+    setModalVisible(true);
+  };
+
+  const handleBookEvent = async (): Promise<void> => {
+    if (!currentUser || currentUser.uid === 'admin_user') {
+      Alert.alert('Error', 'Please login as a student to book events');
+      return;
+    }
+
+    if (!selectedEvent) return;
+
+    try {
+      const isBooked = userBookings.includes(selectedEvent.id);
+      const userRef = doc(db, 'users', currentUser.uid);
+      const eventRef = doc(db, 'events', selectedEvent.id);
+
+      if (isBooked) {
+        // Remove booking
+        await updateDoc(userRef, {
+          bookedEvents: arrayRemove(selectedEvent.id)
+        });
+        await updateDoc(eventRef, {
+          attendees: arrayRemove(currentUser.uid)
+        });
+        
+        setUserBookings(prev => prev.filter(id => id !== selectedEvent.id));
+        Alert.alert('Success', 'Event booking cancelled');
+      } else {
+        // Add booking
+        await updateDoc(userRef, {
+          bookedEvents: arrayUnion(selectedEvent.id)
+        });
+        await updateDoc(eventRef, {
+          attendees: arrayUnion(currentUser.uid)
+        });
+        
+        setUserBookings(prev => [...prev, selectedEvent.id]);
+        Alert.alert('Success', 'Event booked successfully!');
+      }
+    } catch (error) {
+      console.error('Error booking event:', error);
+      Alert.alert('Error', 'Failed to book event');
+    }
+  };
+
+  const isEventBooked = (eventId: string): boolean => {
+    return userBookings.includes(eventId);
+  };
+
+  if (loading) {
+    return (
+      <LinearGradient
+        colors={['#18181b', '#23232b', '#111113']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.gradient, styles.centered]}
+      >
+        <ActivityIndicator size="large" color="#ec4899" />
+        <Text style={styles.loadingText}>Loading events...</Text>
+      </LinearGradient>
+    );
+  }
 
   return (
     <LinearGradient
@@ -45,6 +197,7 @@ export default function EventsScreen() {
     >
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.topSpacer} />
+        
         {/* Search Bar with Profile Emoji */}
         <View style={styles.searchBarRow}>
           <View style={styles.searchBar}>
@@ -52,6 +205,8 @@ export default function EventsScreen() {
               style={styles.searchInput}
               placeholder="Search events"
               placeholderTextColor="#a1a1aa"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
             />
           </View>
           <View style={styles.profileCircle}>
@@ -61,248 +216,203 @@ export default function EventsScreen() {
 
         {/* Category Tabs */}
         <View style={styles.tabsRow}>
-          {categories.map((cat) => (
-            <TouchableOpacity
-              key={cat}
-              style={[
-                styles.tab,
-                selectedCategory === cat && styles.tabSelected,
-              ]}
-              onPress={() => setSelectedCategory(cat)}
-              activeOpacity={0.8}
-            >
-              {selectedCategory === cat ? (
-                <LinearGradient
-                  colors={['#6366f1', '#a21caf', '#ec4899']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.tabGradient}
-                >
-                  <Text style={styles.tabTextSelected}>{cat}</Text>
-                </LinearGradient>
-              ) : (
-                <Text style={styles.tabText}>{cat}</Text>
-              )}
-            </TouchableOpacity>
-          ))}
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.tabsContainer}
+          >
+            {categories.map((cat) => (
+              <TouchableOpacity
+                key={cat}
+                style={[
+                  styles.tab,
+                  selectedCategory === cat && styles.tabSelected,
+                ]}
+                onPress={() => setSelectedCategory(cat)}
+                activeOpacity={0.8}
+              >
+                {selectedCategory === cat ? (
+                  <LinearGradient
+                    colors={['#6366f1', '#a21caf', '#ec4899']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.tabGradient}
+                  >
+                    <Text style={styles.tabTextSelected}>{cat}</Text>
+                  </LinearGradient>
+                ) : (
+                  <Text style={styles.tabText}>{cat}</Text>
+                )}
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </View>
 
         {/* Event Cards */}
         <View style={styles.section}>
-          {events
-            .filter((e) => selectedCategory === 'Music' || selectedCategory === 'Food' || selectedCategory === 'Art' || selectedCategory === 'Tech' || selectedCategory === 'Sports') // Replace with real filter logic
-            .map((event, idx) => (
-              <LinearGradient
-                key={idx}
-                colors={['#6366f1', '#a21caf', '#ec4899']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.cardGradient}
+          {filteredEvents.length === 0 ? (
+            <View style={styles.noEventsContainer}>
+              <Text style={styles.noEventsText}>
+                {searchQuery ? 'No events match your search' : 'No events available'}
+              </Text>
+              <Text style={styles.noEventsSubtext}>
+                {searchQuery ? 'Try different keywords' : 'Check back later for new events!'}
+              </Text>
+            </View>
+          ) : (
+            filteredEvents.map((event) => (
+              <TouchableOpacity
+                key={event.id}
+                onPress={() => handleEventPress(event)}
+                activeOpacity={0.8}
               >
-                <View style={styles.youtubeCard}>
-                  <Image
-                    source={{ uri: event.image }}
-                    style={styles.youtubeCardImage}
-                    resizeMode="cover"
-                  />
-                  <View style={styles.youtubeCardContent}>
-                    <Text style={styles.youtubeCardTitle}>{event.title}</Text>
-                    <View style={styles.descRow}>
-                      <Text style={styles.youtubeCardDesc}>{event.description}</Text>
-                      <TouchableOpacity style={styles.arrowCircle} activeOpacity={0.7}>
-                        <LinearGradient
-                          colors={['#6366f1', '#a21caf', '#ec4899']}
-                          start={{ x: 0, y: 0 }}
-                          end={{ x: 1, y: 1 }}
-                          style={styles.arrowGradientCircle}
-                        >
-                          <Text style={styles.arrowText}>➔</Text>
-                        </LinearGradient>
-                      </TouchableOpacity>
+                <LinearGradient
+                  colors={['#6366f1', '#a21caf', '#ec4899']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.cardGradient}
+                >
+                  <View style={styles.youtubeCard}>
+                    {event.imageBase64 ? (
+                      <Image
+                        source={{ uri: event.imageBase64 }}
+                        style={styles.youtubeCardImage}
+                        resizeMode="cover"
+                      />
+                    ) : (
+                      <View style={styles.placeholderImage}>
+                        <Text style={styles.placeholderText}>🎉</Text>
+                        <Text style={styles.placeholderCategory}>{event.category}</Text>
+                      </View>
+                    )}
+                    <View style={styles.youtubeCardContent}>
+                      <View style={styles.cardHeader}>
+                        <Text style={styles.youtubeCardTitle} numberOfLines={1}>
+                          {event.title}
+                        </Text>
+                        {isEventBooked(event.id) && (
+                          <View style={styles.bookedBadge}>
+                            <Text style={styles.bookedBadgeText}>✓</Text>
+                          </View>
+                        )}
+                      </View>
+                      <View style={styles.descRow}>
+                        <Text style={styles.youtubeCardDesc} numberOfLines={2}>
+                          {event.description}
+                        </Text>
+                      </View>
+                      
+                      {/* Event Details */}
+                      <View style={styles.eventDetails}>
+                        {event.location && (
+                          <Text style={styles.eventDetailText}>📍 {event.location}</Text>
+                        )}
+                        {event.date && (
+                          <Text style={styles.eventDetailText}>📅 {event.date}</Text>
+                        )}
+                        {event.price && (
+                          <Text style={styles.eventDetailText}>💰 {event.price}</Text>
+                        )}
+                      </View>
                     </View>
                   </View>
-                </View>
-              </LinearGradient>
-            ))}
+                </LinearGradient>
+              </TouchableOpacity>
+            ))
+          )}
         </View>
+
+        {/* Event Details Modal */}
+        <Modal
+          visible={modalVisible}
+          animationType="slide"
+          presentationStyle="pageSheet"
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalHeader}>
+              <TouchableOpacity
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.modalCloseButton}>✕</Text>
+              </TouchableOpacity>
+              <Text style={styles.modalTitle}>Event Details</Text>
+              <View style={{ width: 20 }} />
+            </View>
+
+            {selectedEvent && (
+              <ScrollView style={styles.modalContent}>
+                {selectedEvent.imageBase64 && (
+                  <Image
+                    source={{ uri: selectedEvent.imageBase64 }}
+                    style={styles.modalImage}
+                    resizeMode="cover"
+                  />
+                )}
+                
+                <View style={styles.modalEventContent}>
+                  <View style={styles.modalEventHeader}>
+                    <Text style={styles.modalEventTitle}>{selectedEvent.title}</Text>
+                    <View style={styles.modalEventCategory}>
+                      <Text style={styles.modalEventCategoryText}>{selectedEvent.category}</Text>
+                    </View>
+                  </View>
+                  
+                  <Text style={styles.modalEventDescription}>{selectedEvent.description}</Text>
+                  
+                  <View style={styles.modalEventDetails}>
+                    {selectedEvent.location && (
+                      <View style={styles.modalDetailRow}>
+                        <Text style={styles.modalDetailIcon}>📍</Text>
+                        <Text style={styles.modalDetailText}>{selectedEvent.location}</Text>
+                      </View>
+                    )}
+                    {selectedEvent.date && (
+                      <View style={styles.modalDetailRow}>
+                        <Text style={styles.modalDetailIcon}>📅</Text>
+                        <Text style={styles.modalDetailText}>{selectedEvent.date}</Text>
+                      </View>
+                    )}
+                    {selectedEvent.time && (
+                      <View style={styles.modalDetailRow}>
+                        <Text style={styles.modalDetailIcon}>🕒</Text>
+                        <Text style={styles.modalDetailText}>{selectedEvent.time}</Text>
+                      </View>
+                    )}
+                    {selectedEvent.price && (
+                      <View style={styles.modalDetailRow}>
+                        <Text style={styles.modalDetailIcon}>💰</Text>
+                        <Text style={styles.modalDetailText}>{selectedEvent.price}</Text>
+                      </View>
+                    )}
+                    {selectedEvent.maxAttendees && (
+                      <View style={styles.modalDetailRow}>
+                        <Text style={styles.modalDetailIcon}>👥</Text>
+                        <Text style={styles.modalDetailText}>Max {selectedEvent.maxAttendees} attendees</Text>
+                      </View>
+                    )}
+                  </View>
+                  
+                  {currentUser?.uid !== 'admin_user' && (
+                    <TouchableOpacity
+                      style={[
+                        styles.bookButton,
+                        isEventBooked(selectedEvent.id) && styles.bookedButton
+                      ]}
+                      onPress={handleBookEvent}
+                    >
+                      <Text style={styles.bookButtonText}>
+                        {isEventBooked(selectedEvent.id) ? '✓ Booked - Tap to Cancel' : '🎫 Book Event'}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </ScrollView>
+            )}
+          </View>
+        </Modal>
       </ScrollView>
     </LinearGradient>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  gradient: {
-    flex: 1,
-    backgroundColor: '#18181b',
-  },
-  container: {
-    paddingHorizontal: 24,
-    paddingBottom: 24,
-    backgroundColor: 'transparent',
-  },
-  topSpacer: {
-    height: 36,
-  },
-  searchBarRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  searchBar: {
-    flex: 1,
-    backgroundColor: '#23232b',
-    borderRadius: 24,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    marginRight: 12,
-    shadowColor: '#000',
-    shadowOpacity: 0.18,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-    borderWidth: 1,
-    borderColor: '#2d2d34',
-  },
-  searchInput: {
-    fontSize: 18,
-    color: '#fff',
-    letterSpacing: 0.5,
-  },
-  profileCircle: {
-    width: 48,
-    height: 48,
-    backgroundColor: '#23232b',
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#6366f1',
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-  },
-  profileEmoji: {
-    fontSize: 32,
-    textAlign: 'center',
-    color: '#fff',
-    textShadowColor: '#6366f1',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 4,
-  },
-  tabsRow: {
-    flexDirection: 'row',
-    marginBottom: 28,
-    justifyContent: 'space-between',
-  },
-  tab: {
-    borderRadius: 18,
-    marginRight: 8,
-    overflow: 'hidden',
-    minWidth: 70,
-    backgroundColor: '#23232b',
-    borderWidth: 1,
-    borderColor: '#2d2d34',
-  },
-  tabGradient: {
-    paddingVertical: 8,
-    paddingHorizontal: 18,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  tabSelected: {
-    // handled by tabGradient
-  },
-  tabText: {
-    color: '#e5e7eb',
-    fontWeight: 'bold',
-    fontSize: 16,
-    paddingVertical: 8,
-    paddingHorizontal: 18,
-    textAlign: 'center',
-    letterSpacing: 0.5,
-  },
-  tabTextSelected: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-    textAlign: 'center',
-    textShadowColor: '#6366f1',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 4,
-    letterSpacing: 0.5,
-  },
-  section: {
-    marginBottom: 32,
-    backgroundColor: 'transparent',
-  },
-  cardGradient: {
-    borderRadius: 18,
-    marginBottom: 28,
-    shadowColor: '#6366f1',
-    shadowOpacity: 0.18,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-  },
-  youtubeCard: {
-    backgroundColor: '#18181b',
-    borderRadius: 18,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-  },
-  youtubeCardImage: {
-    width: '100%',
-    height: 180,
-    backgroundColor: '#23232b',
-  },
-  youtubeCardContent: {
-    padding: 16,
-  },
-  youtubeCardTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 8,
-    textShadowColor: '#6366f1',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
-  },
-  descRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  youtubeCardDesc: {
-    color: '#e5e7eb',
-    fontSize: 14,
-    opacity: 0.85,
-    flex: 1,
-    marginRight: 12,
-  },
-  arrowCircle: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  arrowGradientCircle: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  arrowText: {
-    fontSize: 20,
-    color: '#fff',
-    fontWeight: 'bold',
-    textShadowColor: '#ec4899',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 4,
-  },
-});
+export default EventsScreen;
