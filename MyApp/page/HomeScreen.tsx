@@ -16,7 +16,8 @@ import { NotificationService } from '../Services/NotificationService';
 import { Notification } from '../types/NotificationTypes';
 import { styles } from '../styles/HomeStyles';
 import { timeAgo } from '../utils/utils';
-import { Header } from '../components/Header';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import { ExploreTab } from '../components/ExploreTab';
 import { CreatePostTab } from '../components/CreatePostTab';
 import { CommentsModal } from '../components/CommentsModal';
@@ -539,60 +540,13 @@ const handleSubmitPost = async () => {
   }
 };
 
+  const navigation = useNavigation<any>();
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" backgroundColor="#000000" translucent={false} />
-      
-      {/* Floating Header */}
-      <Header
-        fadeAnim={fadeAnim}
-        unreadCount={unreadCount}
-        onNotificationsPress={openNotifications}
-        onMenuPress={() => NotificationService.provideHapticFeedback('selection')}
-      />
 
       {/* Main Content */}
       <View style={styles.content}>
-        {/* Tab Navigation */}
-        <Animated.View 
-          style={[
-            styles.tabContainer,
-            { opacity: fadeAnim }
-          ]}
-        >
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'explore' && styles.activeTab]}
-            onPress={() => {
-              setActiveTab('explore');
-              NotificationService.provideHapticFeedback('selection');
-            }}
-            activeOpacity={0.8}
-          >
-            <Text style={[
-              styles.tabText,
-              activeTab === 'explore' && styles.activeTabText
-            ]}>
-              Explore
-            </Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'post' && styles.activeTab]}
-            onPress={() => {
-              setActiveTab('post');
-              NotificationService.provideHapticFeedback('selection');
-            }}
-            activeOpacity={0.8}
-          >
-            <Text style={[
-              styles.tabText,
-              activeTab === 'post' && styles.activeTabText
-            ]}>
-              Create Post
-            </Text>
-          </TouchableOpacity>
-        </Animated.View>
-
         {/* Tab Content */}
         {activeTab === 'explore' ? (
           <ExploreTab
@@ -639,6 +593,79 @@ const handleSubmitPost = async () => {
             onSubmit={handleSubmitPost}
           />
         )}
+      </View>
+
+      {/* Bottom Navigation Bar (formerly header) */}
+      <View style={{
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: '#18181b',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 24,
+        paddingVertical: 12,
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+        shadowColor: '#000',
+        shadowOpacity: 0.18,
+        shadowOffset: { width: 0, height: -2 },
+        shadowRadius: 12,
+        zIndex: 100,
+        elevation: 20,
+      }}>
+        {/* Left Arrow (back to Sections) */}
+        <TouchableOpacity onPress={() => {
+          NotificationService.provideHapticFeedback('selection');
+          navigation.navigate('Sections');
+        }}>
+          <Ionicons name="arrow-back" size={28} color="#fff" />
+        </TouchableOpacity>
+
+        {/* Plus Icon (go to Create Post tab) */}
+        <TouchableOpacity
+          style={{
+            backgroundColor: '#f43f5e',
+            borderRadius: 24,
+            padding: 10,
+            marginHorizontal: 12,
+            shadowColor: '#f43f5e',
+            shadowOpacity: 0.3,
+            shadowOffset: { width: 0, height: 2 },
+            shadowRadius: 8,
+            elevation: 4,
+          }}
+          onPress={() => {
+            setActiveTab('post');
+            NotificationService.provideHapticFeedback('selection');
+          }}
+        >
+          <MaterialCommunityIcons name="plus" size={28} color="#fff" />
+        </TouchableOpacity>
+
+        {/* Notification Bell */}
+        <TouchableOpacity onPress={openNotifications} style={{ position: 'relative' }}>
+          <Ionicons name="notifications-outline" size={28} color="#fff" />
+          {unreadCount > 0 && (
+            <View style={{
+              position: 'absolute',
+              top: -2,
+              right: -2,
+              backgroundColor: '#f43f5e',
+              borderRadius: 8,
+              width: 16,
+              height: 16,
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderWidth: 2,
+              borderColor: '#18181b',
+            }}>
+              <Text style={{ color: '#fff', fontSize: 10, fontWeight: 'bold' }}>{unreadCount}</Text>
+            </View>
+          )}
+        </TouchableOpacity>
       </View>
 
       {/* Comments Modal */}

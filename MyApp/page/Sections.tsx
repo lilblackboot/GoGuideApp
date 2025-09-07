@@ -12,6 +12,8 @@ import {
   Image,
 } from 'react-native';
 import { useAuth } from '../AuthContext';
+import { firebaseService } from '../Services/FirebaseService';
+import { getNavNotificationCounts } from '../utils/navNotificationUtils';
 import { LinearGradient } from 'expo-linear-gradient';
 import ProfileData from './ProfileData'; 
 const { width, height } = Dimensions.get('window');
@@ -19,6 +21,21 @@ import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+// Red dot notification indicator
+const RedDot = () => (
+  <View style={{
+    position: 'absolute',
+    top: 2,
+    right: -7,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#f43f5e',
+    borderWidth: 2,
+    borderColor: '#23232b',
+    zIndex: 10,
+  }} />
+);
 // import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'; // Removed due to missing module
 
 // Floating particle component (reused from login)
@@ -213,10 +230,35 @@ const GradientIcon = ({ icon, gradientColors, iconType, size = 32 }: { icon: str
 );
 
 export default function HomeScreen() {
+  const { currentUser, logout } = useAuth();
+  // Real notification state for each nav page
+  const [navNotifications, setNavNotifications] = useState({
+    home: false,
+    food: false,
+    event: false,
+    calculator: false,
+    assistant: false,
+  });
+
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchNotifications() {
+      if (!currentUser?.uid) return;
+      try {
+        const notifications = await firebaseService.getNotifications(currentUser.uid);
+        if (isMounted) {
+          setNavNotifications(getNavNotificationCounts(notifications));
+        }
+      } catch (e) {
+        // Optionally handle error
+      }
+    }
+    fetchNotifications();
+    return () => { isMounted = false; };
+  }, [currentUser?.uid]);
   const [profileModalVisible, setProfileModalVisible] = useState(false);
   const [editProfileVisible, setEditProfileVisible] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
-  const { currentUser, logout } = useAuth();
   const displayName = currentUser?.displayName || 'Guest';
   const profileEmoji = currentUser?.photoURL || '😎';
   //const { logout, user } = useAuth(); // Get user from auth context
@@ -319,25 +361,25 @@ const handleCalculator = () => {
               </TouchableOpacity>
             </View>
           )}
-                     <View style={styles.headerContentContainer}>
-             <View style={styles.headerContent}>
-               <TouchableOpacity
-                 style={styles.profilePicContainer}
-                 onPress={() => setProfileModalVisible(true)}
-               >
-                 <Text style={styles.profilePicEmoji}>{profileEmoji}</Text>
-               </TouchableOpacity>
-               <Text style={styles.welcomeText}>hey there,</Text>
-               <MaskedView maskElement={<Text style={styles.userNameText}>{displayName} </Text>}>
-                 <LinearGradient colors={["#f43f5e", "#f97316"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
-                   <Text style={[styles.userNameText, { opacity: 0 }]}>{displayName} </Text>
-                 </LinearGradient>
-               </MaskedView>
-               {currentUser?.email && (
-                 <Text style={styles.userEmailText}>{currentUser.email}</Text>
-               )}
-             </View>
-           </View>
+          <View style={styles.headerContentContainer}>
+            <View style={styles.headerContent}>
+              <TouchableOpacity
+                style={styles.profilePicContainer}
+                onPress={() => setProfileModalVisible(true)}
+              >
+                <Text style={styles.profilePicEmoji}>{profileEmoji}</Text>
+              </TouchableOpacity>
+              <Text style={styles.welcomeText}>hey there,</Text>
+              <MaskedView maskElement={<Text style={styles.userNameText}>{displayName} </Text>}>
+                <LinearGradient colors={["#f43f5e", "#f97316"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                  <Text style={[styles.userNameText, { opacity: 0 }]}>{displayName} </Text>
+                </LinearGradient>
+              </MaskedView>
+              {currentUser?.email && (
+                <Text style={styles.userEmailText}>{currentUser.email}</Text>
+              )}
+            </View>
+          </View>
           {/* Attendance and Teacher options row below email */}
           <View style={{ gap: 16, width: '100%', marginBottom: 24 }}>
           </View>
@@ -353,55 +395,51 @@ const handleCalculator = () => {
           ]}
         >
           <Text style={styles.sectionTitle}>what's the vibe today? 🌈</Text>
-          <View style={styles.optionsGrid}>
-            <View style={styles.bottomButtonsContainer}>
-            <View style={styles.bottomRightButtonContainer}>
-                  <OptionCard
-                    title="Food"
-                    emoji="🍕"
-                    onPress={() => handleOptionPress('Home')}
-                    delay={800}
-                    size="small"
-                    gradientColors={["#f97316", "#fbbf24"]} // orange to yellow gradient
-                  />
-                </View>
-                <View style={styles.topRightButtonContainer}>
-                  <OptionCard
-                    title="Events"
-                    emoji="🎉"
-                    onPress={() => handleOptionPress('events')}
-                    delay={700}
-                    size="small"
-                    gradientColors={["#8b5cf6", "#a855f7"]} // purple gradient
-                  />
-                </View>
-            </View>
-            {/* Calculator and Chat buttons below - same style as food/events */}
-            <View style={styles.bottomButtonsContainer}>
-                             <View style={{ flex: 1 }}>
-                 <OptionCard
-                   title="Calculator"
-                   emoji="🧮"
-                   onPress={handleCalculator}
-                   delay={900}
-                   gradientColors={["#ec4899", "#f472b6"]} // pink gradient - same as food
-                 />
-               </View>
-              <View style={{ flex: 1 }}>
-                <OptionCard
-                  title="Chat"
-                  emoji="💬"
-                  onPress={handleChatbot}
-                  delay={1000}
-                  gradientColors={["#10b981", "#059669"]} // green gradient
-                />
-              </View>
-            </View>
-          </View>
         </Animated.View>
-              </ScrollView>
+      </ScrollView>
 
-        {/* Profile Modal */}
+      {/* Bottom Navigation Bar */}
+      <View style={styles.bottomNavBarContainer}>
+        <LinearGradient
+          colors={["#23232b", "#18181b"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.bottomNavBar}
+        >
+          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Sections')}>
+            <View style={{ position: 'relative' }}>
+              <MaterialCommunityIcons name="home-variant" size={28} color="#fff" />
+              {navNotifications.home && <RedDot />}
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.navItem} onPress={() => handleOptionPress('Home')}>
+            <View style={{ position: 'relative' }}>
+              <MaterialCommunityIcons name="food" size={28} color="#fbbf24" />
+              {navNotifications.food && <RedDot />}
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.navItem} onPress={() => handleOptionPress('events')}>
+            <View style={{ position: 'relative' }}>
+              <MaterialCommunityIcons name="calendar-star" size={28} color="#a855f7" />
+              {/* {navNotifications.event && <RedDot />} */}
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.navItem} onPress={handleCalculator}>
+            <View style={{ position: 'relative' }}>
+              <MaterialCommunityIcons name="calculator-variant" size={28} color="#f472b6" />
+              {navNotifications.calculator && <RedDot />}
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.navItem} onPress={handleChatbot}>
+            <View style={{ position: 'relative' }}>
+              <MaterialCommunityIcons name="robot-excited" size={28} color="#10b981" />
+              {navNotifications.assistant && <RedDot />}
+            </View>
+          </TouchableOpacity>
+        </LinearGradient>
+      </View>
+
+      {/* Profile Modal */}
       <Modal
         visible={profileModalVisible}
         transparent={true}
@@ -457,6 +495,44 @@ const handleCalculator = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  bottomNavBarContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 100,
+    elevation: 20,
+    backgroundColor: 'transparent',
+  },
+  bottomNavBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingTop: 20,
+    paddingBottom: 28,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    shadowColor: '#000',
+    shadowOpacity: 0.18,
+    shadowOffset: { width: 0, height: -2 },
+    shadowRadius: 12,
+    backgroundColor: 'rgba(35,35,43,0.98)',
+  },
+  navItem: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 2,
+  },
+  navLabel: {
+    fontSize: 12,
+    color: '#fff',
+    fontWeight: '600',
+    textTransform: 'lowercase',
+    marginTop: 2,
+    letterSpacing: 0.2,
+    opacity: 0.85,
   },
   header: {
     paddingTop: 60,
