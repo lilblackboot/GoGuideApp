@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   ScrollView,
   StyleSheet,
   Image,
+  Animated,
 } from 'react-native';
 import { useAuth } from '../AuthContext';
 import { useNavigation } from '@react-navigation/native';
@@ -25,14 +26,46 @@ type RootStackParamList = {
 
 type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'LoginScreen'>;
 
+
 const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [isLogin, setIsLogin] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(false);
+  const [showEntry, setShowEntry] = useState(true);
+  const logoScale = useRef(new Animated.Value(0.5)).current;
+  const logoOpacity = useRef(new Animated.Value(0)).current;
   const { login, signup, adminLogin } = useAuth();
-
   const navigation = useNavigation<LoginScreenNavigationProp>();
+
+  useEffect(() => {
+    // Animate logo in, then fade out and show login
+    Animated.sequence([
+      Animated.parallel([
+        Animated.timing(logoScale, {
+          toValue: 1.2,
+          duration: 700,
+          useNativeDriver: true,
+        }),
+        Animated.timing(logoOpacity, {
+          toValue: 1,
+          duration: 700,
+          useNativeDriver: true,
+        }),
+      ]),
+      Animated.timing(logoScale, {
+        toValue: 1,
+        duration: 350,
+        useNativeDriver: true,
+      }),
+      Animated.delay(600),
+      Animated.timing(logoOpacity, {
+        toValue: 0,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+    ]).start(() => setShowEntry(false));
+  }, []);
 
   const handleSubmit = async (): Promise<void> => {
     if (!email || !password) {
@@ -75,6 +108,31 @@ const LoginScreen: React.FC = () => {
     
     setLoading(false);
   };
+
+  if (showEntry) {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#18181b', justifyContent: 'center', alignItems: 'center' }}>
+        <Animated.View
+          style={{
+            transform: [{ scale: logoScale }],
+            opacity: logoOpacity,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <View style={styles.logo}>
+            <Image
+              source={require('../assets/goguide-logo.png')}
+              style={{ width: 90, height: 90, resizeMode: 'contain' }}
+              accessible
+              accessibilityLabel="GoGuide logo"
+            />
+          </View>
+          <Text style={[styles.title, { color: '#f472b6', marginTop: 12, fontSize: 36 }]}>GoGuide</Text>
+        </Animated.View>
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#18181b' }}>
