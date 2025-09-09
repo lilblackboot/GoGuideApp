@@ -21,16 +21,7 @@ const firebaseConfig = {
   appId: FIREBASE_APP_ID,
   measurementId: FIREBASE_MEASUREMENT_ID
 };
-// const firebaseConfig = {
-//   apiKey: "AIzaSyCh93f5IvE_eUX28egoh9YB_QBZoHDnkqA",
-//   authDomain: "goguide-af998.firebaseapp.com",
-//   projectId: "goguide-af998",
-//   storageBucket: "goguide-af998.firebasestorage.app",
-//   messagingSenderId: "550316886551",
-//   appId: "1:550316886551:web:cd4367e2b3abcdca2f2a52",
-//   measurementId: "G-C4DBPGZSY1"
 
-// };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
