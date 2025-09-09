@@ -1,7 +1,5 @@
 // services/CloudinaryService.ts - Fixed version without transformation issues
-// import { CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET } from "@env";
-const CLOUDINARY_CLOUD_NAME = "dogoeyzeu"; // Replace with your Cloudinary cloud name
-const CLOUDINARY_UPLOAD_PRESET = "unsigned_preset"; // Replace with your unsigned upload preset
+import { CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET } from "@env";
 export class CloudinaryService {
   private static readonly CLOUD_NAME = CLOUDINARY_CLOUD_NAME; // Replace with your Cloudinary cloud name
   private static readonly UPLOAD_PRESET = CLOUDINARY_UPLOAD_PRESET; // Replace with your unsigned upload preset

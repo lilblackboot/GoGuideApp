@@ -29,9 +29,7 @@ import {
 import { db } from '../firebaseConfig';
 import { useAuth } from '../AuthContext';
 import styles from '../styles/AdminEventsScreenStyle';
-// import { CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET } from '@env';
-const CLOUDINARY_CLOUD_NAME = "dogoeyzeu"; // Replace with your Cloudinary cloud name
-const CLOUDINARY_UPLOAD_PRESET = "unsigned_preset"; // Replace with your unsigned upload preset
+import { CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET } from '@env';
 interface Event {
   id: string;
   title: string;
