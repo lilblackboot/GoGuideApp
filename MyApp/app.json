@@ -21,10 +21,16 @@
         "foregroundImage": "./assets/goguide-logo.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.belezerio.GoGuide"
     },
     "web": {
       "favicon": "./assets/goguide-logo.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "dae50151-9b93-479f-a578-f904d18ad938"
+      }
     }
   }
 }

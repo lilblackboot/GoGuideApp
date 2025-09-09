@@ -21,7 +21,7 @@ export default function Navigation() {
         <Stack.Screen name="AdminEvents" component={AdminEventsScreen} />
         <Stack.Screen name="ProfileData" component={ProfileData} />
         <Stack.Screen name="Sections" component={Sections} />
-        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="HomeScreen" component={HomeScreen} />
         <Stack.Screen name="Chatbot" component={Chatbot} />
         <Stack.Screen name="Calculator" component={Calculator} />
         <Stack.Screen name="Events" component={Events} />

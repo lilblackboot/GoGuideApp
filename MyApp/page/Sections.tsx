@@ -1,3 +1,4 @@
+// Sections.tsx - Main home screen with navigation and profile management
 import React, { useState, useEffect } from 'react';
 import {
   View,
