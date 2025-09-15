@@ -986,7 +986,7 @@ const styles = {
     justifyContent: 'space-between' as const,
     alignItems: 'center' as const,
     paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingTop: 25,
   },
   menuButton: {
     width: 36,
@@ -1050,13 +1050,12 @@ const styles = {
   },
   categoriesContainer: {
     paddingHorizontal: 20,
-    paddingVertical: 8,
-    paddingBottom: 12,
+    paddingVertical: 5,
     gap: 8,
   },
   categoryChip: {
     paddingHorizontal: 16,
-    paddingVertical: 6,
+    paddingVertical: 5,
     borderRadius: 20,
     backgroundColor: 'rgba(255,255,255,0.6)',
     borderWidth: 1,
@@ -1083,6 +1082,7 @@ const styles = {
     fontWeight: '600' as const,
     color: '#6b7280',
     textTransform: 'capitalize' as const,
+    paddingTop:5,
   },
   categoryTextActive: {
     fontSize: 12,
@@ -1092,7 +1092,7 @@ const styles = {
   },
   eventsContainer: {
     paddingTop: 200, // Space for fixed header
-    paddingHorizontal: 16,
+    paddingHorizontal: 0,
     paddingBottom: 120,
   },
   emptyState: {
@@ -1115,7 +1115,7 @@ const styles = {
   
   // Enhanced Event Card Styles - FIXED FOR INSTAGRAM-STYLE
   eventCard: {
-    borderRadius: 20,
+  
     overflow: 'hidden' as const,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
@@ -1125,24 +1125,24 @@ const styles = {
   },
   eventCardContainer: {
     backgroundColor: '#fff',
-    borderRadius: 20,
+ 
     overflow: 'hidden' as const,
   },
  // Replace these styles in your existing styles object:
 
 eventImageContainer: {
   position: 'relative' as const,
-  width: '100%',
-  height: 220, // Fixed height instead of aspectRatio: 1
+  width: width,
+  height: Math.round(width / 1.6),
 },
 eventImage: {
-  width: '100%',
-  height: 220, // Match the container height
+  width: width,
+  height: Math.round(width / 1.6),
   backgroundColor: '#f3f4f6',
 },
 eventImagePlaceholder: {
-  width: '100%',
-  height: 220, // Match the container height
+  width: width,
+  height: Math.round(width / 1.6),
   justifyContent: 'center' as const,
   alignItems: 'center' as const,
 },
@@ -1151,6 +1151,7 @@ eventImagePlaceholder: {
     fontWeight: '700' as const,
     color: 'rgba(255,255,255,0.9)',
     marginTop: 16,
+  
     textTransform: 'capitalize' as const,
   },
   eventImageOverlay: {
