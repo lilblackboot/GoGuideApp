@@ -622,18 +622,7 @@ const EventsScreen: React.FC = () => {
 
               <Text style={styles.headerTitle}>events</Text>
 
-              <TouchableOpacity
-                style={styles.profileButton}
-                onPress={() => setProfileModalVisible(true)}
-                activeOpacity={0.7}
-              >
-                <LinearGradient
-                  colors={['#6366f1', '#8b5cf6']}
-                  style={styles.profileGradient}
-                >
-                  <Text style={styles.profileEmoji}>{profileEmoji}</Text>
-                </LinearGradient>
-              </TouchableOpacity>
+              <View style={{ width: 36 }} />
             </View>
 
             {/* Compact Search */}
@@ -754,8 +743,28 @@ const EventsScreen: React.FC = () => {
             >
               <View style={styles.sideMenuContainer}>
                 <View style={styles.menuHeader}>
-                  <Text style={styles.menuTitle}>Navigation</Text>
-                  <TouchableOpacity onPress={() => setMenuVisible(false)}>
+                  <View style={styles.userInfoContainer}>
+                    <View style={styles.userAvatar}>
+                      <LinearGradient
+                        colors={['#6366f1', '#8b5cf6']}
+                        style={styles.userAvatarGradient}
+                      >
+                        <Text style={styles.userAvatarEmoji}>{profileEmoji}</Text>
+                      </LinearGradient>
+                    </View>
+                    <View style={styles.userDetails}>
+                      <Text style={styles.userDisplayName}>
+                        {currentUser?.displayName || currentUser?.email?.split('@')[0] || 'User'}
+                      </Text>
+                      <Text style={styles.userEmail} numberOfLines={1}>
+                        {currentUser?.email}
+                      </Text>
+                    </View>
+                  </View>
+                  <TouchableOpacity 
+                    onPress={() => setMenuVisible(false)}
+                    style={styles.closeButton}
+                  >
                     <MaterialCommunityIcons name="close" size={26} color="#6b7280" />
                   </TouchableOpacity>
                 </View>
@@ -1306,7 +1315,7 @@ eventImagePlaceholder: {
   },
   sideMenu: {
     width: width * 0.8,
-    height: '100%',
+    height: height,
     position: 'absolute' as const,
     left: 0,
     top: 0,
@@ -1321,13 +1330,61 @@ eventImagePlaceholder: {
     shadowRadius: 12,
   },
   menuHeader: {
-    flexDirection: 'row' as const,
-    justifyContent: 'space-between' as const,
-    alignItems: 'center' as const,
+    position: 'relative' as const,
+    alignItems: 'left' as const,
     paddingHorizontal: 24,
-    paddingBottom: 30,
+    paddingTop: 30,
+    paddingBottom: 40,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,0.08)',
+  },
+  userInfoContainer: {
+    flexDirection: 'column' as const,
+    alignItems: 'left' as const,
+    paddingBottom: 20,
+  },
+  userAvatar: {
+    marginBottom: 16,
+    shadowColor: '#6366f1',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+  },
+  userAvatarGradient: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+  },
+  userAvatarEmoji: {
+    fontSize: 28,
+  },
+  userDetails: {
+    alignItems: 'left' as const,
+    minHeight: 60,
+    justifyContent: 'left' as const,
+  },
+  userDisplayName: {
+    fontSize: 20,
+    fontWeight: '700' as const,
+    color: '#1f2937',
+    marginBottom: 4,
+    letterSpacing: -0.3,
+    textAlign: 'left' as const,
+  },
+  userEmail: {
+    fontSize: 14,
+    fontWeight: '500' as const,
+    color: '#6b7280',
+    opacity: 0.8,
+    textAlign: 'left' as const,
+  },
+  closeButton: {
+    position: 'absolute' as const,
+    top: 0,
+    right: 0,
+    padding: 8,
   },
   menuTitle: {
     fontSize: 24,
