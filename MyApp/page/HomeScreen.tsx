@@ -17,6 +17,7 @@ import { Notification } from '../types/NotificationTypes';
 import { styles } from '../styles/HomeStyles';
 import { timeAgo } from '../utils/utils';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { ExploreTab } from '../components/ExploreTab';
 import { CreatePostTab } from '../components/CreatePostTab';
@@ -566,6 +567,8 @@ const handleSubmitPost = async () => {
             scaleAnim={scaleAnim}
             currentUserId={firebaseService.getCurrentUserId()}
             timeAgo={timeAgo}
+            onNotificationsPress={openNotifications}
+            unreadCount={unreadCount}
           />
         ) : (
           <CreatePostTab
@@ -595,78 +598,38 @@ const handleSubmitPost = async () => {
         )}
       </View>
 
-      {/* Bottom Navigation Bar (formerly header) */}
-      <View style={{
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: '#18181b',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 24,
-        paddingVertical: 12,
-        borderTopLeftRadius: 24,
-        borderTopRightRadius: 24,
-        shadowColor: '#000',
-        shadowOpacity: 0.18,
-        shadowOffset: { width: 0, height: -2 },
-        shadowRadius: 12,
-        zIndex: 100,
-        elevation: 20,
-      }}>
-        {/* Left Arrow (back to Sections) */}
-        <TouchableOpacity onPress={() => {
+      {/* Floating Action Button */}
+      <TouchableOpacity
+        style={{
+          position: 'absolute',
+          right: 20,
+          bottom: 24,
+          borderRadius: 28,
+          shadowColor: '#FF3D71',
+          shadowOpacity: 0.25,
+          shadowOffset: { width: 0, height: 6 },
+          shadowRadius: 10,
+          elevation: 6,
+          zIndex: 200,
+        }}
+        onPress={() => {
+          setActiveTab('post');
           NotificationService.provideHapticFeedback('selection');
-          navigation.navigate('Sections');
-        }}>
-          <Ionicons name="arrow-back" size={28} color="#fff" />
-        </TouchableOpacity>
-
-        {/* Plus Icon (go to Create Post tab) */}
-        <TouchableOpacity
+        }}
+        activeOpacity={0.9}
+      >
+        <LinearGradient
+          colors={["#FF7A00", "#FF3D71"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
           style={{
-            backgroundColor: '#f43f5e',
-            borderRadius: 24,
-            padding: 10,
-            marginHorizontal: 12,
-            shadowColor: '#f43f5e',
-            shadowOpacity: 0.3,
-            shadowOffset: { width: 0, height: 2 },
-            shadowRadius: 8,
-            elevation: 4,
-          }}
-          onPress={() => {
-            setActiveTab('post');
-            NotificationService.provideHapticFeedback('selection');
+            borderRadius: 28,
+            padding: 14,
           }}
         >
           <MaterialCommunityIcons name="plus" size={28} color="#fff" />
-        </TouchableOpacity>
-
-        {/* Notification Bell */}
-        <TouchableOpacity onPress={openNotifications} style={{ position: 'relative' }}>
-          <Ionicons name="notifications-outline" size={28} color="#fff" />
-          {unreadCount > 0 && (
-            <View style={{
-              position: 'absolute',
-              top: -2,
-              right: -2,
-              backgroundColor: '#f43f5e',
-              borderRadius: 8,
-              width: 16,
-              height: 16,
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderWidth: 2,
-              borderColor: '#18181b',
-            }}>
-              <Text style={{ color: '#fff', fontSize: 10, fontWeight: 'bold' }}>{unreadCount}</Text>
-            </View>
-          )}
-        </TouchableOpacity>
-      </View>
+        </LinearGradient>
+      </TouchableOpacity>
 
       {/* Comments Modal */}
       <CommentsModal

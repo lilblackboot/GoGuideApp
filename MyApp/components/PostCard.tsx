@@ -150,7 +150,7 @@ export const PostCard: React.FC<PostCardProps> = ({
                 <Ionicons
                   name={isLiked ? "heart" : "heart-outline"}
                   size={22}
-                  color={isLiked ? "#FF3B30" : "rgba(255,255,255,0.7)"}
+                  color={isLiked ? "#FF3B30" : "rgba(26, 24, 24, 0.7)"}
                 />
               </Animated.View>
               <Text style={[styles.actionText, isLiked && styles.likedText]}>
@@ -163,7 +163,7 @@ export const PostCard: React.FC<PostCardProps> = ({
               onPress={() => onComment(item)}
               activeOpacity={0.7}
             >
-              <Ionicons name="chatbubble-outline" size={20} color="rgba(255,255,255,0.7)" />
+              <Ionicons name="chatbubble-outline" size={20} color="rgba(7, 7, 7, 0.7)" />
               <Text style={styles.actionText}>{item.comments.length}</Text>
             </TouchableOpacity>
             
@@ -172,7 +172,7 @@ export const PostCard: React.FC<PostCardProps> = ({
               activeOpacity={0.7}
               onPress={handleShare}
             >
-              <Ionicons name="share-outline" size={20} color="rgba(255,255,255,0.7)" />
+              <Ionicons name="share-outline" size={20} color="rgba(17, 17, 17, 0.7)" />
             </TouchableOpacity>
           </View>
           

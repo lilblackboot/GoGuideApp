@@ -199,12 +199,14 @@ const LoginScreen: React.FC = () => {
       }),
     ]).start();
 
-    Animated.timing(logoRotation, {
-      toValue: logoRotation._value + 1,
-      duration: 800,
-      easing: Easing.bezier(0.68, -0.55, 0.265, 1.55),
-      useNativeDriver: true,
-    }).start();
+    logoRotation.stopAnimation((currentValue: number) => {
+      Animated.timing(logoRotation, {
+        toValue: currentValue + 1,
+        duration: 800,
+        easing: Easing.bezier(0.68, -0.55, 0.265, 1.55),
+        useNativeDriver: true,
+      }).start();
+    });
   };
 
   const handleButtonPress = () => {

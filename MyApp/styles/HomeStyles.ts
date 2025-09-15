@@ -6,11 +6,11 @@ const { width, height } = Dimensions.get('window');
 export const styles = {
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#FFFFFF',
   },
   safeArea: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#FFFFFF',
   },
   // header: {
   //   height: 1,
@@ -70,7 +70,7 @@ export const styles = {
   },
   tabContainer: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: '#F3F4F6',
     marginHorizontal: 16,
     marginBottom: 16,
     borderRadius: 30,
@@ -84,8 +84,8 @@ export const styles = {
     borderRadius: 27,
   },
   activeTab: {
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#FFFFFF',
+    backgroundColor: '#FF7A00',
+    shadowColor: '#FF7A00',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
@@ -93,11 +93,11 @@ export const styles = {
   },
   tabText: {
     fontSize: 15,
-    color: 'rgba(255,255,255,0.6)',
+    color: '#6B7280',
     fontWeight: '600',
   },
   activeTabText: {
-    color: '#000000',
+    color: '#FFFFFF',
     fontWeight: '700',
   },
   exploreContainer: {
@@ -106,7 +106,7 @@ export const styles = {
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: '#F3F4F6',
     marginHorizontal: 16,
     borderRadius: 25,
     paddingHorizontal: 18,
@@ -116,7 +116,7 @@ export const styles = {
   },
   searchInput: {
     flex: 1,
-    color: '#FFFFFF',
+    color: '#111827',
     fontSize: 16,
     marginLeft: 10,
   },
@@ -128,7 +128,7 @@ export const styles = {
     paddingRight: 16,
   },
   categoryItem: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: '#F3F4F6',
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 25,
@@ -136,22 +136,22 @@ export const styles = {
     backdropFilter: 'blur(20px)',
   },
   activeCategoryItem: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FF7A00',
   },
   categoryText: {
-    color: 'rgba(255,255,255,0.7)',
+    color: '#374151',
     fontSize: 14,
     fontWeight: '600',
   },
   activeCategoryText: {
-    color: '#000000',
+    color: '#FFFFFF',
     fontWeight: '700',
   },
   postCard: {
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    marginHorizontal: 16,
-    marginBottom: 20,
-    borderRadius: 24,
+    backgroundColor: 'rgba(61, 61, 61, 0.08)',
+    marginHorizontal: 0,
+    marginBottom: 0,
+    borderRadius: 0,
     overflow: 'hidden',
     backdropFilter: 'blur(20px)',
   },
@@ -164,7 +164,7 @@ export const styles = {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: 'rgba(22, 22, 22, 0.18)',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -175,19 +175,19 @@ export const styles = {
   username: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: '#111827',
     marginBottom: 2,
   },
   location: {
     fontSize: 13,
-    color: 'rgba(255,255,255,0.6)',
+    color: '#6B7280',
     flexDirection: 'row',
     alignItems: 'center',
   },
   postMedia: {
     width: '100%',
     height: 280,
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: '#F3F4F6',
   },
   postContent: {
     padding: 16,
@@ -195,13 +195,13 @@ export const styles = {
   postTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: '#111827',
     marginBottom: 8,
     lineHeight: 26,
   },
   postDescription: {
     fontSize: 15,
-    color: 'rgba(255,255,255,0.8)',
+    color: '#374151',
     lineHeight: 22,
     marginBottom: 12,
   },
@@ -211,7 +211,7 @@ export const styles = {
     marginBottom: 16,
   },
   tag: {
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: '#F3F4F6',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
@@ -219,7 +219,7 @@ export const styles = {
     marginBottom: 6,
   },
   tagText: {
-    color: '#FFFFFF',
+    color: '#111827',
     fontSize: 12,
     fontWeight: '600',
   },
@@ -245,7 +245,7 @@ export const styles = {
     backgroundColor: 'rgba(255,59,48,0.15)',
   },
   actionText: {
-    color: 'rgba(255,255,255,0.7)',
+    color: '#374151',
     fontSize: 14,
     marginLeft: 6,
     fontWeight: '600',
@@ -266,21 +266,21 @@ export const styles = {
   inputLabel: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: '#111827',
     marginBottom: 8,
   },
   textInput: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: '#F3F4F6',
     borderRadius: 20,
     padding: 16,
-    color: '#FFFFFF',
+    color: '#111827',
     fontSize: 16,
     backdropFilter: 'blur(20px)',
   },
   focusedInput: {
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.3)',
+    borderColor: '#FF7A00',
   },
   textArea: {
     height: 100,
@@ -298,16 +298,16 @@ export const styles = {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: '#F3F4F6',
     paddingVertical: 16,
     borderRadius: 20,
     marginRight: 10,
   },
   activeMediaButton: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: '#FF7A00',
   },
   mediaButtonText: {
-    color: 'rgba(255,255,255,0.7)',
+    color: '#374151',
     marginLeft: 8,
     fontWeight: '600',
   },
@@ -326,16 +326,16 @@ export const styles = {
   locationButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: '#F3F4F6',
     paddingVertical: 16,
     paddingHorizontal: 20,
     borderRadius: 20,
   },
   selectedLocationButton: {
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: '#FF7A00',
   },
   locationText: {
-    color: 'rgba(255,255,255,0.7)',
+    color: '#374151',
     marginLeft: 12,
     fontSize: 16,
   },
@@ -345,13 +345,13 @@ export const styles = {
   tagsInput: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: '#F3F4F6',
     borderRadius: 20,
     padding: 12,
     minHeight: 50,
   },
   tagInputField: {
-    color: '#FFFFFF',
+    color: '#111827',
     fontSize: 16,
     minWidth: 100,
     flex: 1,
@@ -385,7 +385,7 @@ export const styles = {
     justifyContent: 'center',
   },
   loadingText: {
-    color: 'rgba(255,255,255,0.6)',
+    color: '#6B7280',
     fontSize: 16,
     marginTop: 12,
   },
@@ -396,7 +396,7 @@ export const styles = {
     paddingHorizontal: 40,
   },
   emptyText: {
-    color: 'rgba(255,255,255,0.6)',
+    color: '#6B7280',
     fontSize: 16,
     textAlign: 'center',
     marginTop: 16,
@@ -405,7 +405,7 @@ export const styles = {
   // Enhanced Comment Modal Styles with Keyboard Support
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.95)',
+    backgroundColor: 'rgba(0,0,0,0.4)',
   },
   commentModal: {
     flex: 1,
@@ -517,7 +517,7 @@ export const styles = {
   // Notification Modal Styles
   notificationModal: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#FFFFFF',
     marginTop: Platform.OS === 'ios' ? 44 : 20,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
@@ -528,12 +528,12 @@ export const styles = {
     justifyContent: 'space-between',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.1)',
+    borderBottomColor: '#E5E7EB',
   },
   notificationTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: '#111827',
   },
   notificationsList: {
     flex: 1,
@@ -546,13 +546,13 @@ export const styles = {
     paddingHorizontal: 16,
     borderRadius: 20,
     marginBottom: 12,
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: '#E5E7EB',
   },
   notificationIcon: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: '#E5E7EB',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 16,
@@ -562,25 +562,25 @@ export const styles = {
   },
   notificationText: {
     fontSize: 15,
-    color: '#FFFFFF',
+    color: '#111827',
     fontWeight: '600',
     lineHeight: 21,
   },
   notificationTime: {
     fontSize: 13,
-    color: 'rgba(255,255,255,0.5)',
+    color: '#4B5563',
     marginTop: 4,
   },
   unreadNotification: {
-    backgroundColor: 'rgba(255,59,48,0.15)',
+    backgroundColor: 'rgba(255,61,113,0.12)',
     borderWidth: 1,
-    borderColor: 'rgba(255,59,48,0.3)',
+    borderColor: 'rgba(255,61,113,0.35)',
   },
   unreadDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#FF3B30',
+    backgroundColor: '#FF3D71',
     marginLeft: 12,
   },
 };
