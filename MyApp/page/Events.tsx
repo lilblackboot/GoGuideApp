@@ -213,6 +213,114 @@ const FloatingShape: React.FC<{ index: number }> = ({ index }) => {
   );
 };
 
+// Event Carousel Component - 50% Screen Height
+const EventCarousel: React.FC<{
+  events: Event[];
+  onEventPress: (event: Event) => void;
+  isBooked: (eventId: string) => boolean;
+}> = ({ events, onEventPress, isBooked }) => {
+  const scrollViewRef = useRef<ScrollView>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    if (events.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setCurrentIndex(prevIndex => {
+        const nextIndex = (prevIndex + 1) % events.length;
+        scrollViewRef.current?.scrollTo({
+          x: nextIndex * (width - 32),
+          animated: true,
+        });
+        return nextIndex;
+      });
+    }, 4000); // Auto-scroll every 4 seconds
+
+    return () => clearInterval(interval);
+  }, [events.length]);
+
+  return (
+    <View style={styles.carouselContainer}>
+      <ScrollView
+        ref={scrollViewRef}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        decelerationRate="fast"
+        snapToInterval={width - 32}
+        snapToAlignment="center"
+        contentContainerStyle={styles.carouselContent}
+      >
+        {events.map((event, index) => (
+          <TouchableOpacity
+            key={event.id}
+            style={styles.carouselSlide}
+            onPress={() => onEventPress(event)}
+            activeOpacity={0.95}
+          >
+            {event.imageUrl ? (
+              <Image
+                source={{ uri: event.imageUrl }}
+                style={styles.carouselImage}
+                resizeMode="cover"
+              />
+            ) : (
+              <LinearGradient
+                colors={['#667eea', '#764ba2']}
+                style={styles.carouselImagePlaceholder}
+              >
+                <MaterialCommunityIcons 
+                  name="calendar-star" 
+                  size={48} 
+                  color="rgba(255,255,255,0.9)" 
+                />
+                <Text style={styles.carouselPlaceholderText}>
+                  {event.category}
+                </Text>
+              </LinearGradient>
+            )}
+            
+            {/* Gradient Overlay for Text */}
+            <LinearGradient
+              colors={['transparent', 'rgba(0,0,0,0.7)']}
+              style={styles.carouselOverlay}
+            >
+              <View style={styles.carouselTextContainer}>
+                <Text style={styles.carouselTitle} numberOfLines={2}>
+                  {event.title}
+                </Text>
+                <View style={styles.carouselMeta}>
+                  <MaterialCommunityIcons name="calendar" size={16} color="#fff" />
+                  <Text style={styles.carouselDate}>{event.date}</Text>
+                </View>
+                {isBooked(event.id) && (
+                  <View style={styles.carouselBookedBadge}>
+                    <MaterialCommunityIcons name="check-circle" size={16} color="#10b981" />
+                    <Text style={styles.carouselBookedText}>Booked</Text>
+                  </View>
+                )}
+              </View>
+            </LinearGradient>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+      
+      {/* Pagination Dots */}
+      <View style={styles.paginationContainer}>
+        {events.map((_, index) => (
+          <View
+            key={index}
+            style={[
+              styles.paginationDot,
+              index === currentIndex && styles.paginationDotActive
+            ]}
+          />
+        ))}
+      </View>
+    </View>
+  );
+};
+
 // Instagram-style Event Card Component - FIXED VERSION
 const EventCard: React.FC<{
   event: Event;
@@ -385,6 +493,7 @@ const EventsScreen: React.FC = () => {
   const [userBookings, setUserBookings] = useState<string[]>([]);
   const [menuVisible, setMenuVisible] = useState<boolean>(false);
   const [profileModalVisible, setProfileModalVisible] = useState<boolean>(false);
+  const [recentEvents, setRecentEvents] = useState<Event[]>([]);
 
   // Animations
   const scrollY = useRef(new Animated.Value(0)).current;
@@ -392,8 +501,9 @@ const EventsScreen: React.FC = () => {
   const headerTranslateY = useRef(new Animated.Value(0)).current;
   const fadeIn = useRef(new Animated.Value(0)).current;
   const slideUp = useRef(new Animated.Value(50)).current;
-  const menuSlide = useRef(new Animated.Value(-width * 0.8)).current;
+  const menuSlide = useRef(new Animated.Value(width * 0.8)).current;
   const chatbotPulse = useRef(new Animated.Value(1)).current;
+  const carouselScrollX = useRef(new Animated.Value(0)).current;
 
   const profileEmoji: string = currentUser?.photoURL || '😎';
 
@@ -446,11 +556,12 @@ const EventsScreen: React.FC = () => {
 
   useEffect(() => {
     filterEvents();
+    filterRecentEvents();
   }, [events, selectedCategory, searchQuery]);
 
   useEffect(() => {
     Animated.timing(menuSlide, {
-      toValue: menuVisible ? 0 : -width * 0.8,
+      toValue: menuVisible ? 0 : width * 0.8,
       duration: 300,
       useNativeDriver: true,
       easing: Easing.bezier(0.25, 0.8, 0.25, 1),
@@ -515,6 +626,19 @@ const EventsScreen: React.FC = () => {
     }
     
     setFilteredEvents(filtered);
+  };
+
+  const filterRecentEvents = (): void => {
+    // Sort events by creation date (most recent first) and take the first 5
+    const recent = [...events]
+      .sort((a, b) => {
+        const aTime = a.createdAt?.toMillis() || 0;
+        const bTime = b.createdAt?.toMillis() || 0;
+        return bTime - aTime; // Most recent first
+      })
+      .slice(0, 5); // Limit to 5 events for performance
+    
+    setRecentEvents(recent);
   };
 
   const handleEventPress = (event: Event): void => {
@@ -611,21 +735,7 @@ const EventsScreen: React.FC = () => {
           ]}
         >
           <SafeAreaView>
-            <View style={styles.header}>
-              <TouchableOpacity
-                style={styles.menuButton}
-                onPress={() => setMenuVisible(true)}
-                activeOpacity={0.7}
-              >
-                <MaterialCommunityIcons name="menu" size={24} color="#374151" />
-              </TouchableOpacity>
-
-              <Text style={styles.headerTitle}>events</Text>
-
-              <View style={{ width: 36 }} />
-            </View>
-
-            {/* Compact Search */}
+            {/* Search with Menu Button */}
             <View style={styles.searchContainer}>
               <View style={styles.searchBar}>
                 <MaterialCommunityIcons name="magnify" size={18} color="#9ca3af" />
@@ -637,7 +747,23 @@ const EventsScreen: React.FC = () => {
                   onChangeText={setSearchQuery}
                 />
               </View>
+              <TouchableOpacity
+                style={styles.menuButton}
+                onPress={() => setMenuVisible(true)}
+                activeOpacity={0.7}
+              >
+                <MaterialCommunityIcons name="menu" size={24} color="#374151" />
+              </TouchableOpacity>
             </View>
+
+            {/* Recent Events Carousel - 50% Screen Height */}
+            {recentEvents.length > 0 && (
+              <EventCarousel 
+                events={recentEvents} 
+                onEventPress={handleEventPress}
+                isBooked={isEventBooked}
+              />
+            )}
 
             {/* Compact Categories */}
             <ScrollView 
@@ -995,7 +1121,7 @@ const styles = {
     justifyContent: 'space-between' as const,
     alignItems: 'center' as const,
     paddingHorizontal: 20,
-    paddingTop: 25,
+    paddingTop: 15,
   },
   menuButton: {
     width: 36,
@@ -1008,6 +1134,7 @@ const styles = {
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
+    marginTop: 15,
   },
   headerTitle: {
     fontSize: 24,
@@ -1015,6 +1142,7 @@ const styles = {
     color: '#1f2937',
     textTransform: 'lowercase' as const,
     letterSpacing: -0.5,
+    alignSelf: 'flex-start' as const,
   },
   profileButton: {
     shadowColor: '#6366f1',
@@ -1033,23 +1161,29 @@ const styles = {
     fontSize: 16,
   },
   searchContainer: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
     paddingHorizontal: 20,
-    paddingVertical: 8,
+    paddingVertical: 15,
+    gap: 12,
   },
   searchBar: {
+    flex: 1,
     flexDirection: 'row' as const,
     alignItems: 'center' as const,
     backgroundColor: 'rgba(255,255,255,0.8)',
     borderRadius: 12,
     paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingVertical:6,
     gap: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.05)',
+    borderColor: 'rgba(175, 172, 172, 0.76)',
+    marginTop: 18,
   },
   searchInput: {
     flex: 1,
@@ -1100,9 +1234,122 @@ const styles = {
     textTransform: 'capitalize' as const,
   },
   eventsContainer: {
-    paddingTop: 200, // Space for fixed header
+    paddingTop: 450, // Space for carousel (35% height) + categories + margins
     paddingHorizontal: 0,
     paddingBottom: 120,
+  },
+  
+  // Carousel Styles - 35% Screen Height
+  carouselContainer: {
+    height: height * 0.35, // 35% of screen height
+    position: 'relative' as const,
+    marginHorizontal: 16,
+    marginVertical: 12,
+    borderRadius: 20,
+    overflow: 'hidden' as const,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  carouselContent: {
+    alignItems: 'center' as const,
+  },
+  carouselSlide: {
+    width: width - 32, // Account for horizontal margin
+    height: height * 0.35,
+    position: 'relative' as const,
+    borderRadius: 20,
+    overflow: 'hidden' as const,
+  },
+  carouselImage: {
+    width: width - 32, // Account for horizontal margin
+    height: height * 0.35,
+    backgroundColor: '#f3f4f6',
+    borderRadius: 20,
+  },
+  carouselImagePlaceholder: {
+    width: width - 32, // Account for horizontal margin
+    height: height * 0.35,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+    borderRadius: 20,
+  },
+  carouselPlaceholderText: {
+    fontSize: 24,
+    fontWeight: '700' as const,
+    color: 'rgba(255,255,255,0.9)',
+    marginTop: 16,
+    textTransform: 'capitalize' as const,
+  },
+  carouselOverlay: {
+    position: 'absolute' as const,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: height * 0.2,
+    justifyContent: 'flex-end' as const,
+  },
+  carouselTextContainer: {
+    padding: 24,
+  },
+  carouselTitle: {
+    fontSize: 28,
+    fontWeight: '700' as const,
+    color: '#fff',
+    marginBottom: 12,
+    lineHeight: 34,
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+  },
+  carouselMeta: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 8,
+    marginBottom: 8,
+  },
+  carouselDate: {
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: '600' as const,
+    opacity: 0.9,
+  },
+  carouselBookedBadge: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 6,
+    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    alignSelf: 'flex-start' as const,
+  },
+  carouselBookedText: {
+    fontSize: 14,
+    color: '#10b981',
+    fontWeight: '700' as const,
+    textTransform: 'uppercase' as const,
+  },
+  paginationContainer: {
+    position: 'absolute' as const,
+    bottom: 20,
+    left: 0,
+    right: 0,
+    flexDirection: 'row' as const,
+    justifyContent: 'center' as const,
+    gap: 8,
+  },
+  paginationDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.4)',
+  },
+  paginationDotActive: {
+    backgroundColor: '#fff',
+    width: 24,
   },
   emptyState: {
     alignItems: 'center' as const,
@@ -1317,7 +1564,7 @@ eventImagePlaceholder: {
     width: width * 0.8,
     height: height,
     position: 'absolute' as const,
-    left: 0,
+    right: 0,
     top: 0,
   },
   sideMenuContainer: {
@@ -1325,13 +1572,13 @@ eventImagePlaceholder: {
     backgroundColor: '#fff',
     paddingTop: 60,
     shadowColor: '#000',
-    shadowOffset: { width: 4, height: 0 },
+    shadowOffset: { width: -4, height: 0 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
   },
   menuHeader: {
     position: 'relative' as const,
-    alignItems: 'left' as const,
+    alignItems: 'right' as const,
     paddingHorizontal: 24,
     paddingTop: 30,
     paddingBottom: 40,
@@ -1340,7 +1587,7 @@ eventImagePlaceholder: {
   },
   userInfoContainer: {
     flexDirection: 'column' as const,
-    alignItems: 'left' as const,
+    alignItems: 'right' as const,
     paddingBottom: 20,
   },
   userAvatar: {
@@ -1349,6 +1596,7 @@ eventImagePlaceholder: {
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,
+    alignSelf: 'flex-end' as const,
   },
   userAvatarGradient: {
     width: 72,
@@ -1361,9 +1609,9 @@ eventImagePlaceholder: {
     fontSize: 28,
   },
   userDetails: {
-    alignItems: 'left' as const,
+    alignItems: 'right' as const,
     minHeight: 60,
-    justifyContent: 'left' as const,
+    justifyContent: 'right' as const,
   },
   userDisplayName: {
     fontSize: 20,
@@ -1371,19 +1619,19 @@ eventImagePlaceholder: {
     color: '#1f2937',
     marginBottom: 4,
     letterSpacing: -0.3,
-    textAlign: 'left' as const,
+    textAlign: 'right' as const,
   },
   userEmail: {
     fontSize: 14,
     fontWeight: '500' as const,
     color: '#6b7280',
     opacity: 0.8,
-    textAlign: 'left' as const,
+    textAlign: 'right' as const,
   },
   closeButton: {
     position: 'absolute' as const,
     top: 0,
-    right: 0,
+    left: 0,
     padding: 8,
   },
   menuTitle: {
