@@ -1010,10 +1010,10 @@ const styles = {
     shadowRadius: 4,
   },
   headerTitle: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: '800' as const,
-    fontFamily: 'Poppins_700Bold',
     color: '#1f2937',
+<<<<<<< HEAD
 <<<<<<< HEAD
     textAlign: 'center' as const,
     marginBottom: 8,
@@ -1021,6 +1021,11 @@ const styles = {
     textTransform: 'lowercase' as const,
     letterSpacing: -0.5,
 >>>>>>> parent of cf14868 (event page ui changes)
+=======
+    textTransform: 'lowercase' as const,
+    letterSpacing: -0.5,
+    alignSelf: 'flex-start' as const,
+>>>>>>> parent of 03bddea (pata nai kuch to kia)
   },
   profileButton: {
     shadowColor: '#6366f1',
@@ -1029,7 +1034,10 @@ const styles = {
     shadowRadius: 4,
   },
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> parent of 03bddea (pata nai kuch to kia)
   profileGradient: {
     width: 36,
     height: 36,
@@ -1041,10 +1049,20 @@ const styles = {
     fontSize: 16,
   },
   searchContainer: {
+<<<<<<< HEAD
     paddingHorizontal: 20,
     paddingVertical: 8,
   },
 >>>>>>> parent of cf14868 (event page ui changes)
+=======
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    gap: 12,
+  },
+>>>>>>> parent of 03bddea (pata nai kuch to kia)
   searchBar: {
     flexDirection: 'row' as const,
     alignItems: 'center' as const,
@@ -1062,10 +1080,8 @@ const styles = {
   },
   searchInput: {
     flex: 1,
-    fontSize: 16,
-    fontFamily: 'Inter_500Medium',
+    fontSize: 14,
     color: '#374151',
-    marginLeft: 8,
     fontWeight: '500' as const,
   },
   categoriesContainer: {
@@ -1074,7 +1090,10 @@ const styles = {
     gap: 8,
   },
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> parent of 03bddea (pata nai kuch to kia)
   categoryChip: {
     paddingHorizontal: 16,
     paddingVertical: 5,
@@ -1113,33 +1132,152 @@ const styles = {
     textTransform: 'capitalize' as const,
   },
   eventsContainer: {
+<<<<<<< HEAD
     paddingTop: 200, // Space for fixed header
     paddingHorizontal: 0,
     paddingBottom: 120,
   },
 >>>>>>> parent of cf14868 (event page ui changes)
+=======
+    paddingTop: 450, // Space for carousel (35% height) + categories + margins
+    paddingHorizontal: 0,
+    paddingBottom: 120,
+  },
+  
+  // Carousel Styles - 35% Screen Height
+  carouselContainer: {
+    height: height * 0.35, // 35% of screen height
+    position: 'relative' as const,
+    marginHorizontal: 16,
+    marginVertical: 12,
+    borderRadius: 20,
+    overflow: 'hidden' as const,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  carouselContent: {
+    alignItems: 'center' as const,
+  },
+  carouselSlide: {
+    width: width - 32, // Account for horizontal margin
+    height: height * 0.35,
+    position: 'relative' as const,
+    borderRadius: 20,
+    overflow: 'hidden' as const,
+  },
+  carouselImage: {
+    width: width - 32, // Account for horizontal margin
+    height: height * 0.35,
+    backgroundColor: '#f3f4f6',
+    borderRadius: 20,
+  },
+  carouselImagePlaceholder: {
+    width: width - 32, // Account for horizontal margin
+    height: height * 0.35,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+    borderRadius: 20,
+  },
+  carouselPlaceholderText: {
+    fontSize: 24,
+    fontWeight: '700' as const,
+    color: 'rgba(255,255,255,0.9)',
+    marginTop: 16,
+    textTransform: 'capitalize' as const,
+  },
+  carouselOverlay: {
+    position: 'absolute' as const,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: height * 0.2,
+    justifyContent: 'flex-end' as const,
+  },
+  carouselTextContainer: {
+    padding: 24,
+  },
+  carouselTitle: {
+    fontSize: 28,
+    fontWeight: '700' as const,
+    color: '#fff',
+    marginBottom: 12,
+    lineHeight: 34,
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+  },
+  carouselMeta: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 8,
+    marginBottom: 8,
+  },
+  carouselDate: {
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: '600' as const,
+    opacity: 0.9,
+  },
+  carouselBookedBadge: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 6,
+    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    alignSelf: 'flex-start' as const,
+  },
+  carouselBookedText: {
+    fontSize: 14,
+    color: '#10b981',
+    fontWeight: '700' as const,
+    textTransform: 'uppercase' as const,
+  },
+  paginationContainer: {
+    position: 'absolute' as const,
+    bottom: 20,
+    left: 0,
+    right: 0,
+    flexDirection: 'row' as const,
+    justifyContent: 'center' as const,
+    gap: 8,
+  },
+  paginationDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.4)',
+  },
+  paginationDotActive: {
+    backgroundColor: '#fff',
+    width: 24,
+  },
+>>>>>>> parent of 03bddea (pata nai kuch to kia)
   emptyState: {
     alignItems: 'center' as const,
     justifyContent: 'center' as const,
     paddingVertical: 80,
   },
   emptyStateTitle: {
-    fontSize: 20,
-    fontWeight: '700' as const,
-    fontFamily: 'Poppins_700Bold',
-    color: '#374151',
-    marginTop: 16,
+    fontSize: 22,
+    fontWeight: '600' as const,
+    color: '#6b7280',
+    marginTop: 20,
     marginBottom: 8,
   },
   emptyStateSubtitle: {
     fontSize: 16,
-    fontFamily: 'Inter_500Medium',
-    color: '#6b7280',
+    color: '#9ca3af',
     textAlign: 'center' as const,
-    fontWeight: '500' as const,
   },
+  
   // Enhanced Event Card Styles - FIXED FOR INSTAGRAM-STYLE
   eventCard: {
+  
     overflow: 'hidden' as const,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
@@ -1173,9 +1311,9 @@ eventImagePlaceholder: {
   placeholderText: {
     fontSize: 20,
     fontWeight: '700' as const,
-    fontFamily: 'Poppins_700Bold',
     color: 'rgba(255,255,255,0.9)',
     marginTop: 16,
+  
     textTransform: 'capitalize' as const,
   },
   eventImageOverlay: {
@@ -1199,7 +1337,6 @@ eventImagePlaceholder: {
   categoryBadgeText: {
     fontSize: 11,
     fontWeight: '700' as const,
-    fontFamily: 'Poppins_700Bold',
     color: '#fff',
     textTransform: 'uppercase' as const,
     letterSpacing: 0.5,
@@ -1221,7 +1358,6 @@ eventImagePlaceholder: {
   bookingBadgeText: {
     fontSize: 10,
     fontWeight: '700' as const,
-    fontFamily: 'Poppins_700Bold',
     color: '#fff',
     textTransform: 'uppercase' as const,
   },
@@ -1237,7 +1373,6 @@ eventImagePlaceholder: {
   eventTitle: {
     fontSize: 20,
     fontWeight: '800' as const,
-    fontFamily: 'Poppins_700Bold',
     color: '#1f2937',
     flex: 1,
     marginRight: 12,
@@ -1253,7 +1388,6 @@ eventImagePlaceholder: {
   },
   eventDescription: {
     fontSize: 15,
-    fontFamily: 'Inter_400Regular',
     color: '#6b7280',
     lineHeight: 22,
     marginBottom: 16,
@@ -1278,7 +1412,6 @@ eventImagePlaceholder: {
   },
   eventMetaText: {
     fontSize: 14,
-    fontFamily: 'Inter_500Medium',
     color: '#374151',
     flex: 1,
     fontWeight: '500' as const,
@@ -1302,7 +1435,6 @@ eventImagePlaceholder: {
   eventTime: {
     fontSize: 13,
     fontWeight: '600' as const,
-    fontFamily: 'Inter_600SemiBold',
     color: '#6b7280',
     backgroundColor: 'rgba(0,0,0,0.04)',
     paddingHorizontal: 8,
@@ -1595,14 +1727,12 @@ eventImagePlaceholder: {
   eventModalCategoryText: {
     fontSize: 12,
     fontWeight: '700' as const,
-    fontFamily: 'Poppins_700Bold',
     color: '#6366f1',
     textTransform: 'uppercase' as const,
     letterSpacing: 0.5,
   },
   eventModalDescription: {
     fontSize: 16,
-    fontFamily: 'Inter_400Regular',
     color: '#6b7280',
     lineHeight: 24,
     marginBottom: 24,
@@ -1619,7 +1749,6 @@ eventImagePlaceholder: {
   },
   eventModalDetailText: {
     fontSize: 16,
-    fontFamily: 'Inter_500Medium',
     color: '#374151',
     flex: 1,
     fontWeight: '500' as const,
@@ -1642,7 +1771,6 @@ eventImagePlaceholder: {
   bookButtonText: {
     fontSize: 17,
     fontWeight: '700' as const,
-    fontFamily: 'Poppins_700Bold',
     color: '#fff',
   },
 };
