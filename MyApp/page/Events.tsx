@@ -1013,19 +1013,8 @@ const styles = {
     fontSize: 24,
     fontWeight: '800' as const,
     color: '#1f2937',
-<<<<<<< HEAD
-<<<<<<< HEAD
-    textAlign: 'center' as const,
-    marginBottom: 8,
-=======
     textTransform: 'lowercase' as const,
     letterSpacing: -0.5,
->>>>>>> parent of cf14868 (event page ui changes)
-=======
-    textTransform: 'lowercase' as const,
-    letterSpacing: -0.5,
-    alignSelf: 'flex-start' as const,
->>>>>>> parent of 03bddea (pata nai kuch to kia)
   },
   profileButton: {
     shadowColor: '#6366f1',
@@ -1033,11 +1022,6 @@ const styles = {
     shadowOpacity: 0.2,
     shadowRadius: 4,
   },
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> parent of 03bddea (pata nai kuch to kia)
   profileGradient: {
     width: 36,
     height: 36,
@@ -1049,20 +1033,9 @@ const styles = {
     fontSize: 16,
   },
   searchContainer: {
-<<<<<<< HEAD
     paddingHorizontal: 20,
     paddingVertical: 8,
   },
->>>>>>> parent of cf14868 (event page ui changes)
-=======
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    gap: 12,
-  },
->>>>>>> parent of 03bddea (pata nai kuch to kia)
   searchBar: {
     flexDirection: 'row' as const,
     alignItems: 'center' as const,
@@ -1089,11 +1062,6 @@ const styles = {
     paddingVertical: 5,
     gap: 8,
   },
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> parent of 03bddea (pata nai kuch to kia)
   categoryChip: {
     paddingHorizontal: 16,
     paddingVertical: 5,
@@ -1123,7 +1091,7 @@ const styles = {
     fontWeight: '600' as const,
     color: '#6b7280',
     textTransform: 'capitalize' as const,
-    paddingTop:5,
+    paddingTop: 5,
   },
   categoryTextActive: {
     fontSize: 12,
@@ -1132,131 +1100,10 @@ const styles = {
     textTransform: 'capitalize' as const,
   },
   eventsContainer: {
-<<<<<<< HEAD
     paddingTop: 200, // Space for fixed header
     paddingHorizontal: 0,
     paddingBottom: 120,
   },
->>>>>>> parent of cf14868 (event page ui changes)
-=======
-    paddingTop: 450, // Space for carousel (35% height) + categories + margins
-    paddingHorizontal: 0,
-    paddingBottom: 120,
-  },
-  
-  // Carousel Styles - 35% Screen Height
-  carouselContainer: {
-    height: height * 0.35, // 35% of screen height
-    position: 'relative' as const,
-    marginHorizontal: 16,
-    marginVertical: 12,
-    borderRadius: 20,
-    overflow: 'hidden' as const,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  carouselContent: {
-    alignItems: 'center' as const,
-  },
-  carouselSlide: {
-    width: width - 32, // Account for horizontal margin
-    height: height * 0.35,
-    position: 'relative' as const,
-    borderRadius: 20,
-    overflow: 'hidden' as const,
-  },
-  carouselImage: {
-    width: width - 32, // Account for horizontal margin
-    height: height * 0.35,
-    backgroundColor: '#f3f4f6',
-    borderRadius: 20,
-  },
-  carouselImagePlaceholder: {
-    width: width - 32, // Account for horizontal margin
-    height: height * 0.35,
-    justifyContent: 'center' as const,
-    alignItems: 'center' as const,
-    borderRadius: 20,
-  },
-  carouselPlaceholderText: {
-    fontSize: 24,
-    fontWeight: '700' as const,
-    color: 'rgba(255,255,255,0.9)',
-    marginTop: 16,
-    textTransform: 'capitalize' as const,
-  },
-  carouselOverlay: {
-    position: 'absolute' as const,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: height * 0.2,
-    justifyContent: 'flex-end' as const,
-  },
-  carouselTextContainer: {
-    padding: 24,
-  },
-  carouselTitle: {
-    fontSize: 28,
-    fontWeight: '700' as const,
-    color: '#fff',
-    marginBottom: 12,
-    lineHeight: 34,
-    textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
-  },
-  carouselMeta: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    gap: 8,
-    marginBottom: 8,
-  },
-  carouselDate: {
-    fontSize: 16,
-    color: '#fff',
-    fontWeight: '600' as const,
-    opacity: 0.9,
-  },
-  carouselBookedBadge: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    gap: 6,
-    backgroundColor: 'rgba(16, 185, 129, 0.2)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    alignSelf: 'flex-start' as const,
-  },
-  carouselBookedText: {
-    fontSize: 14,
-    color: '#10b981',
-    fontWeight: '700' as const,
-    textTransform: 'uppercase' as const,
-  },
-  paginationContainer: {
-    position: 'absolute' as const,
-    bottom: 20,
-    left: 0,
-    right: 0,
-    flexDirection: 'row' as const,
-    justifyContent: 'center' as const,
-    gap: 8,
-  },
-  paginationDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.4)',
-  },
-  paginationDotActive: {
-    backgroundColor: '#fff',
-    width: 24,
-  },
->>>>>>> parent of 03bddea (pata nai kuch to kia)
   emptyState: {
     alignItems: 'center' as const,
     justifyContent: 'center' as const,
@@ -1277,7 +1124,6 @@ const styles = {
   
   // Enhanced Event Card Styles - FIXED FOR INSTAGRAM-STYLE
   eventCard: {
-  
     overflow: 'hidden' as const,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
@@ -1287,33 +1133,29 @@ const styles = {
   },
   eventCardContainer: {
     backgroundColor: '#fff',
- 
     overflow: 'hidden' as const,
   },
- // Replace these styles in your existing styles object:
-
-eventImageContainer: {
-  position: 'relative' as const,
-  width: width,
-  height: Math.round(width / 1.6),
-},
-eventImage: {
-  width: width,
-  height: Math.round(width / 1.6),
-  backgroundColor: '#f3f4f6',
-},
-eventImagePlaceholder: {
-  width: width,
-  height: Math.round(width / 1.6),
-  justifyContent: 'center' as const,
-  alignItems: 'center' as const,
-},
+  eventImageContainer: {
+    position: 'relative' as const,
+    width: width,
+    height: Math.round(width / 1.6),
+  },
+  eventImage: {
+    width: width,
+    height: Math.round(width / 1.6),
+    backgroundColor: '#f3f4f6',
+  },
+  eventImagePlaceholder: {
+    width: width,
+    height: Math.round(width / 1.6),
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+  },
   placeholderText: {
     fontSize: 20,
     fontWeight: '700' as const,
     color: 'rgba(255,255,255,0.9)',
     marginTop: 16,
-  
     textTransform: 'capitalize' as const,
   },
   eventImageOverlay: {
@@ -1484,7 +1326,7 @@ eventImagePlaceholder: {
   },
   menuHeader: {
     position: 'relative' as const,
-    alignItems: 'left' as const,
+    alignItems: 'flex-start' as const,
     paddingHorizontal: 24,
     paddingTop: 30,
     paddingBottom: 40,
@@ -1493,7 +1335,7 @@ eventImagePlaceholder: {
   },
   userInfoContainer: {
     flexDirection: 'column' as const,
-    alignItems: 'left' as const,
+    alignItems: 'flex-start' as const,
     paddingBottom: 20,
   },
   userAvatar: {
@@ -1514,9 +1356,9 @@ eventImagePlaceholder: {
     fontSize: 28,
   },
   userDetails: {
-    alignItems: 'left' as const,
+    alignItems: 'flex-start' as const,
     minHeight: 60,
-    justifyContent: 'left' as const,
+    justifyContent: 'flex-start' as const,
   },
   userDisplayName: {
     fontSize: 20,
@@ -1639,7 +1481,7 @@ eventImagePlaceholder: {
     fontWeight: '500' as const,
   },
   profileModalActions: {
-    width: '100%',
+    width: '100%' as const,
     gap: 12,
   },
   profileModalAction: {
