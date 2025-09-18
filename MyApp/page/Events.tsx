@@ -1326,7 +1326,7 @@ const styles = {
   },
   menuHeader: {
     position: 'relative' as const,
-    alignItems: 'flex-start' as const,
+    alignItems: 'right' as const,
     paddingHorizontal: 24,
     paddingTop: 30,
     paddingBottom: 40,
@@ -1335,7 +1335,7 @@ const styles = {
   },
   userInfoContainer: {
     flexDirection: 'column' as const,
-    alignItems: 'flex-start' as const,
+    alignItems: 'right' as const,
     paddingBottom: 20,
   },
   userAvatar: {
@@ -1356,9 +1356,9 @@ const styles = {
     fontSize: 28,
   },
   userDetails: {
-    alignItems: 'flex-start' as const,
+    alignItems: 'right' as const,
     minHeight: 60,
-    justifyContent: 'flex-start' as const,
+    justifyContent: 'right' as const,
   },
   userDisplayName: {
     fontSize: 20,
