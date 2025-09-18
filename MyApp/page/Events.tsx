@@ -5,6 +5,7 @@ import {
   Text,
   TouchableOpacity,
   ScrollView,
+  FlatList,
   TextInput,
   Image,
   Modal,
@@ -16,6 +17,7 @@ import {
   SafeAreaView,
   Easing,
 } from 'react-native';
+
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '../AuthContext';
@@ -392,8 +394,11 @@ const EventsScreen: React.FC = () => {
   const headerTranslateY = useRef(new Animated.Value(0)).current;
   const fadeIn = useRef(new Animated.Value(0)).current;
   const slideUp = useRef(new Animated.Value(50)).current;
-  const menuSlide = useRef(new Animated.Value(-width * 0.8)).current;
+  const menuSlide = useRef(new Animated.Value(width * 0.8)).current;
   const chatbotPulse = useRef(new Animated.Value(1)).current;
+  const carouselIndex = useRef<number>(0);
+  const carouselRef = useRef<any>(null);
+  const [activeIndex, setActiveIndex] = useState<number>(0);
 
   const profileEmoji: string = currentUser?.photoURL || '😎';
 
@@ -450,12 +455,31 @@ const EventsScreen: React.FC = () => {
 
   useEffect(() => {
     Animated.timing(menuSlide, {
-      toValue: menuVisible ? 0 : -width * 0.8,
+      toValue: menuVisible ? 0 : width * 0.8,
       duration: 300,
       useNativeDriver: true,
       easing: Easing.bezier(0.25, 0.8, 0.25, 1),
     }).start();
   }, [menuVisible]);
+
+  // Auto-advance carousel every 3 seconds
+  useEffect(() => {
+    const recentCount = Math.min(events.length, 5);
+    if (recentCount <= 1) return; // nothing to auto-scroll
+
+    const interval = setInterval(() => {
+      const next = (carouselIndex.current + 1) % recentCount;
+      carouselIndex.current = next;
+      setActiveIndex(next);
+      try {
+        carouselRef.current?.scrollToIndex({ index: next, animated: true });
+      } catch (e) {
+        // ignore scroll errors (e.g., not yet measured)
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [events]);
 
   const fetchEvents = async (): Promise<void> => {
     try {
@@ -520,6 +544,26 @@ const EventsScreen: React.FC = () => {
   const handleEventPress = (event: Event): void => {
     setSelectedEvent(event);
     setModalVisible(true);
+  };
+
+  // Helper: format a date string to dd/mm
+  const formatToDDMM = (dateStr?: string): string => {
+    if (!dateStr) return '';
+    // Try native Date
+    const d = new Date(dateStr);
+    if (!isNaN(d.getTime())) {
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      return `${dd}/${mm}`;
+    }
+    // Fallback: extract day and month from common patterns
+    const m = dateStr.match(/(\d{1,2})[\/\-](\d{1,2})/);
+    if (m) {
+      const dd = m[1].padStart(2, '0');
+      const mm = m[2].padStart(2, '0');
+      return `${dd}/${mm}`;
+    }
+    return dateStr;
   };
 
   const handleBookEvent = async (): Promise<void> => {
@@ -612,17 +656,7 @@ const EventsScreen: React.FC = () => {
         >
           <SafeAreaView>
             <View style={styles.header}>
-              <TouchableOpacity
-                style={styles.menuButton}
-                onPress={() => setMenuVisible(true)}
-                activeOpacity={0.7}
-              >
-                <MaterialCommunityIcons name="menu" size={24} color="#374151" />
-              </TouchableOpacity>
-
-              <Text style={styles.headerTitle}>events</Text>
-
-              <View style={{ width: 36 }} />
+              {/* Header title removed; menu moved into search bar */}
             </View>
 
             {/* Compact Search */}
@@ -636,8 +670,76 @@ const EventsScreen: React.FC = () => {
                   value={searchQuery}
                   onChangeText={setSearchQuery}
                 />
+                <TouchableOpacity
+                  style={styles.menuButton}
+                  onPress={() => setMenuVisible(true)}
+                  activeOpacity={0.7}
+                >
+                  <MaterialCommunityIcons name="menu" size={24} color="#374151" />
+                </TouchableOpacity>
               </View>
             </View>
+
+            {/* Recent Events Carousel */}
+            {events.length > 0 && (
+              <View style={styles.carouselContainer}>
+                <Animated.FlatList
+                  ref={carouselRef}
+                  data={events.slice(0, 5)}
+                  keyExtractor={(item: Event) => item.id}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  decelerationRate="fast"
+                  snapToAlignment="start"
+                  snapToInterval={(width - 40) + 12}
+                  contentContainerStyle={{ paddingHorizontal: 20 }}
+                  getItemLayout={(_, index) => ({ length: (width - 40) + 12, offset: ((width - 40) + 12) * index, index })}
+                  onMomentumScrollEnd={(e) => {
+                    const index = Math.round(e.nativeEvent.contentOffset.x / ((width - 40) + 12));
+                    carouselIndex.current = index;
+                    setActiveIndex(index);
+                  }}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      activeOpacity={0.9}
+                      onPress={() => handleEventPress(item)}
+                      style={styles.carouselCard}
+                    >
+                      {item.imageUrl ? (
+                        <Image source={{ uri: item.imageUrl }} style={styles.carouselImage} resizeMode="cover" />
+                      ) : (
+                        <LinearGradient colors={["#667eea", "#764ba2"]} style={styles.carouselImage} />
+                      )}
+                      {!!item.date && (
+                        <View style={styles.carouselDateBadge}>
+                          <Text style={styles.carouselDateText}>{formatToDDMM(item.date)}</Text>
+                        </View>
+                      )}
+                      <LinearGradient
+                        colors={["rgba(0,0,0,0)", "rgba(0,0,0,0.6)"]}
+                        style={styles.carouselOverlay}
+                      />
+                      <View style={styles.carouselContent}>
+                        <Text style={styles.carouselTitle} numberOfLines={1}>{item.title}</Text>
+                        <View style={styles.carouselMetaRow}>
+                          {!!item.location && (
+                            <View style={styles.carouselMetaItem}>
+                              <MaterialCommunityIcons name="map-marker" size={14} color="#e5e7eb" />
+                              <Text style={styles.carouselMetaText} numberOfLines={1}>{item.location}</Text>
+                            </View>
+                          )}
+                        </View>
+                      </View>
+                    </TouchableOpacity>
+                  )}
+                />
+                <View style={styles.carouselDots}>
+                  {events.slice(0, 5).map((_, idx) => (
+                    <View key={idx} style={[styles.carouselDot, idx === activeIndex && styles.carouselDotActive]} />
+                  ))}
+                </View>
+              </View>
+            )}
 
             {/* Compact Categories */}
             <ScrollView 
@@ -1100,9 +1202,103 @@ const styles = {
     textTransform: 'capitalize' as const,
   },
   eventsContainer: {
-    paddingTop: 200, // Space for fixed header
+    paddingTop: 200 + Math.round(height * 0.35) + 16, // Space for fixed header + carousel
     paddingHorizontal: 0,
     paddingBottom: 120,
+  },
+  // Carousel Styles
+  carouselContainer: {
+    height: Math.round(height * 0.35),
+    width: '100%' as const,
+    marginTop: 12,
+  },
+  carouselCard: {
+    width: Math.round(width - 40),
+    height: Math.round(height * 0.35),
+    justifyContent: 'flex-end' as const,
+    alignItems: 'flex-start' as const,
+    borderRadius: 16,
+    overflow: 'hidden' as const,
+    marginRight: 12,
+  },
+  carouselImage: {
+    position: 'absolute' as const,
+    width: '100%' as const,
+    height: '100%' as const,
+    borderRadius: 16,
+  },
+  carouselOverlay: {
+    position: 'absolute' as const,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: Math.round(height * 0.35 * 0.5),
+  },
+  carouselDateBadge: {
+    position: 'absolute' as const,
+    top: 10,
+    right: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 10,
+    backgroundColor: '#000',
+    borderWidth: 1,
+    borderColor: '#000',
+  },
+  carouselDateText: {
+    color: '#ffffff',
+    fontWeight: '800' as const,
+    letterSpacing: 0.3,
+  },
+  carouselContent: {
+    width: '100%' as const,
+    paddingHorizontal: 20,
+    paddingBottom: 14,
+  },
+  carouselTitle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '800' as const,
+    marginBottom: 6,
+  },
+  carouselMetaRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 12,
+  },
+  carouselMetaItem: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 6,
+    maxWidth: width * 0.45,
+  },
+  carouselMetaText: {
+    color: '#e5e7eb',
+    fontSize: 12,
+    fontWeight: '600' as const,
+  },
+  carouselDots: {
+    position: 'absolute' as const,
+    bottom: 8,
+    left: 0,
+    right: 0,
+    height: 10,
+    flexDirection: 'row' as const,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+    gap: 6,
+  },
+  carouselDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: 'rgba(255,255,255,0.6)',
+  },
+  carouselDotActive: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#ffffff',
   },
   emptyState: {
     alignItems: 'center' as const,
@@ -1312,7 +1508,7 @@ const styles = {
     width: width * 0.8,
     height: height,
     position: 'absolute' as const,
-    left: 0,
+    right: 0,
     top: 0,
   },
   sideMenuContainer: {
@@ -1320,7 +1516,7 @@ const styles = {
     backgroundColor: '#fff',
     paddingTop: 60,
     shadowColor: '#000',
-    shadowOffset: { width: 4, height: 0 },
+    shadowOffset: { width: -4, height: 0 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
   },
