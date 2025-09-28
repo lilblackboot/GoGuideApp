@@ -1,4 +1,4 @@
-// HomeScreen.tsx
+// HomeScreen.tsx - Complete Glassmorphism Design with Animations
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
@@ -9,16 +9,14 @@ import {
   Keyboard,
   Alert,
   Platform,
-  Text,
 } from 'react-native';
 import { firebaseService, FoodPost, Comment } from '../Services/FirebaseService';
 import { NotificationService } from '../Services/NotificationService';
 import { Notification } from '../types/NotificationTypes';
 import { styles } from '../styles/HomeStyles';
 import { timeAgo } from '../utils/utils';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useNavigation } from '@react-navigation/native';
 import { ExploreTab } from '../components/ExploreTab';
 import { CreatePostTab } from '../components/CreatePostTab';
 import { CommentsModal } from '../components/CommentsModal';
@@ -47,7 +45,7 @@ const HomeScreen: React.FC = () => {
   const [isPosting, setIsPosting] = useState(false);
   const [focusedInput, setFocusedInput] = useState<string>('');
   
-  // Comments with keyboard handling
+  // Comments
   const [showComments, setShowComments] = useState(false);
   const [selectedPost, setSelectedPost] = useState<FoodPost | null>(null);
   const [newComment, setNewComment] = useState('');
@@ -63,12 +61,13 @@ const HomeScreen: React.FC = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
+  const fabScale = useRef(new Animated.Value(1)).current;
+  const fabRotation = useRef(new Animated.Value(0)).current;
 
-  // Initialize component
   useEffect(() => {
     StatusBar.setBarStyle('light-content', true);
     if (Platform.OS === 'android') {
-      StatusBar.setBackgroundColor('#000000', true);
+      StatusBar.setBackgroundColor('#0A0A0A', true);
     }
     
     initializeApp();
@@ -79,6 +78,17 @@ const HomeScreen: React.FC = () => {
       cleanupKeyboardListeners();
     };
   }, []);
+
+  // Animate FAB based on active tab
+  useEffect(() => {
+    const rotation = activeTab === 'post' ? 1 : 0;
+    Animated.spring(fabRotation, {
+      toValue: rotation,
+      friction: 8,
+      tension: 100,
+      useNativeDriver: true,
+    }).start();
+  }, [activeTab]);
 
   const setupKeyboardListeners = () => {
     const keyboardWillShow = Keyboard.addListener(
@@ -125,12 +135,13 @@ const HomeScreen: React.FC = () => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 600,
+        duration: 800,
         useNativeDriver: true,
       }),
-      Animated.timing(slideAnim, {
+      Animated.spring(slideAnim, {
         toValue: 0,
-        duration: 500,
+        friction: 8,
+        tension: 40,
         useNativeDriver: true,
       }),
     ]).start();
@@ -141,10 +152,8 @@ const HomeScreen: React.FC = () => {
       const userId = firebaseService.getCurrentUserId();
       if (!userId) return;
       
-      // Load notifications from Firebase for current user
       const userNotifications = await firebaseService.getNotifications(userId);
       
-      // Convert Firebase notifications to local notification format
       const localNotifications: Notification[] = userNotifications.map(fn => ({
         id: fn.id,
         type: fn.type,
@@ -158,8 +167,6 @@ const HomeScreen: React.FC = () => {
       
       setNotifications(localNotifications);
       setUnreadCount(localNotifications.filter(n => !n.read).length);
-      
-      console.log(`Loaded ${localNotifications.length} notifications, ${localNotifications.filter(n => !n.read).length} unread`);
     } catch (error) {
       console.error('Load notifications error:', error);
     }
@@ -203,11 +210,9 @@ const HomeScreen: React.FC = () => {
     
     return filtered;
   };
-// Add this function to your HomeScreen.tsx component, after your other handlers
 
   const handleLike = async (postId: string) => {
     try {
-      // Animation feedback
       Animated.sequence([
         Animated.timing(scaleAnim, {
           toValue: 1.3,
@@ -228,7 +233,6 @@ const HomeScreen: React.FC = () => {
       
       if (!post || !userId || !currentUser) return;
       
-      // Update local state immediately
       setPosts(prevPosts =>
         prevPosts.map(p => {
           if (p.id === postId) {
@@ -244,11 +248,8 @@ const HomeScreen: React.FC = () => {
       );
 
       NotificationService.provideHapticFeedback('impact');
-
-      // Update Firebase
       await firebaseService.toggleLike(postId, userId);
       
-      // Send notification if liking someone else's post (not unliking)
       if (!isLiked && post.userId !== userId) {
         await NotificationService.sendLikeNotification(
           postId,
@@ -259,8 +260,6 @@ const HomeScreen: React.FC = () => {
             username: currentUser.displayName || 'GoGuide User'
           }
         );
-        
-        console.log(`Like notification sent from ${currentUser.displayName} to post owner ${post.userId}`);
       }
     } catch (error) {
       console.error('Like error:', error);
@@ -300,14 +299,11 @@ const HomeScreen: React.FC = () => {
         timestamp: new Date()
       };
 
-      // Add to local state immediately
       setPostComments(prev => [...prev, comment]);
       setNewComment('');
       
-      // Update Firebase
       await firebaseService.addComment(selectedPost.id!, comment);
       
-      // Update posts state
       setPosts(prevPosts =>
         prevPosts.map(p => {
           if (p.id === selectedPost.id) {
@@ -320,7 +316,6 @@ const HomeScreen: React.FC = () => {
         })
       );
       
-      // Send notification if commenting on someone else's post
       if (selectedPost.userId !== userId) {
         await NotificationService.sendCommentNotification(
           selectedPost.id!,
@@ -331,8 +326,6 @@ const HomeScreen: React.FC = () => {
             username: currentUser.displayName || 'GoGuide User'
           }
         );
-        
-        console.log(`Comment notification sent from ${currentUser.displayName} to post owner ${selectedPost.userId}`);
       }
       
       NotificationService.provideHapticFeedback('success');
@@ -340,59 +333,49 @@ const HomeScreen: React.FC = () => {
       console.error('Comment error:', error);
     }
   };
-const handleDeletePost = async (postId: string, post: FoodPost) => {
-  try {
-    // Show confirmation alert
-    Alert.alert(
-      'Delete Post',
-      'Are you sure you want to delete this post? This action cannot be undone.',
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel'
-        },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              // Provide haptic feedback
-              NotificationService.provideHapticFeedback('impact');
-              
-              // Delete post from Firebase
-              await firebaseService.deletePost(postId);
-              
-              // Update local state immediately
-              setPosts(prevPosts => prevPosts.filter(p => p.id !== postId));
-              
-              // Show success feedback
-              NotificationService.provideHapticFeedback('success');
-              Alert.alert('Success', 'Post deleted successfully!');
-              
-            } catch (error) {
-              console.error('Delete post error:', error);
-              NotificationService.provideHapticFeedback('error');
-              Alert.alert('Error', 'Failed to delete post. Please try again.');
+
+  const handleDeletePost = async (postId: string, post: FoodPost) => {
+    try {
+      Alert.alert(
+        'Delete Post',
+        'Are you sure you want to delete this post? This action cannot be undone.',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel'
+          },
+          {
+            text: 'Delete',
+            style: 'destructive',
+            onPress: async () => {
+              try {
+                NotificationService.provideHapticFeedback('impact');
+                await firebaseService.deletePost(postId);
+                setPosts(prevPosts => prevPosts.filter(p => p.id !== postId));
+                NotificationService.provideHapticFeedback('success');
+                Alert.alert('Success', 'Post deleted successfully!');
+              } catch (error) {
+                console.error('Delete post error:', error);
+                NotificationService.provideHapticFeedback('error');
+                Alert.alert('Error', 'Failed to delete post. Please try again.');
+              }
             }
           }
-        }
-      ]
-    );
-  } catch (error) {
-    console.error('Delete post confirmation error:', error);
-  }
-};
+        ]
+      );
+    } catch (error) {
+      console.error('Delete post confirmation error:', error);
+    }
+  };
+
   const openNotifications = async () => {
     setShowNotifications(true);
     
-    // Mark all notifications as read after opening
     const userId = firebaseService.getCurrentUserId();
     if (userId) {
-      // Update local state immediately
       setNotifications(prev => prev.map(n => ({ ...n, read: true })));
       setUnreadCount(0);
       
-      // Update Firebase after a delay
       setTimeout(async () => {
         try {
           await firebaseService.markAllNotificationsAsRead(userId);
@@ -407,19 +390,15 @@ const handleDeletePost = async (postId: string, post: FoodPost) => {
 
   const handleNotificationPress = async (notification: Notification) => {
     try {
-      // Mark specific notification as read
       setNotifications(prev => 
         prev.map(n => 
           n.id === notification.id ? { ...n, read: true } : n
         )
       );
       
-      // Update in Firebase
       await firebaseService.markNotificationAsRead(notification.id);
-      
       setShowNotifications(false);
       
-      // Navigate to the post if it exists
       if (notification.postId) {
         const post = posts.find(p => p.id === notification.postId);
         if (post) {
@@ -430,125 +409,114 @@ const handleDeletePost = async (postId: string, post: FoodPost) => {
       console.error('Handle notification press error:', error);
     }
   };
-  
 
-  // Updated handleSubmitPost function for HomeScreen.tsx
-const handleSubmitPost = async () => {
-  if (!title.trim() || !description.trim() || !category.trim()) {
-    Alert.alert('Missing Information', 'Please fill in title, description, and category');
-    return;
-  }
-
-  try {
-    setIsPosting(true);
-    
-    NotificationService.provideHapticFeedback('impact');
-
-    const user = firebaseService.getCurrentUser();
-    const userId = firebaseService.getCurrentUserId();
-
-    if (!user || !userId) {
-      Alert.alert('Error', 'Please sign in to post');
+  const handleSubmitPost = async () => {
+    if (!title.trim() || !description.trim() || !category.trim()) {
+      Alert.alert('Missing Information', 'Please fill in title, description, and category');
       return;
     }
 
-    let mediaUrl = '';
-    
-    // Handle media upload if present
-    if (mediaUri && mediaType) {
-      try {
-        console.log('Uploading media to Cloudinary...');
-        mediaUrl = await firebaseService.uploadMedia(mediaUri, mediaType);
-        console.log('Media upload successful:', mediaUrl);
-        
-        // Verify the URL is a Cloudinary URL (basic check)
-        if (!mediaUrl.includes('cloudinary.com') && !mediaUrl.startsWith('file://')) {
-          console.warn('Unexpected media URL format:', mediaUrl);
-        }
-        
-      } catch (uploadError) {
-        console.error('Media upload failed:', uploadError);
-        
-        // Show user-friendly error message
-        Alert.alert(
-          'Upload Failed', 
-          'Failed to upload media. Would you like to post without media or try again?',
-          [
-            { text: 'Post without media', onPress: () => { mediaUrl = ''; } },
-            { text: 'Try again', style: 'cancel', onPress: () => setIsPosting(false) }
-          ]
-        );
+    try {
+      setIsPosting(true);
+      NotificationService.provideHapticFeedback('impact');
+
+      const user = firebaseService.getCurrentUser();
+      const userId = firebaseService.getCurrentUserId();
+
+      if (!user || !userId) {
+        Alert.alert('Error', 'Please sign in to post');
         return;
       }
-    }
 
-    // Create post data
-    const postData = {
-      title: title.trim(),
-      description: description.trim(),
-      imageUrl: mediaType === 'image' ? mediaUrl : '',
-      videoUrl: mediaType === 'video' ? mediaUrl : '',
-      location: location || { name: 'Unknown', latitude: 0, longitude: 0 },
-      userId: userId,
-      username: user.displayName || 'GoGuide User',
-      category: category.trim(),
-      tags: tags,
-    };
-
-    // Create post in Firebase
-    console.log('Creating post in Firebase...');
-    await firebaseService.createPost(postData);
-    console.log('Post created successfully');
-    
-    // Reset form
-    setTitle('');
-    setDescription('');
-    setMediaUri('');
-    setMediaType(null);
-    setLocation(null);
-    setTags([]);
-    setTagInput('');
-    setCategory('');
-    
-    // Switch to explore and refresh
-    setActiveTab('explore');
-    await loadPosts();
-    
-    NotificationService.provideHapticFeedback('success');
-    Alert.alert('Success', 'Your post has been shared!');
-    
-  } catch (error) {
-    console.error('Submit post error:', error);
-    
-    // More specific error messages
-    let errorMessage = 'Failed to create post';
-    
-    if (error instanceof Error) {
-      if (error.message.includes('network')) {
-        errorMessage = 'Network error. Please check your connection and try again.';
-      } else if (error.message.includes('permission')) {
-        errorMessage = 'Permission denied. Please check your account permissions.';
-      } else if (error.message.includes('storage')) {
-        errorMessage = 'Storage error. Please try uploading a smaller file.';
+      let mediaUrl = '';
+      
+      if (mediaUri && mediaType) {
+        try {
+          mediaUrl = await firebaseService.uploadMedia(mediaUri, mediaType);
+        } catch (uploadError) {
+          console.error('Media upload failed:', uploadError);
+          Alert.alert(
+            'Upload Failed', 
+            'Failed to upload media. Would you like to post without media or try again?',
+            [
+              { text: 'Post without media', onPress: () => { mediaUrl = ''; } },
+              { text: 'Try again', style: 'cancel', onPress: () => setIsPosting(false) }
+            ]
+          );
+          return;
+        }
       }
-    }
-    
-    Alert.alert('Error', errorMessage);
-    NotificationService.provideHapticFeedback('error');
-    
-  } finally {
-    setIsPosting(false);
-  }
-};
 
-  const navigation = useNavigation<any>();
+      const postData = {
+        title: title.trim(),
+        description: description.trim(),
+        imageUrl: mediaType === 'image' ? mediaUrl : '',
+        videoUrl: mediaType === 'video' ? mediaUrl : '',
+        location: location || { name: 'Unknown', latitude: 0, longitude: 0 },
+        userId: userId,
+        username: user.displayName || 'GoGuide User',
+        category: category.trim(),
+        tags: tags,
+      };
+
+      await firebaseService.createPost(postData);
+      
+      // Reset form
+      setTitle('');
+      setDescription('');
+      setMediaUri('');
+      setMediaType(null);
+      setLocation(null);
+      setTags([]);
+      setTagInput('');
+      setCategory('');
+      
+      setActiveTab('explore');
+      await loadPosts();
+      
+      NotificationService.provideHapticFeedback('success');
+      Alert.alert('Success', 'Your post has been shared!');
+      
+    } catch (error) {
+      console.error('Submit post error:', error);
+      Alert.alert('Error', 'Failed to create post');
+      NotificationService.provideHapticFeedback('error');
+    } finally {
+      setIsPosting(false);
+    }
+  };
+
+  const handleFABPress = () => {
+    // Animate FAB press
+    Animated.sequence([
+      Animated.timing(fabScale, {
+        toValue: 0.85,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.spring(fabScale, {
+        toValue: 1,
+        friction: 3,
+        tension: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    setActiveTab('post');
+    NotificationService.provideHapticFeedback('selection');
+  };
+
+  const rotateInterpolate = fabRotation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '45deg'],
+  });
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor="#000000" translucent={false} />
+      <StatusBar barStyle="light-content" backgroundColor="#0A0A0A" translucent={false} />
 
       {/* Main Content */}
       <View style={styles.content}>
-        {/* Tab Content */}
         {activeTab === 'explore' ? (
           <ExploreTab
             searchQuery={searchQuery}
@@ -561,7 +529,7 @@ const handleSubmitPost = async () => {
             onRefresh={handleRefresh}
             onLike={handleLike}
             onComment={openComments}
-            onDeletePost={handleDeletePost} 
+            onDeletePost={handleDeletePost}
             slideAnim={slideAnim}
             fadeAnim={fadeAnim}
             scaleAnim={scaleAnim}
@@ -598,38 +566,43 @@ const handleSubmitPost = async () => {
         )}
       </View>
 
-      {/* Floating Action Button */}
-      <TouchableOpacity
+      {/* Animated Floating Action Button with Glass Effect */}
+      <Animated.View
         style={{
           position: 'absolute',
           right: 20,
           bottom: 24,
-          borderRadius: 28,
-          shadowColor: '#FF3D71',
-          shadowOpacity: 0.25,
-          shadowOffset: { width: 0, height: 6 },
-          shadowRadius: 10,
-          elevation: 6,
-          zIndex: 200,
+          transform: [
+            { scale: fabScale },
+            { rotate: rotateInterpolate }
+          ],
         }}
-        onPress={() => {
-          setActiveTab('post');
-          NotificationService.provideHapticFeedback('selection');
-        }}
-        activeOpacity={0.9}
       >
-        <LinearGradient
-          colors={["#FF7A00", "#FF3D71"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
+        <TouchableOpacity
           style={{
             borderRadius: 28,
-            padding: 14,
+            shadowColor: '#FF3D71',
+            shadowOpacity: 0.4,
+            shadowOffset: { width: 0, height: 8 },
+            shadowRadius: 16,
+            elevation: 8,
           }}
+          onPress={handleFABPress}
+          activeOpacity={0.9}
         >
-          <MaterialCommunityIcons name="plus" size={28} color="#fff" />
-        </LinearGradient>
-      </TouchableOpacity>
+          <LinearGradient
+            colors={["#FF7A00", "#FF3D71"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{
+              borderRadius: 28,
+              padding: 16,
+            }}
+          >
+            <MaterialCommunityIcons name="plus" size={28} color="#fff" />
+          </LinearGradient>
+        </TouchableOpacity>
+      </Animated.View>
 
       {/* Comments Modal */}
       <CommentsModal

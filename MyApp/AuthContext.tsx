@@ -1,3 +1,4 @@
+// AuthContext.tsx
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import {
   createUserWithEmailAndPassword,
@@ -13,9 +14,10 @@ import {
   updateDoc,
   Timestamp
 } from 'firebase/firestore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { auth, db } from './firebaseConfig';
 
-// Extend Firebase User with isAdmin only (don't override photoURL)
+// Extend Firebase User with isAdmin only
 interface AuthUser extends User {
   isAdmin?: boolean;
 }
@@ -54,23 +56,71 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
 
-  // Initialize admin credentials in Firestore (run once)
+  // Local storage keys (AsyncStorage - FREE)
+  const ADMIN_SESSION_KEY = '@admin_session';
+  const ADMIN_CREDENTIALS_KEY = '@admin_credentials';
+
+  // Initialize admin credentials in AsyncStorage (FREE alternative to Firestore)
   const initializeAdminCredentials = async (): Promise<void> => {
     try {
-      const adminRef = doc(db, 'admin', 'credentials');
-      const adminDoc = await getDoc(adminRef);
-
-      if (!adminDoc.exists()) {
-        // Set default admin credentials (change these!)
-        await setDoc(adminRef, {
+      const existingCredentials = await AsyncStorage.getItem(ADMIN_CREDENTIALS_KEY);
+      
+      if (!existingCredentials) {
+        // Set default admin credentials locally
+        const adminCredentials = {
           username: 'admin123',
-          password: 'admin@123', // In production, this should be hashed
-          createdAt: Timestamp.now(),
-          updatedAt: Timestamp.now()
-        });
+          password: 'admin@123', // In production, hash this
+          createdAt: new Date().toISOString()
+        };
+        await AsyncStorage.setItem(ADMIN_CREDENTIALS_KEY, JSON.stringify(adminCredentials));
       }
     } catch (error) {
       console.error('Error initializing admin credentials:', error);
+    }
+  };
+
+  // Save admin session locally
+  const saveAdminSession = async (adminUser: AdminUser): Promise<void> => {
+    try {
+      const sessionData = {
+        user: adminUser,
+        loginTime: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days
+      };
+      await AsyncStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(sessionData));
+    } catch (error) {
+      console.error('Error saving admin session:', error);
+    }
+  };
+
+  // Load admin session from local storage
+  const loadAdminSession = async (): Promise<AdminUser | null> => {
+    try {
+      const sessionData = await AsyncStorage.getItem(ADMIN_SESSION_KEY);
+      
+      if (sessionData) {
+        const { user, expiresAt } = JSON.parse(sessionData);
+        
+        // Check if session has expired
+        if (new Date(expiresAt) > new Date()) {
+          return user;
+        } else {
+          // Session expired, clear it
+          await clearAdminSession();
+        }
+      }
+    } catch (error) {
+      console.error('Error loading admin session:', error);
+    }
+    return null;
+  };
+
+  // Clear admin session
+  const clearAdminSession = async (): Promise<void> => {
+    try {
+      await AsyncStorage.removeItem(ADMIN_SESSION_KEY);
+    } catch (error) {
+      console.error('Error clearing admin session:', error);
     }
   };
 
@@ -78,40 +128,52 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-
-      // Create user document in Firestore
+      
+      // Create user document in Firestore (this is FREE in Firebase)
       await setDoc(doc(db, 'users', user.uid), {
         email: user.email,
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
         isAdmin: false,
-        photoURL: '😎', // Default emoji
+        photoURL: '😎',
         bookedEvents: []
       });
 
+      // Clear any admin session when regular user signs up
+      await clearAdminSession();
+      
       return userCredential;
     } catch (error) {
       throw error;
     }
   };
 
-  const login = (email: string, password: string): Promise<any> => {
-    return signInWithEmailAndPassword(auth, email, password);
+  const login = async (email: string, password: string): Promise<any> => {
+    try {
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      
+      // Clear any admin session when regular user logs in
+      await clearAdminSession();
+      
+      return result;
+    } catch (error) {
+      throw error;
+    }
   };
 
   const adminLogin = async (username: string, password: string): Promise<any> => {
     try {
-      const adminRef = doc(db, 'admin', 'credentials');
-      const adminDoc = await getDoc(adminRef);
-
-      if (!adminDoc.exists()) {
+      // Get admin credentials from local storage (FREE)
+      const credentialsData = await AsyncStorage.getItem(ADMIN_CREDENTIALS_KEY);
+      
+      if (!credentialsData) {
         throw new Error('Admin credentials not found');
       }
 
-      const adminData = adminDoc.data();
-
-      // Only check the stored credentials from Firestore
-      if (username === adminData.username && password === adminData.password) {
+      const adminCredentials = JSON.parse(credentialsData);
+      
+      // Validate credentials
+      if (username === adminCredentials.username && password === adminCredentials.password) {
         const adminUser: AdminUser = {
           uid: 'admin_user',
           email: 'admin@goguide.com',
@@ -120,9 +182,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           photoURL: '👨‍💼'
         };
 
+        // Save admin session locally
+        await saveAdminSession(adminUser);
+        
+        // Update state
         setCurrentUser(adminUser);
         setIsAdmin(true);
-
+        
         return { user: adminUser };
       } else {
         throw new Error('Invalid admin credentials');
@@ -135,25 +201,34 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const logout = async (): Promise<void> => {
     try {
       if (isAdmin && currentUser?.uid === 'admin_user') {
-        setCurrentUser(null);
-        setIsAdmin(false);
+        // Clear admin session
+        await clearAdminSession();
       } else {
+        // Sign out from Firebase
         await signOut(auth);
       }
+      
+      // Reset state
+      setCurrentUser(null);
+      setIsAdmin(false);
     } catch (error) {
-      throw error;
+      console.error('Error during logout:', error);
+      // Reset state even if logout fails
+      setCurrentUser(null);
+      setIsAdmin(false);
     }
   };
 
   const updateProfile = async (data: any): Promise<void> => {
     try {
       if (currentUser && currentUser.uid !== 'admin_user') {
+        // Update in Firestore (FREE)
         await updateDoc(doc(db, 'users', currentUser.uid), {
           ...data,
           updatedAt: Timestamp.now()
         });
-
-        // Update local user state
+        
+        // Update local state
         setCurrentUser(prev => (prev ? { ...prev, ...data } : null));
       }
     } catch (error) {
@@ -162,52 +237,100 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   useEffect(() => {
-    initializeAdminCredentials();
+    let isMounted = true;
 
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        try {
-          const userRef = doc(db, 'users', user.uid);
-          const userDoc = await getDoc(userRef);
+    const initializeAuth = async () => {
+      try {
+        // Initialize admin credentials locally
+        await initializeAdminCredentials();
 
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            setIsAdmin(userData.isAdmin || false);
-            setCurrentUser({
-              ...user,
-              isAdmin: userData.isAdmin || false,
-              photoURL: userData.photoURL || '😎'
-            });
-          } else {
-            await setDoc(userRef, {
-              email: user.email,
-              createdAt: Timestamp.now(),
-              updatedAt: Timestamp.now(),
-              isAdmin: false,
-              photoURL: '😎',
-              bookedEvents: []
-            });
-            setCurrentUser({
-              ...user,
-              isAdmin: false,
-              photoURL: '😎'
-            });
+        // First, check for existing admin session
+        const existingAdminSession = await loadAdminSession();
+        if (existingAdminSession && isMounted) {
+          setCurrentUser(existingAdminSession);
+          setIsAdmin(true);
+          setLoading(false);
+          return;
+        }
+
+        // Set up Firebase auth state listener (this handles regular user sessions automatically)
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+          if (!isMounted) return;
+
+          try {
+            if (user) {
+              // User is signed in with Firebase
+              const userRef = doc(db, 'users', user.uid);
+              const userDoc = await getDoc(userRef);
+              
+              if (userDoc.exists()) {
+                const userData = userDoc.data();
+                const authUser: AuthUser = {
+                  ...user,
+                  isAdmin: userData.isAdmin || false,
+                  photoURL: userData.photoURL || '😎'
+                };
+                
+                setIsAdmin(userData.isAdmin || false);
+                setCurrentUser(authUser);
+              } else {
+                // Create user document if it doesn't exist
+                const newUserData = {
+                  email: user.email,
+                  createdAt: Timestamp.now(),
+                  updatedAt: Timestamp.now(),
+                  isAdmin: false,
+                  photoURL: '😎',
+                  bookedEvents: []
+                };
+                
+                await setDoc(userRef, newUserData);
+                
+                setCurrentUser({
+                  ...user,
+                  isAdmin: false,
+                  photoURL: '😎'
+                });
+                setIsAdmin(false);
+              }
+            } else {
+              // No Firebase user - check again for admin session (in case it was set after Firebase check)
+              const adminSession = await loadAdminSession();
+              if (adminSession && isMounted) {
+                setCurrentUser(adminSession);
+                setIsAdmin(true);
+              } else {
+                setCurrentUser(null);
+                setIsAdmin(false);
+              }
+            }
+          } catch (error) {
+            console.error('Error in auth state change:', error);
+            setCurrentUser(null);
             setIsAdmin(false);
           }
-        } catch (error) {
-          console.error('Error fetching user data:', error);
-          setCurrentUser(user);
-          setIsAdmin(false);
+          
+          if (isMounted) {
+            setLoading(false);
+          }
+        });
+
+        return () => {
+          unsubscribe();
+        };
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        if (isMounted) {
+          setLoading(false);
         }
-      } else {
-        setCurrentUser(null);
-        setIsAdmin(false);
       }
+    };
 
-      setLoading(false);
-    });
+    initializeAuth();
 
-    return unsubscribe;
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const value: AuthContextType = {

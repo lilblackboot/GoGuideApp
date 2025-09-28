@@ -1,5 +1,5 @@
-// components/CreatePostTab.tsx - Updated with better error handling for Cloudinary
-import React from 'react';
+// components/CreatePostTab.tsx - Animated Glassmorphism Form
+import React, { useRef, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Video } from 'expo-av';
+import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import { styles } from '../styles/HomeStyles';
@@ -68,7 +69,53 @@ export const CreatePostTab: React.FC<CreatePostTabProps> = ({
   slideAnim,
   onSubmit
 }) => {
-  
+  const inputAnimations = useRef({
+    title: new Animated.Value(1),
+    description: new Animated.Value(1),
+    category: new Animated.Value(1),
+  }).current;
+
+  const mediaButtonScale = useRef(new Animated.Value(1)).current;
+  const submitButtonScale = useRef(new Animated.Value(1)).current;
+  const progressAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (isPosting) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(progressAnim, {
+            toValue: 1,
+            duration: 1500,
+            useNativeDriver: true,
+          }),
+          Animated.timing(progressAnim, {
+            toValue: 0,
+            duration: 0,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    } else {
+      progressAnim.setValue(0);
+    }
+  }, [isPosting]);
+
+  const animateInput = (inputName: keyof typeof inputAnimations) => {
+    Animated.sequence([
+      Animated.timing(inputAnimations[inputName], {
+        toValue: 1.02,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+      Animated.spring(inputAnimations[inputName], {
+        toValue: 1,
+        friction: 5,
+        tension: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
   const addTag = () => {
     if (tagInput.trim() && !tags.includes(tagInput.trim()) && tags.length < 5) {
       setTags([...tags, tagInput.trim()]);
@@ -82,86 +129,66 @@ export const CreatePostTab: React.FC<CreatePostTabProps> = ({
     NotificationService.provideHapticFeedback('selection');
   };
 
-  // Fixed selectMedia function for CreatePostTab.tsx
-const selectMedia = async (type: 'image' | 'video') => {
-  try {
-    // Request permissions
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission Required', 'Please grant camera roll permission to upload media');
-      return;
-    }
+  const selectMedia = async (type: 'image' | 'video') => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Required', 'Please grant camera roll permission to upload media');
+        return;
+      }
 
-    // Configure options based on the correct API
-    const options = {
-      mediaTypes: type === 'image' 
-        ? ImagePicker.MediaTypeOptions.Images 
-        : ImagePicker.MediaTypeOptions.Videos,
-      allowsEditing: true,
-      aspect: [4, 3] as [number, number],
-      quality: 0.8,
-      // Add video-specific options
-      ...(type === 'video' && { 
-        videoMaxDuration: 60, // 60 seconds max
-        videoQuality: ImagePicker.VideoQuality.Medium 
-      })
-    };
+      Animated.sequence([
+        Animated.timing(mediaButtonScale, {
+          toValue: 0.9,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.spring(mediaButtonScale, {
+          toValue: 1,
+          friction: 3,
+          tension: 100,
+          useNativeDriver: true,
+        }),
+      ]).start();
 
-    console.log('Launching image picker with options:', options);
+      const options = {
+        mediaTypes: type === 'image' 
+          ? ImagePicker.MediaTypeOptions.Images 
+          : ImagePicker.MediaTypeOptions.Videos,
+        allowsEditing: true,
+        aspect: [4, 3] as [number, number],
+        quality: 0.8,
+        ...(type === 'video' && { 
+          videoMaxDuration: 60,
+          videoQuality: ImagePicker.VideoQuality.Medium 
+        })
+      };
 
-    const result = await ImagePicker.launchImageLibraryAsync(options);
+      const result = await ImagePicker.launchImageLibraryAsync(options);
 
-    console.log('Image picker result:', result);
-
-    if (!result.canceled && result.assets && result.assets[0]) {
-      const selectedAsset = result.assets[0];
-      
-      console.log('Selected asset:', {
-        uri: selectedAsset.uri,
-        type: selectedAsset.type,
-        width: selectedAsset.width,
-        height: selectedAsset.height,
-        fileSize: selectedAsset.fileSize
-      });
-
-      // Check file size if available (optional)
-      if (selectedAsset.fileSize) {
-        const maxSize = type === 'image' ? 10 * 1024 * 1024 : 100 * 1024 * 1024; // 10MB for images, 100MB for videos
-        if (selectedAsset.fileSize > maxSize) {
-          Alert.alert(
-            'File Too Large', 
-            `Please select a ${type} smaller than ${type === 'image' ? '10MB' : '100MB'}`
-          );
-          return;
+      if (!result.canceled && result.assets && result.assets[0]) {
+        const selectedAsset = result.assets[0];
+        
+        if (selectedAsset.fileSize) {
+          const maxSize = type === 'image' ? 10 * 1024 * 1024 : 100 * 1024 * 1024;
+          if (selectedAsset.fileSize > maxSize) {
+            Alert.alert(
+              'File Too Large', 
+              `Please select a ${type} smaller than ${type === 'image' ? '10MB' : '100MB'}`
+            );
+            return;
+          }
         }
+        
+        setMediaUri(selectedAsset.uri);
+        setMediaType(type);
+        NotificationService.provideHapticFeedback('selection');
       }
-      
-      setMediaUri(selectedAsset.uri);
-      setMediaType(type);
-      NotificationService.provideHapticFeedback('selection');
-      
-      console.log(`Successfully selected ${type}: ${selectedAsset.uri}`);
-    } else {
-      console.log('Media selection cancelled or failed:', result);
-    }
-
-  } catch (error) {
-    console.error('Media selection error details:', error);
-    
-    // More specific error handling
-    if (error instanceof Error) {
-      if (error.message.includes('permission')) {
-        Alert.alert('Permission Error', 'Please grant media library permissions in device settings');
-      } else if (error.message.includes('cancelled')) {
-        console.log('User cancelled media selection');
-      } else {
-        Alert.alert('Error', `Failed to select media: ${error.message}`);
-      }
-    } else {
+    } catch (error) {
+      console.error('Media selection error:', error);
       Alert.alert('Error', 'Failed to select media. Please try again.');
     }
-  }
-};
+  };
 
   const getCurrentLocation = async () => {
     try {
@@ -171,7 +198,6 @@ const selectMedia = async (type: 'image' | 'video') => {
         return;
       }
 
-      // Show loading state
       const loadingLocation = {
         name: 'Getting location...',
         latitude: 0,
@@ -200,8 +226,8 @@ const selectMedia = async (type: 'image' | 'video') => {
       }
     } catch (error) {
       console.error('Location error:', error);
-      setLocation(null); // Reset loading state
-      Alert.alert('Location Error', 'Failed to get current location. Please try again or add location manually.');
+      setLocation(null);
+      Alert.alert('Location Error', 'Failed to get current location.');
     }
   };
 
@@ -211,6 +237,29 @@ const selectMedia = async (type: 'image' | 'video') => {
     NotificationService.provideHapticFeedback('selection');
   };
 
+  const handleSubmit = () => {
+    Animated.sequence([
+      Animated.timing(submitButtonScale, {
+        toValue: 0.95,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.spring(submitButtonScale, {
+        toValue: 1,
+        friction: 3,
+        tension: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    onSubmit();
+  };
+
+  const progressTranslate = progressAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-300, 300],
+  });
+
   return (
     <ScrollView 
       style={styles.createContainer} 
@@ -218,6 +267,14 @@ const selectMedia = async (type: 'image' | 'video') => {
       contentContainerStyle={{ paddingBottom: 100 }}
       keyboardShouldPersistTaps="handled"
     >
+      {/* Animated Gradient Background */}
+      <LinearGradient
+        colors={['rgba(255, 61, 113, 0.1)', 'transparent']}
+        style={styles.gradientBackground}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      />
+
       <Animated.View 
         style={[
           styles.createForm,
@@ -227,7 +284,13 @@ const selectMedia = async (type: 'image' | 'video') => {
           }
         ]}
       >
-        <View style={styles.inputGroup}>
+        {/* Title Input */}
+        <Animated.View 
+          style={[
+            styles.inputGroup,
+            { transform: [{ scale: inputAnimations.title }] }
+          ]}
+        >
           <Text style={styles.inputLabel}>Title *</Text>
           <TextInput
             style={[
@@ -235,19 +298,28 @@ const selectMedia = async (type: 'image' | 'video') => {
               focusedInput === 'title' && styles.focusedInput
             ]}
             placeholder="What's the dish called?"
-            placeholderTextColor="rgba(255,255,255,0.5)"
+            placeholderTextColor="rgba(255, 255, 255, 0.4)"
             value={title}
             onChangeText={setTitle}
-            onFocus={() => setFocusedInput('title')}
+            onFocus={() => {
+              setFocusedInput('title');
+              animateInput('title');
+            }}
             onBlur={() => setFocusedInput('')}
             maxLength={100}
           />
           {title.length > 80 && (
             <Text style={styles.characterCount}>{title.length}/100</Text>
           )}
-        </View>
+        </Animated.View>
 
-        <View style={styles.inputGroup}>
+        {/* Description Input */}
+        <Animated.View 
+          style={[
+            styles.inputGroup,
+            { transform: [{ scale: inputAnimations.description }] }
+          ]}
+        >
           <Text style={styles.inputLabel}>Description *</Text>
           <TextInput
             style={[
@@ -256,20 +328,29 @@ const selectMedia = async (type: 'image' | 'video') => {
               focusedInput === 'description' && styles.focusedInput
             ]}
             placeholder="Tell us about this amazing food..."
-            placeholderTextColor="rgba(255,255,255,0.5)"
+            placeholderTextColor="rgba(255, 255, 255, 0.4)"
             value={description}
             onChangeText={setDescription}
             multiline
-            onFocus={() => setFocusedInput('description')}
+            onFocus={() => {
+              setFocusedInput('description');
+              animateInput('description');
+            }}
             onBlur={() => setFocusedInput('')}
             maxLength={500}
           />
           {description.length > 400 && (
             <Text style={styles.characterCount}>{description.length}/500</Text>
           )}
-        </View>
+        </Animated.View>
 
-        <View style={styles.inputGroup}>
+        {/* Category Input */}
+        <Animated.View 
+          style={[
+            styles.inputGroup,
+            { transform: [{ scale: inputAnimations.category }] }
+          ]}
+        >
           <Text style={styles.inputLabel}>Category *</Text>
           <TextInput
             style={[
@@ -277,30 +358,39 @@ const selectMedia = async (type: 'image' | 'video') => {
               focusedInput === 'category' && styles.focusedInput
             ]}
             placeholder="e.g., Pizza, Dessert, Street Food..."
-            placeholderTextColor="rgba(255,255,255,0.5)"
+            placeholderTextColor="rgba(255, 255, 255, 0.4)"
             value={category}
             onChangeText={setCategory}
-            onFocus={() => setFocusedInput('category')}
+            onFocus={() => {
+              setFocusedInput('category');
+              animateInput('category');
+            }}
             onBlur={() => setFocusedInput('')}
             maxLength={50}
           />
-        </View>
+        </Animated.View>
 
+        {/* Media Selection */}
         <View style={styles.mediaSection}>
           <Text style={styles.inputLabel}>Add Media</Text>
-          <View style={styles.mediaButtons}>
+          <Animated.View 
+            style={[
+              styles.mediaButtons,
+              { transform: [{ scale: mediaButtonScale }] }
+            ]}
+          >
             <TouchableOpacity
               style={[
                 styles.mediaButton,
                 mediaType === 'image' && styles.activeMediaButton
               ]}
               onPress={() => selectMedia('image')}
-              activeOpacity={0.8}
+              activeOpacity={0.7}
             >
               <Ionicons
                 name="image-outline"
                 size={24}
-                color={mediaType === 'image' ? "#FFFFFF" : "rgba(255,255,255,0.7)"}
+                color={mediaType === 'image' ? "#FFFFFF" : "rgba(255, 255, 255, 0.7)"}
               />
               <Text style={[
                 styles.mediaButtonText,
@@ -316,12 +406,12 @@ const selectMedia = async (type: 'image' | 'video') => {
                 mediaType === 'video' && styles.activeMediaButton
               ]}
               onPress={() => selectMedia('video')}
-              activeOpacity={0.8}
+              activeOpacity={0.7}
             >
               <Ionicons
                 name="videocam-outline"
                 size={24}
-                color={mediaType === 'video' ? "#FFFFFF" : "rgba(255,255,255,0.7)"}
+                color={mediaType === 'video' ? "#FFFFFF" : "rgba(255, 255, 255, 0.7)"}
               />
               <Text style={[
                 styles.mediaButtonText,
@@ -330,7 +420,7 @@ const selectMedia = async (type: 'image' | 'video') => {
                 Video
               </Text>
             </TouchableOpacity>
-          </View>
+          </Animated.View>
           
           {mediaUri && (
             <Animated.View 
@@ -354,14 +444,15 @@ const selectMedia = async (type: 'image' | 'video') => {
               <TouchableOpacity 
                 style={styles.removeMediaButton}
                 onPress={removeMedia}
-                activeOpacity={0.8}
+                activeOpacity={0.7}
               >
-                <Ionicons name="close-circle" size={24} color="#FF4444" />
+                <Ionicons name="close-circle" size={28} color="#FF3B30" />
               </TouchableOpacity>
             </Animated.View>
           )}
         </View>
 
+        {/* Location */}
         <View style={styles.inputGroup}>
           <Text style={styles.inputLabel}>Location</Text>
           <TouchableOpacity
@@ -370,12 +461,12 @@ const selectMedia = async (type: 'image' | 'video') => {
               location && styles.selectedLocationButton
             ]}
             onPress={getCurrentLocation}
-            activeOpacity={0.8}
+            activeOpacity={0.7}
           >
             <Ionicons
               name="location-outline"
               size={24}
-              color={location ? "#FFFFFF" : "rgba(255,255,255,0.7)"}
+              color={location ? "#FFFFFF" : "rgba(255, 255, 255, 0.7)"}
             />
             <Text style={[
               styles.locationText,
@@ -388,13 +479,14 @@ const selectMedia = async (type: 'image' | 'video') => {
             <TouchableOpacity
               style={styles.removeLocationButton}
               onPress={() => setLocation(null)}
-              activeOpacity={0.8}
+              activeOpacity={0.7}
             >
               <Text style={styles.removeLocationText}>Remove location</Text>
             </TouchableOpacity>
           )}
         </View>
 
+        {/* Tags */}
         <View style={styles.inputGroup}>
           <Text style={styles.inputLabel}>Tags (Optional)</Text>
           <View style={styles.tagsInput}>
@@ -403,7 +495,7 @@ const selectMedia = async (type: 'image' | 'video') => {
                 key={index}
                 style={styles.tag}
                 onPress={() => removeTag(tag)}
-                activeOpacity={0.8}
+                activeOpacity={0.7}
               >
                 <Text style={styles.tagText}>#{tag} ×</Text>
               </TouchableOpacity>
@@ -412,7 +504,7 @@ const selectMedia = async (type: 'image' | 'video') => {
               <TextInput
                 style={styles.tagInputField}
                 placeholder={tags.length === 0 ? "Add tags (e.g., spicy, homemade)..." : "Add more..."}
-                placeholderTextColor="rgba(255,255,255,0.5)"
+                placeholderTextColor="rgba(255, 255, 255, 0.4)"
                 value={tagInput}
                 onChangeText={setTagInput}
                 onSubmitEditing={addTag}
@@ -426,37 +518,66 @@ const selectMedia = async (type: 'image' | 'video') => {
           )}
         </View>
 
-        <TouchableOpacity
-          style={[
-            styles.submitButton,
-            (!title.trim() || !description.trim() || !category.trim() || isPosting) && styles.disabledButton
-          ]}
-          onPress={onSubmit}
-          disabled={!title.trim() || !description.trim() || !category.trim() || isPosting}
-          activeOpacity={0.8}
-        >
-          {isPosting ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator color="#000000" size="small" />
-              <Text style={styles.loadingText}>
-                {mediaUri ? 'Uploading media...' : 'Creating post...'}
-              </Text>
-            </View>
-          ) : (
-            <Text style={styles.submitButtonText}>Share Post</Text>
-          )}
-        </TouchableOpacity>
+        {/* Submit Button */}
+        <Animated.View style={{ transform: [{ scale: submitButtonScale }] }}>
+          <TouchableOpacity
+            style={[
+              (!title.trim() || !description.trim() || !category.trim() || isPosting) && styles.disabledButton
+            ]}
+            onPress={handleSubmit}
+            disabled={!title.trim() || !description.trim() || !category.trim() || isPosting}
+            activeOpacity={0.8}
+          >
+            <LinearGradient
+              colors={['#FF7A00', '#FF3D71']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.submitButton}
+            >
+              {isPosting ? (
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <ActivityIndicator color="#FFFFFF" size="small" />
+                  <Text style={[styles.submitButtonText, { marginLeft: 12 }]}>
+                    {mediaUri ? 'Uploading...' : 'Creating...'}
+                  </Text>
+                </View>
+              ) : (
+                <Text style={styles.submitButtonText}>Share Post</Text>
+              )}
+              
+              {/* Animated Progress Bar */}
+              {isPosting && (
+                <Animated.View
+                  style={{
+                    position: 'absolute',
+                    left: 0,
+                    top: 0,
+                    bottom: 0,
+                    width: 100,
+                    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                    transform: [{ translateX: progressTranslate }],
+                  }}
+                />
+              )}
+            </LinearGradient>
+          </TouchableOpacity>
+        </Animated.View>
 
         {/* Upload Progress Indicator */}
         {isPosting && mediaUri && (
-          <View style={styles.uploadProgress}>
+          <Animated.View 
+            style={[
+              styles.uploadProgress,
+              { opacity: fadeAnim }
+            ]}
+          >
             <Text style={styles.uploadProgressText}>
-              📤 Uploading to Cloudinary...
+              Uploading to Cloudinary...
             </Text>
             <Text style={styles.uploadHelpText}>
               This may take a moment depending on file size
             </Text>
-          </View>
+          </Animated.View>
         )}
       </Animated.View>
     </ScrollView>
